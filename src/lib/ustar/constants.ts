@@ -208,22 +208,43 @@ export const CITIES = [
 
 /* ==================== FORMATLASH ==================== */
 
-/** Summani o'zbekcha formatda: 1 250 000 so'm */
-export function formatSom(amount: number): string {
-  return amount.toLocaleString("ru-RU").replace(/\u00a0/g, " ") + " so'm";
+import type { Lang } from "./i18n/constants-lang";
+
+const SOM_WORD: Record<Lang, string> = {
+  uz: "so'm",
+  ru: "сум",
+  en: "UZS",
+  kk: "сом",
+};
+const SOM_MLN: Record<Lang, string> = {
+  uz: "mln so'm",
+  ru: "млн сум",
+  en: "M UZS",
+  kk: "млн сом",
+};
+const SOM_MING: Record<Lang, string> = {
+  uz: "ming so'm",
+  ru: "тыс сум",
+  en: "k UZS",
+  kk: "мың сом",
+};
+
+/** Summani formatda: 1 250 000 so'm (til parametri ixtiyoriy) */
+export function formatSom(amount: number, lang: Lang = "uz"): string {
+  return amount.toLocaleString("ru-RU").replace(/\u00a0/g, " ") + " " + SOM_WORD[lang];
 }
 
-/** Qisqa format: 1.2 mln / 245 ming / 15 000 (min narxlar uchun aniq) */
-export function formatCompactSom(amount: number): string {
+/** Qisqa format: 1.2 mln / 245 ming / 15 000 */
+export function formatCompactSom(amount: number, lang: Lang = "uz"): string {
   if (amount >= 1_000_000) {
     const v = amount / 1_000_000;
-    return `${v % 1 === 0 ? v : v.toFixed(1)} mln so'm`;
+    return `${v % 1 === 0 ? v : v.toFixed(1)} ${SOM_MLN[lang]}`;
   }
   if (amount >= 100_000) {
     const v = amount / 1_000;
-    return `${Math.round(v)} ming so'm`;
+    return `${Math.round(v)} ${SOM_MING[lang]}`;
   }
-  return `${amount.toLocaleString("ru-RU").replace(/\u00a0/g, " ")} so'm`;
+  return `${amount.toLocaleString("ru-RU").replace(/\u00a0/g, " ")} ${SOM_WORD[lang]}`;
 }
 
 /** Raqam uchun qisqa format: 12.4k */
@@ -233,20 +254,29 @@ export function formatCompactNumber(n: number): string {
   return `${n}`;
 }
 
-/** "3 kun oldin", "2 soat oldin" */
-export function timeAgo(date: string | Date): string {
+/** "3 kun oldin" — til bo'yicha */
+export function timeAgo(date: string | Date, lang: Lang = "uz"): string {
   const d = typeof date === "string" ? new Date(date) : date;
   const diff = Date.now() - d.getTime();
   const minutes = Math.floor(diff / 60_000);
-  if (minutes < 1) return "hozir";
-  if (minutes < 60) return `${minutes} daqiqa oldin`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} soat oldin`;
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} kun oldin`;
   const months = Math.floor(days / 30);
-  if (months < 12) return `${months} oy oldin`;
-  return `${Math.floor(months / 12)} yil oldin`;
+  const years = Math.floor(months / 12);
+
+  const W = {
+    uz: { now: "hozir", min: "daqiqa oldin", h: "soat oldin", d: "kun oldin", m: "oy oldin", y: "yil oldin" },
+    ru: { now: "сейчас", min: "мин назад", h: "ч назад", d: "дн назад", m: "мес назад", y: "г назад" },
+    en: { now: "now", min: "min ago", h: "h ago", d: "d ago", m: "mo ago", y: "y ago" },
+    kk: { now: "қазір", min: "мин бұрын", h: "сағ бұрын", d: "күн бұрын", m: "ай бұрын", y: "жыл бұрын" },
+  }[lang];
+
+  if (minutes < 1) return W.now;
+  if (minutes < 60) return `${minutes} ${W.min}`;
+  if (hours < 24) return `${hours} ${W.h}`;
+  if (days < 30) return `${days} ${W.d}`;
+  if (months < 12) return `${months} ${W.m}`;
+  return `${years} ${W.y}`;
 }
 
 /* ==================== KONTAKT ==================== */

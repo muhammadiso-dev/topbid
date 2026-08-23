@@ -5,10 +5,12 @@ import { Users, Eye, Wallet, TrendingUp } from "lucide-react";
 import { formatCompactNumber, formatCompactSom } from "@/lib/ustar/constants";
 import type { SiteStatsDTO } from "@/lib/ustar/types";
 import { getSessionId } from "@/lib/ustar/store";
+import { useI18n } from "@/lib/ustar/i18n";
 
-/** Statistika paneli — ijtimoiy isbot: onlayn, tashrif, daromad, profillar */
+/** Statistika paneli — ijtimoiy isbot */
 export function StatsBar() {
   const [stats, setStats] = useState<SiteStatsDTO | null>(null);
+  const { t, lang } = useI18n();
 
   useEffect(() => {
     let mounted = true;
@@ -48,23 +50,23 @@ export function StatsBar() {
   const items = [
     {
       icon: Users,
-      label: "Hozir onlayn",
-      value: stats ? `${formatCompactNumber(stats.online)} kishi` : "—",
+      label: t("stats.online"),
+      value: stats ? `${formatCompactNumber(stats.online)} ${t("stats.people")}` : "—",
       pulse: true,
     },
     {
       icon: Eye,
-      label: "Jami tashrif",
+      label: t("stats.visits"),
       value: stats ? formatCompactNumber(stats.visits) : "—",
     },
     {
       icon: Wallet,
-      label: "Jami daromad",
-      value: stats ? formatCompactSom(stats.revenue) : "—",
+      label: t("stats.revenue"),
+      value: stats ? formatCompactSom(stats.revenue, lang) : "—",
     },
     {
       icon: TrendingUp,
-      label: "Profillar",
+      label: t("stats.profiles"),
       value: stats ? formatCompactNumber(stats.profilesCount) : "—",
     },
   ];

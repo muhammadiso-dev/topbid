@@ -1,0 +1,436 @@
+// TopBid i18n — English (en)
+
+export const en: Record<string, string> = {
+  // Navbar
+  "nav.home": "Rating",
+  "nav.about": "About",
+  "nav.rules": "Rules",
+  "nav.addProfile": "Get a spot",
+  "nav.menuOpen": "Open menu",
+  "nav.menuClose": "Close menu",
+  "nav.language": "Language",
+
+  // Hero / Home
+  "home.heroEduBadge": "For those looking for a tutor, center or course",
+  "home.heroItBadge": "For those looking to hire a ready specialist or freelancer",
+  "home.heroEduTitle1": "Find the right tutor or",
+  "home.heroEduTitle2": "learning center",
+  "home.heroEduTitle3": "",
+  "home.heroItTitle1": "Hire ready",
+  "home.heroItTitle2": "IT specialists",
+  "home.heroEduDesc":
+    "Choose based on real reviews and rating. Add your own educational services to the rating too.",
+  "home.heroItDesc":
+    "Developers, designers, marketers — all in the rating. Offer your services too.",
+  "home.eduCta": "Join the rating",
+  "home.itCta": "Add my service",
+  "home.from": "from",
+  "home.tabEdu": "Learn",
+  "home.tabIt": "Hire",
+  "home.tabEduSub": "Rating of tutors, learning centers and courses",
+  "home.tabItSub": "Rating of freelancers and IT specialists",
+
+  // Stats
+  "stats.online": "Online now",
+  "stats.visits": "Total visits",
+  "stats.revenue": "Total revenue",
+  "stats.profiles": "Profiles",
+  "stats.people": "people",
+
+  // Promo banner
+  "promo.title": "Launch promo — 50% off all prices",
+  "promo.desc":
+    "Special pricing for early joiners. Prices automatically return to normal when the promo ends.",
+  "promo.use": "Use it",
+  "promo.useMobile": "Use the discount",
+  "promo.days": "d",
+  "promo.hours": "h",
+  "promo.min": "m",
+  "promo.sec": "s",
+
+  // Filters
+  "filter.all": "All",
+  "filter.center": "Center",
+  "filter.individual": "Tutor",
+  "filter.category": "Field",
+  "filter.categoryAll": "Field: all",
+  "filter.city": "City",
+  "filter.cityAll": "City: all",
+  "filter.active": "Filters:",
+  "filter.clearAll": "Clear all",
+  "filter.clear": "— remove filter",
+
+  // Card
+  "card.rank": "rank",
+  "card.global": "Global",
+  "card.verified": "Verified",
+  "card.verifiedPending": "In review",
+  "card.bidAmount": "Rating amount",
+  "card.takeSpot": "Take this spot",
+  "card.reviews": "reviews",
+  "card.clicks": "clicks",
+  "card.visit": "Visit site",
+
+  // Empty / loading
+  "empty.notFoundTitle": "Nothing found",
+  "empty.notFoundDesc":
+    "No profiles match the selected filters. Change filters or take the empty spot!",
+  "empty.emptyListTitle": "Rating is empty yet",
+  "empty.emptyListDesc": "Be the first to take a spot — competitors will stay behind. Starting price:",
+  "empty.clearFilters": "Clear filters",
+  "empty.takeFirst": "Take 1st place",
+
+  // Bottom CTA
+  "cta.eduTitle": "Are you a tutor or learning center?",
+  "cta.itTitle": "Are you an IT specialist or freelancer?",
+  "cta.desc": "Get a spot in the rating — thousands of users will see your profile.",
+  "cta.promoNote": "All prices are 50% cheaper during the promo!",
+  "cta.start": "— start from",
+
+  // Form
+  "form.title": "Get a spot",
+  "form.subtitle": "Add your profile and take a spot in the rating",
+  "form.back": "Back",
+  "form.step1": "Direction",
+  "form.step1Hint": "What field are you in?",
+  "form.eduPool": "Learn",
+  "form.eduPoolSub": "Center or tutor",
+  "form.itPool": "Hire",
+  "form.itPoolSub": "IT specialist / freelancer",
+  "form.whoAreYou": "Who are you?",
+  "form.centerLabel": "Learning centers",
+  "form.individualLabel": "Individual tutors",
+  "form.itTierNote": "IT specialists price tier:",
+  "form.actionPromo": "(with promo)",
+  "form.categoryLabel": "Field (subject/area)",
+  "form.categoryPlaceholder": "Select (e.g. English (IELTS), Frontend...)",
+  "form.step2": "Profile details",
+  "form.step2Hint": "This data appears in the rating",
+  "form.name": "Name",
+  "form.namePlaceholderCenter": "E.g. Smart English Academy",
+  "form.namePlaceholderIndividual": "E.g. Aziza Karimova",
+  "form.namePlaceholderIt": "E.g. CodeCraft Studio",
+  "form.city": "City",
+  "form.cityPlaceholder": "Select a city",
+  "form.description": "Short description",
+  "form.descriptionPlaceholder": "Your services briefly: experience, results, advantages...",
+  "form.contact": "Contact link",
+  "form.contactPlaceholder": "@username or https://site.com",
+  "form.contactHint":
+    "If the same link is entered again, no new profile is created — the amount is added to the existing one.",
+  "form.logo": "Logo / image",
+  "form.optional": "optional",
+  "form.logoUpload": "Upload logo (click)",
+  "form.logoFormats": "PNG, JPG, WEBP or GIF — max 2MB",
+  "form.logoAttached": "Logo attached",
+  "form.logoAttachedDesc": "This image will appear in the rating",
+  "form.logoRemove": "Remove logo",
+  "form.logoUrl": "or with an image link",
+  "form.uploading": "Uploading...",
+  "form.step3": "Choose your spot",
+  "form.top1Premium": "TOP-1 premium",
+  "form.holderNow": "now:",
+  "form.emptySpot": "empty spot",
+  "form.promoNote":
+    "Launch promo: all prices are 50% cheaper now — the full amount is written to the rating! (crossed-out price is the regular one)",
+  "form.payTotal": "Payment amount",
+  "form.payTopup": "Additional payment",
+  "form.targetPosition": "place",
+  "form.targetTopup": " — promotion (added to existing profile)",
+  "form.targetNone": "No spot selected",
+  "form.toPayment": "Proceed to payment",
+  "form.processing": "Processing payment...",
+
+  // Auto-fetch
+  "fetch.loading": "Fetching data...",
+  "fetch.fetched": "Data fetched from the link automatically — you can edit it",
+  "fetch.failed": "Could not fetch data from the link — enter manually",
+  "fetch.preview": "Link preview",
+
+  // Topup mode
+  "topup.exists": "already listed — no new profile will be created, the amount is added to the existing one (rating amount:",
+  "topup.banner": "This contact is",
+
+  // Errors
+  "err.name": "Name must be at least 2 characters",
+  "err.category": "Select a field",
+  "err.city": "Select a city",
+  "err.desc": "Description must be at least 10 characters",
+  "err.contact": "Invalid format: @username or https://site.com",
+  "err.fileBig": "File is too large",
+  "err.fileBigDesc": "Maximum size: 2MB",
+  "err.fileType": "Invalid format",
+  "err.fileTypeDesc": "Upload PNG, JPG, WEBP or GIF",
+  "err.uploadFail": "Upload error",
+  "err.retry": "Try again",
+  "err.generic": "Error",
+  "err.server": "Server error",
+
+  // Payment modal
+  "pay.title": "Payment",
+  "pay.subtitle": "Pay for your spot in the rating",
+  "pay.profile": "Profile",
+  "pay.direction": "Direction",
+  "pay.target": "Target",
+  "pay.amount": "Payment amount",
+  "pay.promoBadge": "-50% promo",
+  "pay.viaBot": "Via Telegram bot",
+  "pay.viaBotDesc": "card, Payme or Click",
+  "pay.recommended": "Recommended",
+  "pay.secure": "Payment is securely processed via Telegram bot",
+  "pay.bot": "Telegram bot",
+  "pay.botDesc": "The bot will send you a payment link",
+  "pay.payMethod": "Choose payment method:",
+  "pay.payBtn": "— Pay",
+  "pay.processing": "Processing payment...",
+  "pay.wait": "Please don't close the page",
+  "pay.success": "Payment successful!",
+  "pay.successDesc": "Congratulations! A notification was sent to the admin's Telegram group.",
+  "pay.paid": "paid",
+  "pay.viewRating": "View rating",
+  "pay.back": "Back",
+
+  // Verify modal
+  "verify.title": "\"Verified\" profile badge",
+  "verify.subtitle": "Get the blue badge and boost trust",
+  "verify.benefit1": "The blue \"Verified\" badge is permanently shown on your profile",
+  "verify.benefit2": "Clients trust verified profiles 2-3 times more",
+  "verify.benefit3": "The confirmation badge will also appear next to your reviews",
+  "verify.howTitle": "How it works?",
+  "verify.howDesc":
+    "After payment, the admin will contact you via Telegram and request a copy of your diploma/license. The document is reviewed within 24 hours.",
+  "verify.oneTime": "One-time payment",
+  "verify.payViaBot": "Pay via Telegram bot",
+  "verify.refundNote": "If verification is rejected — the payment is fully refunded",
+  "verify.requestSent": "Request sent!",
+  "verify.requestSentDesc":
+    "Your payment is accepted. The admin will contact you about documents within 24 hours.",
+  "verify.close": "Close",
+
+  // Profile detail
+  "detail.back": "Back to rating",
+  "detail.notFound": "Profile not found",
+  "detail.globalRank": "Global rank",
+  "detail.bidAmount": "Rating amount",
+  "detail.views": "Views",
+  "detail.clicks": "Clicks",
+  "detail.contact": "Contact —",
+  "detail.improve": "Improve spot",
+  "detail.center": "Learning center",
+  "detail.individual": "Individual tutor",
+  "detail.pendingTitle": "Verification under review",
+  "detail.pendingDesc":
+    "Your request is with the admin. Once documents are checked, the blue \"Verified\" badge will appear on your profile (usually within 24 hours).",
+  "detail.getCta": "Become a \"Verified\" profile",
+  "detail.getDesc":
+    "The blue badge boosts client trust 2-3 times. Confirm your diploma or license — one-time payment.",
+  "detail.verifyCta": "Get verified",
+
+  // Reviews
+  "reviews.title": "Reviews",
+  "reviews.count": "reviews",
+  "reviews.free": "Reviews are free and don't affect the rating spot — for trust only",
+  "reviews.empty": "No reviews yet — be the first to share your opinion!",
+  "reviews.leave": "Leave your review",
+  "reviews.already":
+    "You have already reviewed this profile. Each user can write only one review per profile.",
+  "reviews.name": "Your name",
+  "reviews.namePlaceholder": "E.g. Aziza",
+  "reviews.rating": "Rating",
+  "reviews.comment": "Review",
+  "reviews.commentPlaceholder": "How was the service quality?",
+  "reviews.submit": "Submit review",
+  "reviews.submitting": "Submitting...",
+  "reviews.thanks": "Thank you!",
+  "reviews.added": "Your review has been added.",
+  "reviews.rateFirst": "Give a rating",
+  "reviews.rateFirstDesc": "Select a rating with stars (1-5)",
+  "reviews.error": "Review not added",
+
+  // About
+  "about.title": "What is TopBid?",
+  "about.desc":
+    "TopBid is a paid rating platform bringing together education (tutors, learning centers) and IT specialists in Uzbekistan. Businesses add their profiles to the rating and compete for top spots — users find the best in one place.",
+  "about.howTitle": "How it works?",
+  "about.step1": "Claim a spot",
+  "about.step1Desc":
+    "Add your profile and choose a target spot. Each spot has its price — higher spots get more views and clients.",
+  "about.step2": "Pay via Telegram bot",
+  "about.step2Desc":
+    "Payments are accepted via Telegram bot (card, Payme, Click). If you pay again with the same link, no new profile is created — the amount is added to the existing one.",
+  "about.step3": "Compete",
+  "about.step3Desc":
+    "Others can overtake your spot. The \"Take this spot\" button automatically calculates the required amount — you just confirm.",
+  "about.step4": "Meet clients",
+  "about.step4Desc":
+    "Users view your profile, read reviews and get in touch. Every view and click is reflected in statistics.",
+  "about.step": "step",
+  "about.eduTitle": "Learn",
+  "about.eduDesc":
+    "Rating of tutors, learning centers and courses. Foreign languages, school subjects, test prep, IT courses and child development — 40+ fields.",
+  "about.itTitle": "Hire",
+  "about.itDesc":
+    "Rating of IT specialists and freelancers. Programming, design, marketing and more — find a ready specialist or offer yourself.",
+  "about.pricesTitle": "Price tiers",
+  "about.tableTier": "Tier",
+  "about.tableMin": "Min. bid",
+  "about.tableStep": "Step",
+  "about.pricesNote":
+    "A premium is paid for the TOP-1 spot (centers: 80,000, tutors: 25,000, IT: 30,000 UZS). All prices are 50% cheaper during the launch promo.",
+  "about.whyTitle": "Why TopBid?",
+  "about.f1": "Free reviews",
+  "about.f1Desc":
+    "Real clients leave ratings and reviews for each profile — they don't affect the ranking, only for trust.",
+  "about.f2": "Telegram integration",
+  "about.f2Desc":
+    "Payments via bot, automatic notifications about new profiles and verifications to the admin group.",
+  "about.f3": "Verified profile",
+  "about.f3Desc":
+    "Profiles confirming a diploma or license get the blue \"Verified\" badge — client trust grows 2-3 times.",
+  "about.faqTitle": "FAQ",
+  "about.faq1q": "How do I move up in the rating?",
+  "about.faq1a":
+    "Press \"Take this spot\" on any card — the system automatically calculates the required amount. After payment, your profile moves to the chosen spot.",
+  "about.faq2q": "What if someone takes my spot?",
+  "about.faq2a":
+    "The rating is a live auction. If someone pays more, you drop one position, but your profile stays in the rating.",
+  "about.faq3q": "How does the launch promo work?",
+  "about.faq3a":
+    "For the first 2 weeks, a 50% discount applies to all prices — you pay less, but the full amount is written to the rating. When the promo ends, prices automatically return to normal.",
+  "about.faq4q": "How much does verification cost?",
+  "about.faq4a":
+    "One-time payment — 50,000 UZS (25,000 during promo). After payment, the admin checks documents; if rejected, the money is fully refunded.",
+  "about.faq5q": "Do I have to pay for reviews?",
+  "about.faq5a":
+    "No, reviews are absolutely free. Each user can write only one review per profile — this prevents fake reviews.",
+  "about.ctaTitle": "Claim your spot",
+  "about.ctaDesc": "1st place in the rating is the most viewed spot. Prices are 50% off during the promo.",
+  "about.ctaBtn": "Get a spot",
+
+  // Rules
+  "rules.title": "Rating rules",
+  "rules.updated": "Last updated: 2026",
+  "rules.s1": "Auction and price tiers",
+  "rules.s1li1":
+    "The rating spot is determined by the total rating amount — each tier competes within its own prices, prices don't mix.",
+  "rules.s1li2":
+    "To take a spot, you need to pay one step more than its current holder — the \"Take this spot\" button calculates the amount automatically.",
+  "rules.s1li3":
+    "A premium is paid for the TOP-1 spot: centers — 80,000, tutors — 25,000, IT specialists — 30,000 UZS.",
+  "rules.s1li4": "With equal amounts, the profile that paid earlier stays above.",
+  "rules.s1li5":
+    "If you pay again with the same link, no new profile is created — the amount is added to the existing one and the spot is updated.",
+  "rules.s2": "Launch promo",
+  "rules.s2li1":
+    "For the first 2 weeks after launch, a 50% discount applies to all prices — \"special pricing for early joiners\".",
+  "rules.s2li2":
+    "During the promo you pay less, but the full amount is written to the rating — you compete at full strength.",
+  "rules.s2li3":
+    "The promo applies automatically without promo codes, and when it ends, prices automatically return to normal.",
+  "rules.s3": "Payment and refunds",
+  "rules.s3li1": "All payments are accepted via Telegram bot (card, Payme, Click).",
+  "rules.s3li2": "After payment confirmation, the spot updates immediately.",
+  "rules.s3li3": "When a rule-violating profile is deleted by the admin, all payments are fully refunded.",
+  "rules.s3li4": "You can delete your profile — payments will be refunded.",
+  "rules.s4": "Review rules",
+  "rules.s4li1": "Reviews are free — each user writes only one review per profile.",
+  "rules.s4li2": "Write based on real experience: abuse, spam and ads are removed.",
+  "rules.s4li3":
+    "Reviews don't affect the rating spot — they are just additional information for other users.",
+  "rules.s5": "\"Verified\" badge (verification)",
+  "rules.s5li1": "Verification is a paid service: one-time 50,000 UZS payment (50% cheaper during promo).",
+  "rules.s5li2":
+    "After payment, the admin will contact you via Telegram and request a copy of your diploma/license.",
+  "rules.s5li3":
+    "Documents are reviewed within 24 hours: if approved — blue badge, if rejected — full refund.",
+  "rules.s5li4": "The badge is granted once and is valid until the profile is deleted.",
+  "rules.allowedTitle": "Allowed",
+  "rules.allowed1": "Real learning centers, tutors and IT specialists",
+  "rules.allowed2": "Accurate and correct profile data (name, city, description)",
+  "rules.allowed3": "Active contact link (Telegram, Instagram or website)",
+  "rules.allowed4": "Quality service and honest treatment of clients",
+  "rules.allowed5": "Regularly updating your profile",
+  "rules.forbiddenTitle": "Forbidden",
+  "rules.forbidden1": "False information or running a profile on behalf of another business",
+  "rules.forbidden2": "Copied/stolen content and random links",
+  "rules.forbidden3": "Spam, fraud and advertising of illegal services",
+  "rules.forbidden4": "Writing or ordering fake reviews",
+  "rules.forbidden5": "Creating multiple profiles for the same business",
+  "rules.adminTitle": "Admin control",
+  "rules.adminDesc":
+    "The admin receives an automatic notification in the Telegram group about every new profile, payment and verification request. A suspicious profile is deleted with one button, payments are refunded to the owner. Profiles violating the rules may be removed from the rating without warning.",
+
+  // Admin
+  "admin.title": "Admin panel",
+  "admin.subtitle": "For platform administrator only",
+  "admin.password": "Admin password",
+  "admin.login": "Log in",
+  "admin.checking": "Checking...",
+  "admin.denied": "Access denied",
+  "admin.deniedDesc": "Wrong admin password",
+  "admin.backHome": "Back to home",
+  "admin.demoHint": "Demo password: ustar2024 (changed via .env)",
+  "admin.panelSubtitle": "Profiles, verification and notifications",
+  "admin.refresh": "Refresh",
+  "admin.statProfiles": "Profiles",
+  "admin.statRevenue": "Revenue (total)",
+  "admin.statBids": "Bids",
+  "admin.statVerify": "Verification",
+  "admin.verifySection": "Verification requests",
+  "admin.verifyNew": "new",
+  "admin.verifyEmpty": "No verification requests",
+  "admin.docsNote": "Documents are requested via Telegram",
+  "admin.approve": "Approve",
+  "admin.reject": "Reject",
+  "admin.approved": "Approved",
+  "admin.rejected": "Rejected",
+  "admin.notifications": "Notifications",
+  "admin.notifEmpty": "No notifications yet",
+  "admin.profilesSection": "Profile management",
+  "admin.profilesEmpty": "No profiles",
+  "admin.delete": "— delete profile",
+  "admin.deleteConfirm": "delete profile?\nAll payments will be refunded.",
+  "admin.deleteNote":
+    "When a profile is deleted, payments are marked as \"refunded\", total revenue automatically decreases and a notification is sent to the group.",
+  "admin.verifyApproveTitle": "Verification approved",
+  "admin.verifyApproveDesc": "profile has been given the blue badge.",
+  "admin.verifyRejectTitle": "Verification rejected",
+  "admin.verifyRejectConfirm": "reject verification?\nPayment will be refunded:",
+  "admin.verifyRefunded": "refunded",
+  "admin.deleted": "Profile deleted",
+  "admin.deletedDesc": "All payments refunded, notification sent to the group",
+  "admin.statusVerified": "Verified",
+  "admin.statusPending": "Pending",
+  "admin.statusNone": "Regular",
+  "admin.eduPool": "Learn",
+  "admin.itPool": "Hire",
+
+  // Footer
+  "footer.desc":
+    "Rating of education and IT specialists in Uzbekistan. Claim your spot or find the best specialist.",
+  "footer.rankings": "Ratings",
+  "footer.platform": "Platform",
+  "footer.copyright": "© 2026 TopBid.uz. All rights reserved.",
+  "footer.payments": "Payments via Telegram bot",
+
+  // Toasts
+  "toast.paidTitle": "🎉 Payment accepted!",
+  "toast.verifyTitle": "🛡️ Request sent!",
+  "toast.verifyDesc": "The admin will review within 24 hours.",
+  "toast.logoUploaded": "Logo uploaded",
+  "toast.logoUploadedDesc": "The image is attached to your profile",
+  "toast.reviewAdded": "Your review has been added.",
+
+  // Time
+  "time.now": "now",
+  "time.minAgo": "min ago",
+  "time.hourAgo": "h ago",
+  "time.dayAgo": "d ago",
+  "time.monthAgo": "mo ago",
+  "time.yearAgo": "y ago",
+
+  // Som
+  "som": "UZS",
+  "som.mln": "M UZS",
+  "som.ming": "k UZS",
+};

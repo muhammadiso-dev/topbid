@@ -1,0 +1,438 @@
+// TopBid i18n — o'zbek (uz)
+
+export const uz: Record<string, string> = {
+  // Navbar
+  "nav.home": "Reyting",
+  "nav.about": "Haqida",
+  "nav.rules": "Qoidalar",
+  "nav.addProfile": "O'rin olish",
+  "nav.menuOpen": "Menyuni ochish",
+  "nav.menuClose": "Menyuni yopish",
+  "nav.language": "Til",
+
+  // Hero / Home
+  "home.heroEduBadge": "Repetitor, markaz va kurs qidirayotganlar uchun",
+  "home.heroItBadge": "Tayyor mutaxassis va frilanser qidirayotganlar uchun",
+  "home.heroEduTitle1": "O'zingizga mos repetitor yoki",
+  "home.heroEduTitle2": "markazni",
+  "home.heroEduTitle3": "toping",
+  "home.heroItTitle1": "Tayyor IT mutaxassislarni",
+  "home.heroItTitle2": "yollang",
+  "home.heroEduDesc":
+    "Haqiqiy sharhlar va reyting asosida tanlang. Siz ham o'quv xizmatingizni reytingga qo'shing.",
+  "home.heroItDesc":
+    "Dasturchi, dizayner, marketolog — barchasi reytingda. Siz ham xizmatingizni taklif qiling.",
+  "home.eduCta": "Reytingga qo'shilish",
+  "home.itCta": "Xizmatimni qo'shish",
+  "home.from": "dan",
+  "home.tabEdu": "O'rganish",
+  "home.tabIt": "Yollash",
+  "home.tabEduSub": "Repetitor, ta'lim markazi va kurslar reytingi",
+  "home.tabItSub": "Frilanser va IT mutaxassislar reytingi",
+
+  // Stats
+  "stats.online": "Hozir onlayn",
+  "stats.visits": "Jami tashrif",
+  "stats.revenue": "Jami daromad",
+  "stats.profiles": "Profillar",
+  "stats.people": "kishi",
+
+  // Promo banner
+  "promo.title": "Ochilish aksiyasi — barcha narxlarga 50% chegirma",
+  "promo.desc":
+    "Erta qo'shilganlarga maxsus narx. Aksiya tugagach narxlar avtomatik normal holatga qaytadi.",
+  "promo.use": "Foydalanish",
+  "promo.useMobile": "Chegirmadan foydalanish",
+  "promo.days": "kun",
+  "promo.hours": "soat",
+  "promo.min": "daq",
+  "promo.sec": "sek",
+
+  // Filters
+  "filter.all": "Barchasi",
+  "filter.center": "Markaz",
+  "filter.individual": "Repetitor",
+  "filter.category": "Yo'nalish",
+  "filter.categoryAll": "Yo'nalish: barchasi",
+  "filter.city": "Shahar",
+  "filter.cityAll": "Shahar: barchasi",
+  "filter.active": "Filtrlar:",
+  "filter.clearAll": "Hammasini tozalash",
+  "filter.clear": "filtrini o'chirish",
+
+  // Card
+  "card.rank": "o'rin",
+  "card.global": "Global",
+  "card.verified": "Tekshirilgan",
+  "card.verifiedPending": "Tekshirilmoqda",
+  "card.bidAmount": "Reyting summasi",
+  "card.takeSpot": "O'rinni egallash",
+  "card.reviews": "sharh",
+  "card.clicks": "klik",
+  "card.visit": "Saytga o'tish",
+
+  // Empty / loading
+  "empty.notFoundTitle": "Hech narsa topilmadi",
+  "empty.notFoundDesc":
+    "Tanlangan filtrlarga mos profil yo'q. Filtrlarni o'zgartirib ko'ring yoki bo'sh o'rinni egallang!",
+  "empty.emptyListTitle": "Reyting hali bo'sh",
+  "empty.emptyListDesc":
+    "Birinchi bo'lib o'rin egallang — raqobatchilar sizdan keyin qoladi. Boshlanish narxi:",
+  "empty.clearFilters": "Filtrlarni tozalash",
+  "empty.takeFirst": "1-o'rinni egallash",
+
+  // Bottom CTA
+  "cta.eduTitle": "Repetitor yoki o'quv markazisizmi?",
+  "cta.itTitle": "IT mutaxassis yoki frilansermisiz?",
+  "cta.desc": "Reytingda o'rin egallang — minglab foydalanuvchi profilingizni ko'radi.",
+  "cta.promoNote": "Aksiya davrida barcha narxlar 50% arzon!",
+  "cta.start": "dan boshlash",
+
+  // Form
+  "form.title": "O'rin olish",
+  "form.subtitle": "Profilingizni qo'shing va reytingda o'rin egallang",
+  "form.back": "Orqaga",
+  "form.step1": "Yo'nalish",
+  "form.step1Hint": "Qaysi sohadasiz?",
+  "form.eduPool": "O'rganish",
+  "form.eduPoolSub": "Markaz yoki repetitor",
+  "form.itPool": "Yollash",
+  "form.itPoolSub": "IT mutaxassis/frilanser",
+  "form.whoAreYou": "Siz kimsiz?",
+  "form.centerLabel": "Ta'lim markazlari",
+  "form.individualLabel": "Individual repetitorlar",
+  "form.itTierNote": "IT mutaxassislar narx darajasi:",
+  "form.actionPromo": "(aksiya bilan)",
+  "form.categoryLabel": "Yo'nalish (fan/soha)",
+  "form.categoryPlaceholder": "Tanlang (masalan: Ingliz tili (IELTS), Frontend...)",
+  "form.step2": "Profil ma'lumotlari",
+  "form.step2Hint": "Reytingda shu ma'lumotlar ko'rinadi",
+  "form.name": "Nom",
+  "form.namePlaceholderCenter": "Masalan: Smart English Academy",
+  "form.namePlaceholderIndividual": "Masalan: Aziza Karimova",
+  "form.namePlaceholderIt": "Masalan: CodeCraft Studio",
+  "form.city": "Shahar",
+  "form.cityPlaceholder": "Shaharni tanlang",
+  "form.description": "Qisqa tavsif",
+  "form.descriptionPlaceholder": "Xizmatlaringiz qisqacha: tajriba, natijalar, afzalliklar...",
+  "form.contact": "Kontakt havolasi",
+  "form.contactPlaceholder": "@username yoki https://sayt.uz",
+  "form.contactHint":
+    "Bir xil kontakt qayta kiritilsa, yangi profil ochilmaydi — summa mavjud profilga qo'shiladi.",
+  "form.logo": "Logo / rasm",
+  "form.optional": "ixtiyoriy",
+  "form.logoUpload": "Logo yuklash (bosib tanlang)",
+  "form.logoFormats": "PNG, JPG, WEBP yoki GIF — maksimal 2MB",
+  "form.logoAttached": "Logo biriktirildi",
+  "form.logoAttachedDesc": "Reytingda shu rasm ko'rinadi",
+  "form.logoRemove": "Logoni o'chirish",
+  "form.logoUrl": "yoki rasm havolasi bilan",
+  "form.uploading": "Yuklanmoqda...",
+  "form.step3": "O'riningizni tanlang",
+  "form.top1Premium": "TOP-1 premium",
+  "form.holderNow": "hozir:",
+  "form.emptySpot": "bo'sh o'rin",
+  "form.promoNote":
+    "Ochilish aksiyasi: hozir barcha narxlar 50% arzon — reytingga to'liq summa yoziladi! (chizilgan narx — oddiy narx)",
+  "form.payTotal": "To'lov summasi",
+  "form.payTopup": "To'lanadigan qo'shimcha",
+  "form.targetPosition": "o'rinni egallash",
+  "form.targetTopup": "-o'ringa ko'tarilish (mavjud profilga qo'shiladi)",
+  "form.targetNone": "O'rin tanlanmadi",
+  "form.toPayment": "To'lovga o'tish",
+  "form.processing": "To'lov qilinmoqda...",
+
+  // Auto-fetch
+  "fetch.loading": "Ma'lumotlar olinmoqda...",
+  "fetch.fetched": "Ma'lumotlar havoladan avtomatik olindi — tahrirlashingiz mumkin",
+  "fetch.failed": "Havoladan ma'lumot olinmadi — qo'lda kiriting",
+  "fetch.preview": "Havola oldindan ko'rish",
+
+  // Topup mode
+  "topup.exists": "nomi bilan ro'yxatda — yangi profil ochilmaydi, summa mavjud profilga qo'shiladi (reyting summasi:",
+  "topup.banner": "Bu kontakt",
+
+  // Errors
+  "err.name": "Nom kamida 2 belgidan iborat bo'lsin",
+  "err.category": "Yo'nalishni tanlang",
+  "err.city": "Shaharni tanlang",
+  "err.desc": "Tavsif kamida 10 belgidan iborat bo'lsin",
+  "err.contact": "Noto'g'ri format: @username yoki https://sayt.uz ko'rinishida yozing",
+  "err.fileBig": "Fayl juda katta",
+  "err.fileBigDesc": "Maksimal hajm: 2MB",
+  "err.fileType": "Noto'g'ri format",
+  "err.fileTypeDesc": "PNG, JPG, WEBP yoki GIF yuklang",
+  "err.uploadFail": "Yuklashda xatolik",
+  "err.retry": "Qayta urinib ko'ring",
+  "err.generic": "Xatolik",
+  "err.server": "Server xatosi",
+
+  // Payment modal
+  "pay.title": "To'lov",
+  "pay.subtitle": "O'rin uchun to'lovni amalga oshiring",
+  "pay.profile": "Profil",
+  "pay.direction": "Yo'nalish",
+  "pay.target": "Maqsad",
+  "pay.amount": "To'lov summasi",
+  "pay.promoBadge": "-50% aksiya",
+  "pay.viaBot": "Telegram bot orqali",
+  "pay.viaBotDesc": "karta, Payme yoki Click",
+  "pay.recommended": "Tavsiya",
+  "pay.secure": "To'lov Telegram to'lov boti orqali xavfsiz amalga oshiriladi",
+  "pay.bot": "Telegram bot",
+  "pay.botDesc": "Bot sizga to'lov havolasini yuboradi",
+  "pay.payMethod": "To'lov usulini tanlang:",
+  "pay.payBtn": "— To'lash",
+  "pay.processing": "To'lov qayta ishlanmoqda...",
+  "pay.wait": "Iltimos, sahifani yopmang",
+  "pay.success": "To'lov muvaffaqiyatli!",
+  "pay.successDesc": "Tabriklaymiz! Admin Telegram guruhiga xabar yuborildi.",
+  "pay.paid": "to'landi",
+  "pay.viewRating": "Reytingni ko'rish",
+  "pay.back": "Orqaga",
+
+  // Verify modal
+  "verify.title": "\"Tekshirilgan\" profil belgisi",
+  "verify.subtitle": "Profilingizga ko'k belgi oling va ishonchni oshiring",
+  "verify.benefit1": "Profilingizda ko'k «Tekshirilgan» belgisi doimiy ko'rinadi",
+  "verify.benefit2": "Tekshirilgan proflarga mijozlar 2-3 barobar ko'proq ishonch qiladi",
+  "verify.benefit3": "Sharhlaringiz yonida ham tasdiq belgisi paydo bo'ladi",
+  "verify.howTitle": "Qanday ishlaydi?",
+  "verify.howDesc":
+    "To'lovdan so'ng admin siz bilan Telegram orqali bog'lanib, diplom/litsenziya nusxasini so'raydi. Hujjat 24 soat ichida ko'rib chiqiladi.",
+  "verify.oneTime": "Bir martalik to'lov",
+  "verify.payViaBot": "Telegram bot orqali to'lash",
+  "verify.refundNote": "Agar verifikatsiya rad etilsa — to'lov to'liq qaytariladi",
+  "verify.requestSent": "So'rov yuborildi!",
+  "verify.requestSentDesc":
+    "To'lovingiz qabul qilindi. Admin 24 soat ichida hujjatlar uchun siz bilan bog'lanadi.",
+  "verify.close": "Yopish",
+
+  // Profile detail
+  "detail.back": "Reytingga qaytish",
+  "detail.notFound": "Profil topilmadi",
+  "detail.globalRank": "Global o'rin",
+  "detail.bidAmount": "Reyting summasi",
+  "detail.views": "Ko'rilgan",
+  "detail.clicks": "Kliklar",
+  "detail.contact": "Bog'lanish —",
+  "detail.improve": "O'rinni yaxshilash",
+  "detail.center": "Ta'lim markazi",
+  "detail.individual": "Individual repetitor",
+  "detail.pendingTitle": "Verifikatsiya ko'rib chiqilmoqda",
+  "detail.pendingDesc":
+    "So'rovingiz admin da. Hujjatlaringiz tekshirilgach, profilingizda ko'k «Tekshirilgan» belgisi paydo bo'ladi (odatda 24 soat ichida).",
+  "detail.getCta": "\"Tekshirilgan\" profil bo'ling",
+  "detail.getDesc":
+    "Ko'k belgi mijozlar ishonchini 2-3 barobar oshiradi. Diplom yoki litsenziyani tasdiqlang — bir martalik to'lov.",
+  "detail.verifyCta": "Verifikatsiyadan o'tish",
+
+  // Reviews
+  "reviews.title": "Sharhlar",
+  "reviews.count": "ta sharh",
+  "reviews.free": "Sharhlar bepul va reytingdagi o'ringa ta'sir qilmaydi — faqat ishonch uchun",
+  "reviews.empty": "Hozircha sharh yo'q — birinchi bo'lib fikr bildiring!",
+  "reviews.leave": "Fikringizni qoldiring",
+  "reviews.already":
+    "Siz bu profilga allaqachon sharh yozgansiz. Har bir foydalanuvchi bir profilga bir marta yozadi.",
+  "reviews.name": "Ismingiz",
+  "reviews.namePlaceholder": "Masalan: Aziza",
+  "reviews.rating": "Baho",
+  "reviews.comment": "Sharh",
+  "reviews.commentPlaceholder": "Xizmat sifati qanday edi?",
+  "reviews.submit": "Sharh yuborish",
+  "reviews.submitting": "Yuborilmoqda...",
+  "reviews.thanks": "Rahmat!",
+  "reviews.added": "Sharhingiz qo'shildi.",
+  "reviews.rateFirst": "Baho bering",
+  "reviews.rateFirstDesc": "Yulduzchalardan baho tanlang (1-5)",
+  "reviews.error": "Sharh qo'shilmadi",
+
+  // About
+  "about.title": "TopBid nima?",
+  "about.desc":
+    "TopBid — O'zbekistondagi ta'lim (repetitorlar, o'quv markazlari) va IT sohasi mutaxassislarini birlashtirgan pullik reyting platformasi. Bizneslar o'z profilingizni reytingga qo'shadi, yuqori o'rin uchun raqobat qiladi — foydalanuvchilar esa eng yaxshilarni bir joyda topadi.",
+  "about.howTitle": "Qanday ishlaydi?",
+  "about.step1": "O'ringa da'vo qiling",
+  "about.step1Desc":
+    "Profilingizni qo'shing va maqsadli o'rinni tanlang. Har bir o'rin o'z narxiga ega — yuqori o'rin ko'proq ko'rinadi va ko'proq mijoz olib keladi.",
+  "about.step2": "Telegram bot orqali to'lang",
+  "about.step2Desc":
+    "To'lovlar Telegram to'lov boti orqali qabul qilinadi (karta, Payme, Click). Bir xil kontakt bilan qayta to'lov qilsangiz, yangi profil ochilmaydi — summa mavjud profilingizga qo'shiladi.",
+  "about.step3": "Raqobat qiling",
+  "about.step3Desc":
+    "Boshqalar sizning o'rinngizni o'tib ketishi mumkin. «O'rinni egallash» tugmasi kerakli summani avtomatik hisoblab beradi — siz faqat tasdiqlaysiz.",
+  "about.step4": "Mijozlar bilan tanishing",
+  "about.step4Desc":
+    "Foydalanuvchilar profilingizni ko'radi, sharhlarni o'qiydi va bog'lanadi. Har bir ko'rish va klik statistikada aks etadi.",
+  "about.step": "-qadam",
+  "about.eduTitle": "O'rganish",
+  "about.eduDesc":
+    "Repetitor, ta'lim markazi va kurslar reytingi. Chet tillari, maktab fanlari, test tayyorlov, IT kurslar va bolalar rivojlantirish — 40+ yo'nalish.",
+  "about.itTitle": "Yollash",
+  "about.itDesc":
+    "IT mutaxassislar va frilanserlar reytingi. Dasturlash, dizayn, marketing va boshqa yo'nalishlar — tayyor mutaxassisni toping yoki o'zingizni taklif qiling.",
+  "about.pricesTitle": "Narx darajalari",
+  "about.tableTier": "Daraja",
+  "about.tableMin": "Min. taklif",
+  "about.tableStep": "Qadam",
+  "about.pricesNote":
+    "TOP-1 o'rin uchun qo'shimcha premium to'lanadi (markazlar: 80 000, repetitorlar: 25 000, IT: 30 000 so'm). Ochilish aksiyasi davrida barcha narxlar 50% arzon.",
+  "about.whyTitle": "Nega TopBid?",
+  "about.f1": "Bepul sharhlar",
+  "about.f1Desc":
+    "Har bir profilga haqiqiy mijozlar baho va sharh qoldiradi — reytingga ta'sir qilmaydi, faqat ishonch uchun.",
+  "about.f2": "Telegram integratsiyasi",
+  "about.f2Desc":
+    "To'lovlar bot orqali, yangi profil va verifikatsiya haqida admin guruhga avtomatik xabar boradi.",
+  "about.f3": "Tekshirilgan profil",
+  "about.f3Desc":
+    "Diplom yoki litsenziyani tasdiqlagan profillar ko'k «Tekshirilgan» belgisini oladi — mijozlar ishonchi 2-3 barobar oshadi.",
+  "about.faqTitle": "Ko'p so'raladigan savollar",
+  "about.faq1q": "Reytingda qanday yuqoriga chiqaman?",
+  "about.faq1a":
+    "Har qanday kartochkadagi «O'rinni egallash» tugmasini bosing — tizim kerakli summani avtomatik hisoblaydi. To'lovdan so'ng profilingiz tanlagan o'ringa ko'tariladi.",
+  "about.faq2q": "Mening o'rinimni boshqa olib tashlasa-chi?",
+  "about.faq2a":
+    "Reyting — jonli auksion. Kimdir sizdan ko'proq to'lasa, siz bir pog'ona pastga tushasiz, lekin profilingiz reytingdan chiqib ketmaydi.",
+  "about.faq3q": "Ochilish aksiyasi qanday ishlaydi?",
+  "about.faq3a":
+    "Birinchi 2 hafta barcha narxlarga 50% chegirma qo'llanadi — to'lagan summingiz kamayadi, lekin reytingga to'liq summa yoziladi. Aksiya tugagach narxlar avtomatik normal holatga qaytadi.",
+  "about.faq4q": "Verifikatsiya qancha turadi?",
+  "about.faq4a":
+    "Bir martalik to'lov — 50 000 so'm (aksiya davrida 25 000). To'lovdan so'ng admin hujjatlarni tekshiradi; rad etilsa, pul to'liq qaytariladi.",
+  "about.faq5q": "Sharh yozish uchun pul kerakmi?",
+  "about.faq5a":
+    "Yo'q, sharhlar mutlaqo bepul. Har bir foydalanuvchi bir profilga bir marta sharh yozishi mumkin — bu soxta sharhlarning oldini oladi.",
+  "about.ctaTitle": "O'z o'riningizni egallang",
+  "about.ctaDesc": "Reytingda 1-o'rin — eng ko'p ko'rilgan joy. Aksiya davrida narxlar 50% arzon.",
+  "about.ctaBtn": "O'rin olish",
+
+  // Rules
+  "rules.title": "Reyting qoidalari",
+  "rules.updated": "Oxirgi yangilanish: 2026-yil",
+  "rules.s1": "Auksion va narx darajalari",
+  "rules.s1li1":
+    "Reytingdagi o'rin jami reyting summasi bo'yicha shakllanadi — har bir daraja o'z narxida raqobat qiladi, narxlar aralashmaydi.",
+  "rules.s1li2":
+    "Biror o'rinni egallash uchun shu o'rin egasidan bir qadam ko'p to'lash kerak — «O'rinni egallash» tugmasi summani avtomatik hisoblaydi.",
+  "rules.s1li3":
+    "TOP-1 o'rin uchun qo'shimcha premium to'lanadi: markazlar — 80 000, repetitorlar — 25 000, IT mutaxassislar — 30 000 so'm.",
+  "rules.s1li4": "Teng summalarda ilgari to'lov qilgan profil yuqorida qoladi.",
+  "rules.s1li5":
+    "Bir xil kontakt havolasi bilan qayta to'lov qilinsa, yangi profil ochilmaydi — summa mavjud profilga qo'shiladi va o'rin yangilanadi.",
+  "rules.s2": "Ochilish aksiyasi",
+  "rules.s2li1":
+    "Platforma ishga tushganidan keyin birinchi 2 hafta barcha narxlarga 50% chegirma qo'llanadi — «erta qo'shilganlarga maxsus narx».",
+  "rules.s2li2":
+    "Aksiya davrida siz kamroq to'laysiz, lekin reytingga to'liq summa yoziladi — ya'ni raqobatda to'liq kuch bilan qatnashasiz.",
+  "rules.s2li3":
+    "Aksiya hech qanday kodsiz, avtomatik qo'llanadi va tugagach narxlar avtomatik normal holatga qaytadi.",
+  "rules.s3": "To'lov va qaytarish",
+  "rules.s3li1": "Barcha to'lovlar Telegram to'lov boti orqali qabul qilinadi (karta, Payme, Click).",
+  "rules.s3li2": "To'lov tasdiqlangach, o'rin darhol yangilanadi.",
+  "rules.s3li3": "Qoidabuzar profil admin tomonidan o'chirilganda, barcha to'lovlar to'liq qaytariladi.",
+  "rules.s3li4": "Xohishingiz bilan profilingizni o'chirishingiz mumkin — unda to'lovlar qaytariladi.",
+  "rules.s4": "Sharh qoidalari",
+  "rules.s4li1": "Sharhlar bepul — har bir foydalanuvchi bir profilga faqat bir marta sharh yozadi.",
+  "rules.s4li2": "Haqiqiy tajribangizga asoslanib yozing: haqorat, spam va reklama o'chiriladi.",
+  "rules.s4li3":
+    "Sharh reytingdagi o'ringa ta'sir qilmaydi — u faqat boshqa foydalanuvchilar uchun qo'shimcha ma'lumot.",
+  "rules.s5": "\"Tekshirilgan\" belgisi (verifikatsiya)",
+  "rules.s5li1":
+    "Verifikatsiya pullik xizmat: bir martalik 50 000 so'm to'lov (aksiya davrida 50% arzon).",
+  "rules.s5li2":
+    "To'lovdan so'ng admin siz bilan Telegram orqali bog'lanib, diplom/litsenziya nusxasini so'raydi.",
+  "rules.s5li3":
+    "Hujjatlar 24 soat ichida ko'rib chiqiladi: tasdiqlansa — ko'k belgi, rad etilsa — to'lov to'liq qaytariladi.",
+  "rules.s5li4": "Belgi bir marta beriladi va profil o'chirilmaguncha amal qiladi.",
+  "rules.allowedTitle": "Ruxsat etilgan",
+  "rules.allowed1": "Haqiqiy ta'lim markazlari, repetitorlar va IT mutaxassislar",
+  "rules.allowed2": "Aniq va to'g'ri profil ma'lumotlari (nom, shahar, tavsif)",
+  "rules.allowed3": "Faol kontakt havolasi (Telegram, Instagram yoki sayt)",
+  "rules.allowed4": "Sifatli xizmat va mijozlar bilan halol munosabat",
+  "rules.allowed5": "O'z profilingizni muntazam yangilab borish",
+  "rules.forbiddenTitle": "Taqiqlangan",
+  "rules.forbidden1": "Soxta ma'lumot yoki boshqa biznes nomidan profil yuritish",
+  "rules.forbidden2": "Nusxa/o'g'irlangan kontent va tasodifiy havolalar",
+  "rules.forbidden3": "Spam, firibgarlik va noqonuniy xizmatlar reklaması",
+  "rules.forbidden4": "Soxta sharhlar yozish yoki buyurtma qilish",
+  "rules.forbidden5": "Bir xil biznes uchun bir nechta profil ochish",
+  "rules.adminTitle": "Admin nazorati",
+  "rules.adminDesc":
+    "Har bir yangi profil, to'lov va verifikatsiya so'rovi haqida admin Telegram guruhiga avtomatik xabar oladi. Shubhali yoki qoidabuzar profil bir tugma bilan o'chiriladi, to'lov esa egasiga qaytariladi. Qoidalarga rioya qilmagan profilingiz ogohlantirishsiz reytingdan olib tashlanishi mumkin.",
+
+  // Admin
+  "admin.title": "Admin panel",
+  "admin.subtitle": "Faqat platforma administratori uchun",
+  "admin.password": "Admin paroli",
+  "admin.login": "Kirish",
+  "admin.checking": "Tekshirilmoqda...",
+  "admin.denied": "Kirish rad etildi",
+  "admin.deniedDesc": "Admin paroli noto'g'ri",
+  "admin.backHome": "Bosh sahifaga qaytish",
+  "admin.demoHint": "Demo parol: ustar2024 (.env orqali o'zgartiriladi)",
+  "admin.panelSubtitle": "Profillar, verifikatsiya va bildirishnomalar",
+  "admin.refresh": "Yangilash",
+  "admin.statProfiles": "Profillar",
+  "admin.statRevenue": "Daromad (umumi)",
+  "admin.statBids": "Bidlar",
+  "admin.statVerify": "Verifikatsiya",
+  "admin.verifySection": "Verifikatsiya so'rovlari",
+  "admin.verifyNew": "yangi",
+  "admin.verifyEmpty": "Verifikatsiya so'rovlari yo'q",
+  "admin.docsNote": "Hujjatlar Telegram orqali so'naladi",
+  "admin.approve": "Tasdiqlash",
+  "admin.reject": "Rad etish",
+  "admin.approved": "Tasdiqlangan",
+  "admin.rejected": "Rad etilgan",
+  "admin.notifications": "Bildirishnomalar",
+  "admin.notifEmpty": "Hozircha bildirishnoma yo'q",
+  "admin.profilesSection": "Profil boshqaruvi",
+  "admin.profilesEmpty": "Profillar yo'q",
+  "admin.delete": "profilini o'chirish",
+  "admin.deleteConfirm": "profilini o'chirish?\nBarcha to'lovlar qaytariladi.",
+  "admin.deleteNote":
+    "Profil o'chirilganda to'lovlar «qaytarildi» deb belgilanadi, jami daromad avtomatik kamayadi va guruhga xabar yuboriladi.",
+  "admin.verifyApproveTitle": "Verifikatsiya tasdiqlandi",
+  "admin.verifyApproveDesc": "profiliga ko'k belgi berildi.",
+  "admin.verifyRejectTitle": "Verifikatsiya rad etildi",
+  "admin.verifyRejectConfirm": "verifikatsiyasini rad etish?\nTo'lov qaytariladi:",
+  "admin.verifyRefunded": "qaytarildi",
+  "admin.deleted": "Profil o'chirildi",
+  "admin.deletedDesc": "Barcha to'lovlar qaytarildi va guruhga xabar yuborildi",
+  "admin.statusVerified": "Tekshirilgan",
+  "admin.statusPending": "Kutilmoqda",
+  "admin.statusNone": "Oddiy",
+  "admin.eduPool": "O'rganish",
+  "admin.itPool": "Yollash",
+
+  // Footer
+  "footer.desc":
+    "O'zbekistondagi ta'lim va IT mutaxassislar reytingi. O'z o'rinngizni egallang yoki eng yaxshi mutaxassisni toping.",
+  "footer.rankings": "Reytinglar",
+  "footer.platform": "Platforma",
+  "footer.copyright": "© 2026 TopBid.uz. Barcha huquqlar himoyalangan.",
+  "footer.payments": "To'lovlar Telegram bot orqali",
+
+  // Toasts
+  "toast.paidTitle": "🎉 To'lov qabul qilindi!",
+  "toast.verifyTitle": "🛡️ So'rov yuborildi!",
+  "toast.verifyDesc": "Admin 24 soat ichida ko'rib chiqadi.",
+  "toast.logoUploaded": "Logo yuklandi",
+  "toast.logoUploadedDesc": "Rasm profilingizga biriktirildi",
+  "toast.reviewAdded": "Sharhingiz qo'shildi.",
+
+  // Time
+  "time.now": "hozir",
+  "time.minAgo": "daqiqa oldin",
+  "time.hourAgo": "soat oldin",
+  "time.dayAgo": "kun oldin",
+  "time.monthAgo": "oy oldin",
+  "time.yearAgo": "yil oldin",
+
+  // Som
+  "som": "so'm",
+  "som.mln": "mln so'm",
+  "som.ming": "ming so'm",
+};

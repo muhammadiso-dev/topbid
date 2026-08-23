@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { Rocket } from "lucide-react";
 import { promoInfo } from "@/lib/ustar/pricing";
 import { useUstarStore } from "@/lib/ustar/store";
+import { useI18n } from "@/lib/ustar/i18n";
 
 /** Ochilish aksiyasi banneri — 50% chegirma, jonli countdown bilan */
 export function PromoBanner() {
   const openAddForm = useUstarStore((s) => s.openAddForm);
+  const { t } = useI18n();
   const [msLeft, setMsLeft] = useState<number | null>(null);
   const promo = promoInfo();
 
@@ -41,10 +43,10 @@ export function PromoBanner() {
           </div>
           <div className="min-w-0">
             <p className="font-extrabold text-sm md:text-base leading-tight">
-              Ochilish aksiyasi — barcha narxlarga 50% chegirma
+              {t("promo.title")}
             </p>
             <p className="text-[12px] md:text-[13px] text-white/95 font-medium mt-0.5">
-              Erta qo'shilganlarga maxsus narx. Aksiya tugagach narxlar avtomatik normal holatga qaytadi.
+              {t("promo.desc")}
             </p>
           </div>
         </div>
@@ -53,10 +55,10 @@ export function PromoBanner() {
           {/* Countdown */}
           <div className="flex items-center gap-1" aria-label="Aksiya tugashiga qolgan vaqt">
             {[
-              { v: days, l: "kun" },
-              { v: hours, l: "soat" },
-              { v: minutes, l: "daq" },
-              { v: seconds, l: "sek" },
+              { v: days, l: t("promo.days") },
+              { v: hours, l: t("promo.hours") },
+              { v: minutes, l: t("promo.min") },
+              { v: seconds, l: t("promo.sec") },
             ].map((u, i) => (
               <div key={u.l} className="flex items-center gap-1">
                 <div className="flex flex-col items-center bg-white/15 backdrop-blur rounded-lg px-2 py-1 min-w-[38px]">
@@ -73,7 +75,7 @@ export function PromoBanner() {
             onClick={() => openAddForm()}
             className="hidden sm:inline-flex items-center h-11 px-4 rounded-lg bg-[#241c14] hover:bg-[#3a2e22] text-white font-extrabold text-sm cursor-pointer transition-colors active:scale-[0.97]"
           >
-            Foydalanish
+            {t("promo.use")}
           </button>
         </div>
       </div>
@@ -83,7 +85,7 @@ export function PromoBanner() {
         onClick={() => openAddForm()}
         className="sm:hidden relative mt-3 w-full h-11 rounded-lg bg-[#241c14] text-white font-extrabold text-sm cursor-pointer active:scale-[0.98] transition-transform"
       >
-        Chegirmadan foydalanish
+        {t("promo.useMobile")}
       </button>
     </div>
   );

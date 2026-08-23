@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { formatSom } from "@/lib/ustar/constants";
-import { BRAND } from "@/lib/ustar/constants";
+import { formatSom, BRAND } from "@/lib/ustar/constants";
+import { payableAmount } from "@/lib/ustar/pricing";
+import { useI18n } from "@/lib/ustar/i18n";
 import { CheckCircle2, Loader2, Send, Wallet, ShieldCheck, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +36,7 @@ export function PaymentModal({
   onPaid,
   summary,
 }: PaymentModalProps) {
+  const { t, lang } = useI18n();
   const [step, setStep] = useState<Step>("method");
   const [error, setError] = useState<string | null>(null);
 
@@ -66,24 +68,24 @@ export function PaymentModal({
             <DialogHeader className="p-5 pb-4 border-b border-[#f0e6da]">
               <DialogTitle className="text-lg font-extrabold text-[#241c14] flex items-center gap-2">
                 <Wallet className="w-5 h-5 text-[#d97b29]" />
-                To'lov
+                {t("pay.title")}
               </DialogTitle>
               <DialogDescription className="text-[#6b5d4d] text-sm">
-                O'rin uchun to'lovni amalga oshiring
+                {t("pay.subtitle")}
               </DialogDescription>
             </DialogHeader>
 
             <div className="p-5 space-y-4">
               <div className="bg-[#fffdfa] border border-[#f0e6da] rounded-xl p-4 space-y-2">
-                <Row label="Profil" value={summary.name} />
-                <Row label="Yo'nalish" value={summary.poolLabel} />
-                <Row label="Maqsad" value={summary.targetLabel} />
+                <Row label={t("pay.profile")} value={summary.name} />
+                <Row label={t("pay.direction")} value={summary.poolLabel} />
+                <Row label={t("pay.target")} value={summary.targetLabel} />
                 <div className="pt-2 border-t border-dashed border-[#e8ddd0] flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold text-[#574634]">To'lov summasi</span>
+                  <span className="text-sm font-bold text-[#574634]">{t("pay.amount")}</span>
                   <span className="text-right">
                     {promo && (
                       <span className="block text-xs font-bold text-[#c4b5a1] line-through tabular-nums">
-                        {formatSom(fullAmount!)}
+                        {formatSom(fullAmount!, lang)}
                       </span>
                     )}
                     <span
@@ -92,11 +94,11 @@ export function PaymentModal({
                         promo ? "text-xl text-[#d97b29]" : "text-xl text-[#d97b29]"
                       )}
                     >
-                      {formatSom(amount)}
+                      {formatSom(amount, lang)}
                     </span>
                     {promo && (
                       <span className="ml-2 text-[10px] font-extrabold bg-[#d97b29] text-white px-1.5 py-0.5 rounded-full align-middle">
-                        -50% aksiya
+                        {t("pay.promoBadge")}
                       </span>
                     )}
                   </span>
@@ -111,17 +113,17 @@ export function PaymentModal({
                   <Send className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-extrabold text-[#241c14] text-sm">Telegram bot orqali</p>
-                  <p className="text-xs text-[#6b5d4d] mt-0.5">{BRAND.bot} — karta, Payme yoki Click</p>
+                  <p className="font-extrabold text-[#241c14] text-sm">{t("pay.viaBot")}</p>
+                  <p className="text-xs text-[#6b5d4d] mt-0.5">{BRAND.bot} — {t("pay.viaBotDesc")}</p>
                 </div>
                 <span className="text-[10px] font-extrabold uppercase tracking-wide text-[#229ed9] bg-white px-2 py-1 rounded-full border border-[#cbe9f8]">
-                  Tavsiya
+                  {t("pay.recommended")}
                 </span>
               </button>
 
               <div className="flex items-center gap-2 text-[11px] text-[#94836f] font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                To'lov Telegram to'lov boti orqali xavfsiz amalga oshiriladi
+                {t("pay.secure")}
               </div>
             </div>
           </div>
@@ -132,10 +134,10 @@ export function PaymentModal({
             <DialogHeader className="p-5 pb-3 border-b border-[#f0e6da]">
               <DialogTitle className="text-lg font-extrabold text-[#241c14] flex items-center gap-2">
                 <Send className="w-5 h-5 text-[#229ed9]" />
-                Telegram bot
+                {t("pay.bot")}
               </DialogTitle>
               <DialogDescription className="text-[#6b5d4d] text-sm">
-                Bot sizga to'lov havolasini yuboradi
+                {t("pay.botDesc")}
               </DialogDescription>
             </DialogHeader>
 
@@ -144,18 +146,18 @@ export function PaymentModal({
                 <div className="self-start bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
                   <p className="text-xs font-bold text-[#229ed9] mb-1">TopBid Bot</p>
                   <p className="text-sm text-[#241c14] leading-relaxed">
-                    O'rin uchun to'lov:{" "}
-                    <b className="tabular-nums">{formatSom(amount)}</b>
+                    {t("pay.title")}:{" "}
+                    <b className="tabular-nums">{formatSom(amount, lang)}</b>
                     {promo && (
                       <span className="text-xs text-[#94836f] line-through ml-1.5 tabular-nums">
-                        {formatSom(fullAmount!)}
+                        {formatSom(fullAmount!, lang)}
                       </span>
                     )}
                   </p>
                   <p className="text-sm text-[#241c14] mt-1.5">{summary.targetLabel}</p>
                 </div>
                 <div className="self-start bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
-                  <p className="text-sm text-[#241c14] mb-2.5">To'lov usulini tanlang:</p>
+                  <p className="text-sm text-[#241c14] mb-2.5">{t("pay.payMethod")}</p>
                   <div className="grid grid-cols-3 gap-1.5 mb-2.5">
                     {["Payme", "Click", "Karta"].map((m, i) => (
                       <div
@@ -176,7 +178,7 @@ export function PaymentModal({
                     disabled={step === "processing"}
                     className="w-full bg-[#229ed9] hover:bg-[#1a8ec4] text-white font-extrabold text-sm py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-60"
                   >
-                    {formatSom(amount)} — To'lash
+                    {formatSom(amount, lang)}{t("pay.payBtn")}
                   </button>
                 </div>
               </div>
@@ -194,7 +196,7 @@ export function PaymentModal({
                 onClick={() => setStep("method")}
                 className="w-full text-[#6b5d4d] hover:bg-[#f6efe6] font-semibold"
               >
-                Orqaga
+                {t("pay.back")}
               </Button>
             </div>
           </div>
@@ -203,8 +205,8 @@ export function PaymentModal({
         {step === "processing" && (
           <div className="p-12 flex flex-col items-center justify-center gap-4">
             <Loader2 className="w-10 h-10 text-[#d97b29] animate-spin" />
-            <p className="font-bold text-[#241c14]">To'lov qayta ishlanmoqda...</p>
-            <p className="text-xs text-[#94836f]">Iltimos, sahifani yopmang</p>
+            <p className="font-bold text-[#241c14]">{t("pay.processing")}</p>
+            <p className="text-xs text-[#94836f]">{t("pay.wait")}</p>
           </div>
         )}
 
@@ -213,19 +215,19 @@ export function PaymentModal({
             <div className="w-16 h-16 rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
               <PartyPopper className="w-8 h-8 text-green-600" />
             </div>
-            <h3 className="text-xl font-extrabold text-[#241c14]">To'lov muvaffaqiyatli!</h3>
+            <h3 className="text-xl font-extrabold text-[#241c14]">{t("pay.success")}</h3>
             <p className="text-sm text-[#6b5d4d] max-w-[300px] leading-relaxed">
-              Tabriklaymiz! Admin Telegram guruhiga xabar yuborildi.
+              {t("pay.successDesc")}
             </p>
             <div className="flex items-center gap-1.5 text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-full px-3 py-1.5 mt-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              {formatSom(amount)} to'landi
+              {formatSom(amount, lang)} {t("pay.paid")}
             </div>
             <Button
               onClick={handleClose}
               className="mt-3 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-lg w-full"
             >
-              Reytingni ko'rish
+              {t("pay.viewRating")}
             </Button>
           </div>
         )}

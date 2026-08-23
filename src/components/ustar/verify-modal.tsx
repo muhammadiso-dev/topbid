@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatSom, VERIFICATION_FEE } from "@/lib/ustar/constants";
 import { payableAmount } from "@/lib/ustar/pricing";
 import { CheckCircle2, Loader2, Send, ShieldCheck, PartyPopper, BadgeCheck, TrendingUp, Star } from "lucide-react";
+import { useI18n } from "@/lib/ustar/i18n";
 
 interface VerifyModalProps {
   open: boolean;
@@ -18,6 +19,7 @@ type Step = "benefits" | "bot" | "processing" | "done";
 
 /** Verifikatsiya to'lov oqimi — "Tekshirilgan" belgisi uchun */
 export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyModalProps) {
+  const { t, lang } = useI18n();
   const [step, setStep] = useState<Step>("benefits");
   const [error, setError] = useState<string | null>(null);
 
@@ -50,10 +52,10 @@ export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyM
             <DialogHeader className="p-5 pb-4 border-b border-[#f0e6da]">
               <DialogTitle className="text-lg font-extrabold text-[#241c14] flex items-center gap-2">
                 <BadgeCheck className="w-5 h-5 text-[#1d7ed8]" />
-                "Tekshirilgan" profil belgisi
+                {t("verify.title")}
               </DialogTitle>
               <DialogDescription className="text-[#6b5d4d] text-sm">
-                Profilingizga ko'k belgi oling va ishonchni oshiring
+                {t("verify.subtitle")}
               </DialogDescription>
             </DialogHeader>
 
@@ -62,45 +64,43 @@ export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyM
               <div className="space-y-2.5">
                 <Benefit
                   icon={<BadgeCheck className="w-4 h-4 text-[#1d7ed8]" />}
-                  text="Profilingizda ko'k «Tekshirilgan» belgisi doimiy ko'rinadi"
+                  text={t("verify.benefit1")}
                 />
                 <Benefit
                   icon={<TrendingUp className="w-4 h-4 text-[#1d7ed8]" />}
-                  text="Tekshirilgan proflarga mijozlar 2-3 barobar ko'proq ishonch qiladi"
+                  text={t("verify.benefit2")}
                 />
                 <Benefit
                   icon={<Star className="w-4 h-4 text-[#1d7ed8]" />}
-                  text="Sharhlaringiz yonida ham tasdiq belgisi paydo bo'ladi"
+                  text={t("verify.benefit3")}
                 />
               </div>
 
               {/* Jarayon */}
               <div className="bg-[#fffdfa] border border-[#f0e6da] rounded-xl p-3.5 text-[12px] text-[#574634] leading-relaxed">
-                <b className="text-[#241c14]">Qanday ishlaydi?</b> To'lovdan so'ng admin siz bilan
-                Telegram orqali bog'lanib, diplom/litsenziya nusxasini so'raydi. Hujjat 24 soat
-                ichida ko'rib chiqiladi.
+                <b className="text-[#241c14]">{t("verify.howTitle")}</b> {t("verify.howDesc")}
               </div>
 
               {/* Narx */}
               <div className="bg-[#241c14] rounded-xl p-4 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-wide text-[#94836f] leading-none">
-                    Bir martalik to'lov
+                    {t("verify.oneTime")}
                   </p>
                   {promo && (
                     <p className="text-[11px] text-[#e9a05c] font-bold mt-1">
-                      Ochilish aksiyasi -50%
+                      Aksiya -50%
                     </p>
                   )}
                 </div>
                 <p className="text-right">
                   {promo && (
                     <span className="block text-xs font-bold text-[#94836f] line-through tabular-nums">
-                      {formatSom(VERIFICATION_FEE)}
+                      {formatSom(VERIFICATION_FEE, lang)}
                     </span>
                   )}
                   <span className="text-2xl font-extrabold text-white tabular-nums">
-                    {formatSom(fee)}
+                    {formatSom(fee, lang)}
                   </span>
                 </p>
               </div>
@@ -110,12 +110,12 @@ export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyM
                 className="w-full h-12 bg-[#1d7ed8] hover:bg-[#1769b8] text-white font-extrabold rounded-xl text-sm active:scale-[0.98] transition-transform"
               >
                 <Send className="w-4 h-4" />
-                Telegram bot orqali to'lash
+                {t("verify.payViaBot")}
               </Button>
 
               <div className="flex items-center gap-2 text-[11px] text-[#94836f] font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                Agar verifikatsiya rad etilsa — to'lov to'liq qaytariladi
+                {t("verify.refundNote")}
               </div>
             </div>
           </div>
@@ -129,7 +129,7 @@ export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyM
                 Telegram bot
               </DialogTitle>
               <DialogDescription className="text-[#6b5d4d] text-sm">
-                Bot sizga to'lov havolasini yuboradi
+                {t("pay.botDesc")}
               </DialogDescription>
             </DialogHeader>
 
@@ -138,11 +138,11 @@ export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyM
                 <div className="self-start bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
                   <p className="text-xs font-bold text-[#229ed9] mb-1">TopBid Bot</p>
                   <p className="text-sm text-[#241c14] leading-relaxed">
-                    Verifikatsiya uchun to'lov:{" "}
-                    <b className="tabular-nums">{formatSom(fee)}</b>
+                    {t("verify.title")}:{" "}
+                    <b className="tabular-nums">{formatSom(fee, lang)}</b>
                   </p>
                   <p className="text-sm text-[#241c14] mt-1.5">
-                    «Tekshirilgan» belgi — bir martalik
+                    «Tekshirilgan» belgi — {t("verify.oneTime")}
                   </p>
                 </div>
                 <div className="self-start bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
@@ -165,7 +165,7 @@ export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyM
                     onClick={confirmPayment}
                     className="w-full bg-[#229ed9] hover:bg-[#1a8ec4] text-white font-extrabold text-sm py-2.5 rounded-xl transition-colors cursor-pointer"
                   >
-                    {formatSom(fee)} — To'lash
+                    {formatSom(fee, lang)}{t("pay.payBtn")}
                   </button>
                 </div>
               </div>
@@ -183,7 +183,7 @@ export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyM
                 onClick={() => setStep("benefits")}
                 className="w-full text-[#6b5d4d] hover:bg-[#f6efe6] font-semibold"
               >
-                Orqaga
+                {t("pay.back")}
               </Button>
             </div>
           </div>
@@ -192,8 +192,8 @@ export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyM
         {step === "processing" && (
           <div className="p-12 flex flex-col items-center justify-center gap-4">
             <Loader2 className="w-10 h-10 text-[#1d7ed8] animate-spin" />
-            <p className="font-bold text-[#241c14]">To'lov qayta ishlanmoqda...</p>
-            <p className="text-xs text-[#94836f]">Iltimos, sahifani yopmang</p>
+            <p className="font-bold text-[#241c14]">{t("pay.processing")}</p>
+            <p className="text-xs text-[#94836f]">{t("pay.wait")}</p>
           </div>
         )}
 
@@ -202,13 +202,13 @@ export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyM
             <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
               <PartyPopper className="w-8 h-8 text-[#1d7ed8]" />
             </div>
-            <h3 className="text-xl font-extrabold text-[#241c14]">So'rov yuborildi!</h3>
+            <h3 className="text-xl font-extrabold text-[#241c14]">{t("verify.requestSent")}</h3>
             <p className="text-sm text-[#6b5d4d] max-w-[300px] leading-relaxed">
-              To'lovingiz qabul qilindi. Admin 24 soat ichida hujjatlar uchun siz bilan bog'lanadi.
+              {t("verify.requestSentDesc")}
             </p>
             <div className="flex items-center gap-1.5 text-xs font-bold text-[#1d7ed8] bg-[#e8f2fc] border border-[#cbe9f8] rounded-full px-3 py-1.5 mt-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              {formatSom(fee)} to'landi
+              {formatSom(fee, lang)} {t("pay.paid")}
             </div>
             <Button
               onClick={handleClose}

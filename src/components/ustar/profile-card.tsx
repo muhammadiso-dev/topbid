@@ -1,20 +1,13 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Clock3,
-  MapPin,
-  Eye,
-  MousePointerClick,
-  Globe,
-  TrendingUp,
-  Star,
-} from "lucide-react";
+import { MapPin, Eye, MousePointerClick, Globe, TrendingUp, Star, ExternalLink, MessageCircle } from "lucide-react";
 import { ProfileAvatar } from "./profile-avatar";
 import { StarRating } from "./star-rating";
+import { VerifyBadge } from "./verify-badge";
 import { Button } from "@/components/ui/button";
-import { formatCompactNumber, formatSom, timeAgo } from "@/lib/ustar/constants";
+import { contactInfo, formatCompactNumber, formatSom, timeAgo } from "@/lib/ustar/constants";
 import type { ProfileDTO } from "@/lib/ustar/types";
+import { useI18n } from "@/lib/ustar/i18n";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -26,16 +19,16 @@ interface ProfileCardProps {
   globalPosition: number;
   /** Filtrlar faolmi (lokal/global farqi ko'rinadi) */
   filtersActive: boolean;
-  /** CTA narx matni: "95 000 so'm" yoki "dan 57 500 so'm" */
+  /** CTA narx matni */
   priceLabel: string;
   /** Aksiya faolmi (-50% belgisi uchun) */
   promoActive: boolean;
   highlighted?: boolean;
-  onOpen: (id: string) => void;
+  onOpenDetail: (id: string) => void;
   onTakeSpot: (globalPosition: number) => void;
 }
 
-/** Reyting kartochkasi — mobil: bir ustunli stacked, desktop: 4 ustunli */
+/** Reyting kartochkasi — bosilganda to'g'ridan-to'g'ri profil saytga o'tadi */
 export function ProfileCard({
   profile,
   displayPosition,
@@ -44,25 +37,43 @@ export function ProfileCard({
   priceLabel,
   promoActive,
   highlighted,
-  onOpen,
+  onOpenDetail,
   onTakeSpot,
 }: ProfileCardProps) {
+  const { t, lang } = useI18n();
   const isTop3 = displayPosition <= 3;
   const isTop1 = displayPosition === 1;
   const showGlobalChip = filtersActive;
+  const contact = contactInfo(profile.contactUrl);
 
-  const verifyBadge =
-    profile.verifyStatus === "verified" ? (
-      <span className="inline-flex items-center gap-1 text-[10px] md:text-[11px] font-bold text-[#1d7ed8] bg-[#e8f2fc] px-1.5 py-0.5 rounded-full shrink-0">
-        <BadgeCheck className="w-3 h-3 md:w-3.5 md:h-3.5" />
-        Tekshirilgan
-      </span>
-    ) : profile.verifyStatus === "pending" ? (
-      <span className="inline-flex items-center gap-1 text-[10px] md:text-[11px] font-bold text-[#a86a00] bg-[#fff4d6] px-1.5 py-0.5 rounded-full shrink-0">
-        <Clock3 className="w-3 h-3 md:w-3.5 md:h-3.5" />
-        Tekshirilmoqda
-      </span>
-    ) : null;
+  /** Karta bosilganda — to'g'ridan-to'g'ri tashqi sayt + klik hisoblash */
+  const visit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(contact.href, "_blank", "noopener,noreferrer");
+    fetch(`/api/profiles/${profile.id}/click`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "click" }),
+    }).catch(() => null);
+  };
+
+  const badge = (
+    <VerifyBadge status={profile.verifyStatus} size={14} withLabel={false} className="!p-0 !bg-transparent" />
+  );
+
+  const reviewsBtn = profile.reviewsCount > 0 && (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onOpenDetail(profile.id);
+      }}
+      className="inline-flex items-center gap-1 text-[11px] md:text-xs font-bold text-[#d97b29] hover:underline cursor-pointer"
+      aria-label={`${profile.name} — ${t("reviews.title")} (${profile.reviewsCount})`}
+    >
+      <MessageCircle className="w-3.5 h-3.5" />
+      {profile.reviewsCount} {t("card.reviews")}
+    </button>
+  );
 
   return (
     <motion.article
@@ -81,16 +92,16 @@ export function ProfileCard({
           "border-border hover:border-[#e0cdb4] hover:shadow-[0_6px_20px_-10px_rgba(36,28,20,0.2)]",
         highlighted && "ring-2 ring-[#d97b29] ring-offset-2 ring-offset-[#fffdfa]"
       )}
-      onClick={() => onOpen(profile.id)}
-      role="button"
+      onClick={visit}
+      role="link"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onOpen(profile.id);
+          window.open(contact.href, "_blank", "noopener,noreferrer");
         }
       }}
-      aria-label={`${displayPosition}-o'rin: ${profile.name}`}
+      aria-label={`${displayPosition}-o'rin: ${profile.name} — ${t("card.visit")}`}
     >
       {/* TOP badge */}
       {isTop3 && (
@@ -123,12 +134,12 @@ export function ProfileCard({
                 isTop3 ? "text-[#d97b29]/70" : "text-[#c4b5a1]"
               )}
             >
-              o'rin
+              {t("card.rank")}
             </span>
             {showGlobalChip && (
               <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-[#94836f] bg-[#f6efe6] px-2 py-0.5 rounded-full">
                 <Globe className="w-3 h-3" />
-                Global {globalPosition}
+                {t("card.global")} {globalPosition}
               </span>
             )}
           </div>
@@ -151,7 +162,8 @@ export function ProfileCard({
               >
                 {profile.name}
               </h3>
-              {verifyBadge}
+              {badge}
+              <ExternalLink className="w-3.5 h-3.5 text-[#c4b5a1] group-hover:text-[#d97b29] transition-colors shrink-0 mt-1" />
             </div>
 
             <p
@@ -174,7 +186,7 @@ export function ProfileCard({
               </span>
               {profile.pool === "education" && (
                 <span className="text-[11px] font-semibold text-[#574634] bg-[#f6efe6] px-2 py-0.5 rounded-full">
-                  {profile.subType === "center" ? "Markaz" : "Repetitor"}
+                  {profile.subType === "center" ? t("filter.center") : t("filter.individual")}
                 </span>
               )}
             </div>
@@ -196,9 +208,7 @@ export function ProfileCard({
                 <MousePointerClick className="w-3.5 h-3.5" />
                 {formatCompactNumber(profile.clicks)}
               </span>
-              <span className="inline-flex items-center gap-1">
-                {timeAgo(profile.createdAt)}
-              </span>
+              <span className="inline-flex items-center gap-1">{timeAgo(profile.createdAt, lang)}</span>
             </div>
           </div>
 
@@ -206,7 +216,7 @@ export function ProfileCard({
           <div className="flex flex-col items-end justify-between gap-2 shrink-0 max-w-[190px]">
             <div className="text-right">
               <p className="text-[11px] font-bold uppercase tracking-wide text-[#94836f] leading-none">
-                Reyting summasi
+                {t("card.bidAmount")}
               </p>
               <p
                 className={cn(
@@ -214,26 +224,29 @@ export function ProfileCard({
                   isTop3 ? "text-xl" : "text-base"
                 )}
               >
-                {formatSom(profile.totalBid)}
+                {formatSom(profile.totalBid, lang)}
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className={cn(
-                "h-9 text-xs font-extrabold rounded-lg border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] whitespace-nowrap",
-                isTop3 && "bg-white"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                onTakeSpot(globalPosition);
-              }}
-              aria-label={`${globalPosition}-o'rinni egallash — ${priceLabel}`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              O'rinni egallash
-              <span className="text-[#d97b29]">{priceLabel}</span>
-            </Button>
+            <div className="flex items-center gap-1.5">
+              {reviewsBtn}
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "h-9 text-xs font-extrabold rounded-lg border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] whitespace-nowrap",
+                  isTop3 && "bg-white"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTakeSpot(globalPosition);
+                }}
+                aria-label={`${t("card.takeSpot")} ${globalPosition} — ${priceLabel}`}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                {t("card.takeSpot")}
+                <span className="text-[#d97b29]">{priceLabel}</span>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -262,18 +275,19 @@ export function ProfileCard({
                     {displayPosition}
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#c4b5a1] mt-0.5">
-                    o'rin
+                    {t("card.rank")}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-1 flex-wrap mt-1">
-                {verifyBadge}
+                {badge}
                 {showGlobalChip && (
                   <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#94836f] bg-[#f6efe6] px-1.5 py-0.5 rounded-full">
                     <Globe className="w-2.5 h-2.5" />
-                    Global {globalPosition}
+                    {t("card.global")} {globalPosition}
                   </span>
                 )}
+                <ExternalLink className="w-3 h-3 text-[#c4b5a1]" />
               </div>
             </div>
           </div>
@@ -294,7 +308,7 @@ export function ProfileCard({
             </span>
             {profile.pool === "education" && (
               <span className="text-[10px] font-semibold text-[#574634] bg-[#f6efe6] px-2 py-0.5 rounded-full">
-                {profile.subType === "center" ? "Markaz" : "Repetitor"}
+                {profile.subType === "center" ? t("filter.center") : t("filter.individual")}
               </span>
             )}
           </div>
@@ -316,33 +330,49 @@ export function ProfileCard({
               <MousePointerClick className="w-3 h-3" />
               {formatCompactNumber(profile.clicks)}
             </span>
-            <span>{timeAgo(profile.createdAt)}</span>
+            <span>{timeAgo(profile.createdAt, lang)}</span>
             <span className="inline-flex items-center gap-1 ml-auto">
               <span className="font-extrabold text-[#241c14] tabular-nums">
-                {formatSom(profile.totalBid)}
+                {formatSom(profile.totalBid, lang)}
               </span>
             </span>
           </div>
 
           {/* 5-qator: CTA */}
-          <Button
-            variant="outline"
-            className="mt-3 w-full h-11 rounded-lg border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold text-[13px]"
-            onClick={(e) => {
-              e.stopPropagation();
-              onTakeSpot(globalPosition);
-            }}
-            aria-label={`${globalPosition}-o'rinni egallash — ${priceLabel}`}
-          >
-            <TrendingUp className="w-4 h-4" />
-            O'rinni egallash
-            <span className="text-[#d97b29]">{priceLabel}</span>
-            {promoActive && (
-              <span className="text-[9px] font-extrabold bg-[#d97b29] text-white px-1.5 py-0.5 rounded-full">
-                -50%
-              </span>
+          <div className="flex items-center gap-1.5 mt-3">
+            <Button
+              variant="outline"
+              className="flex-1 min-w-0 h-11 rounded-lg border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold text-[13px] px-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTakeSpot(globalPosition);
+              }}
+              aria-label={`${t("card.takeSpot")} ${globalPosition} — ${priceLabel}`}
+            >
+              <TrendingUp className="w-4 h-4 shrink-0" />
+              <span className="truncate hidden sm:inline">{t("card.takeSpot")}</span>
+              <span className="truncate sm:hidden">{"Egallash"}</span>
+              <span className="text-[#d97b29] truncate">{priceLabel}</span>
+              {promoActive && (
+                <span className="text-[9px] font-extrabold bg-[#d97b29] text-white px-1.5 py-0.5 rounded-full shrink-0">
+                  -50%
+                </span>
+              )}
+            </Button>
+            {profile.reviewsCount > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenDetail(profile.id);
+                }}
+                className="h-11 px-3 rounded-lg border border-[#e8ddd0] bg-white text-[#d97b29] hover:bg-[#fdeedd] font-extrabold text-xs inline-flex items-center gap-1.5 cursor-pointer shrink-0"
+                aria-label={t("reviews.title")}
+              >
+                <MessageCircle className="w-4 h-4" />
+                {profile.reviewsCount}
+              </button>
             )}
-          </Button>
+          </div>
         </div>
       </div>
     </motion.article>

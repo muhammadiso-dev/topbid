@@ -5,13 +5,14 @@ import path from "path";
 export const dynamic = "force-dynamic";
 
 const UPLOAD_DIR = "/home/z/my-project/uploads";
-const NAME_RE = /^[a-f0-9-]{36}\.(png|jpg|jpeg|webp|gif)$/;
+const NAME_RE = /^[a-f0-9-]{36}\.(png|jpg|jpeg|webp|gif|svg)$/;
 const MIME: Record<string, string> = {
   png: "image/png",
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
   webp: "image/webp",
   gif: "image/gif",
+  svg: "image/svg+xml",
 };
 
 /** GET /api/media/[file] — yuklangan logotiplarni xavfsiz serve qilish */

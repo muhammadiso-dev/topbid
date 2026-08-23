@@ -48,3 +48,27 @@ Stage Summary:
 - TopBid.uz to'liq yangilandi: 3 narx darajasi + TOP-1 premium + 14 kunlik 50% aksiya (jonli countdown), 43 kategoriya 9 guruhda, O'rganish/Yollash tablari, pullik verifikatsiya (to'lov→admin tasdiq/rad + refund), fayl logo yuklash, lokal/global reyting ko'rsatkichlari, responsiv 360-1440px, a11y yaxshilanishlar
 - Demo parol admin: ustar2024; real Telegram integratsiya uchun TELEGRAM_BOT_TOKEN + TELEGRAM_ADMIN_CHAT_ID env tayyor
 - Revenue model: real pul (aksiya bilan) Bid yozuvlarida, reyting credit to'liq summa — statistika real daromadni ko'rsatadi
+
+---
+Task ID: 3
+Agent: Main agent (Super Z)
+Task: TopBid 3-bosqich — brend logotipi, 4 til, URL auto-fetch, tashqi havolalar, yashirin admin
+
+Work Log:
+- Foydalanuvchi fayllari qayta ishlandi (scripts/process-images.py): logo tight-crop (2161x2462), favicon 32/180/512 + favicon.ico, logo-96/192, verify-badge-48/96/192 — /public papkasiga
+- layout.tsx: favicon ikonalar (ico + png + apple-touch) ulandi
+- VerifyBadge komponenti: brend rasmi (oltin muhr) bilan — verified/pending holatlar, istalgan o'lcham
+- Navbar: logo rasmi (logo-96.png) + til almashtirgich (Globe + dropdown: UZ/RU/EN/KK, click-outside yopish) + mobil burger ichida tillar
+- i18n tizimi (src/lib/ustar/i18n/): uz/ru/en/kk to'liq lug'atlar (~380 kalit), Zustand store + localStorage persist, makeT/t funksiyalari; formatSom/formatCompactSom/timeAgo til parametri qabul qiladi
+- Barcha komponentlar tarjimaga o'tkazildi: navbar, home, stats, promo, card, form, payment/verify modallar, detail, about, rules, admin, footer
+- Kartochka bosilganda TO'G'RIDAN-TO'G'RI tashqi havola (window.open + klik tracking) — profil saytga o'tish; sharhlar uchun alohida kichik tugma (MessageCircle + son) — detail sahifani ochadi
+- Admin panel YASHIRILDI: footer'dan olib tashlandi; faqat #admin URL hash orqali kiriladi (hashchange listener; chiqishda hash tozalanadi)
+- /api/fetch-meta: URL dan avtomatik metadata — og:title/description/image, apple-touch-icon, TikTok oEmbed, Google favicon fallback, umumiy nomlar (TikTok/Instagram) handle'ga almashtirish, rasmlar o'z serverga saqlanadi (hotlink himoyasi); Telegram/saytlar/TikTok/Instagram/X ishlaydi
+- Formada auto-fetch: URL kiritilgach (600ms debounce) mavjudlik tekshiruvi + metadata olish → nom/tavsif/logo avtomatik to'ldiriladi (✓ auto belgisi bilan) + tahrirlanadigan preview kartochka; tavsif validatsiyasi yumshatildi (avtomatik olinganda majburiy emas)
+- Mobil CTA tuzatish: min-w-0 + truncate (360-375px'da "Egallash" qisqa variant), reviews tugmasi shrink-0
+- next.config: devIndicators false; media route: svg qo'shildi
+- E2E testlar: 4 til almashtirish (RU hero/stats, EN, KK), kartochka → t.me/smartenglish_uz yangi tab, reviews tugmasi → detail, auto-fetch @durov → "Pavel Durov"/"Founder of Telegram."/logo URL, to'lov oqimi 70k (aksiya), 3-o'rin, admin #admin hash + login + o'chirish, favicon.ico ulangan, 360/375/390/768/1280/1440px 0 overflow, lint toza, 0 console error
+
+Stage Summary:
+- TopBid.uz: brend logotipi (oltin tanga + navy), verify badge rasmi, 4 til (uz/ru/en/kk — ~380 tarjima), URL avtomatik metadata olish (Telegram/saytlar/TikTok/Instagram), kartochka → to'g'ridan-to'g'ri tashqi havola, yashirin admin (#admin), responsiv tuzatilgan
+- Raqobatchi (sindr.uz) tahlili asosida: URL-first forma + tahrirlanadigan preview (raqobatchida yo'q — bizning ustunligimiz)

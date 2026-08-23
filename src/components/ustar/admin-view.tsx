@@ -10,7 +10,6 @@ import {
   Bell,
   ShieldAlert,
   CheckCircle2,
-  BadgeCheck,
   XCircle,
   Wallet,
 } from "lucide-react";
@@ -21,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { ProfileAvatar } from "./profile-avatar";
 import { useUstarStore } from "@/lib/ustar/store";
+import { useI18n } from "@/lib/ustar/i18n";
 import { formatCompactSom, formatSom, timeAgo } from "@/lib/ustar/constants";
 import type { AdminLogDTO, ProfileDTO, VerificationRequestDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,7 @@ interface AdminData {
 export function AdminView() {
   const { setView } = useUstarStore();
   const { toast } = useToast();
+  const { t, lang } = useI18n();
 
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
@@ -50,7 +51,7 @@ export function AdminView() {
       setLoading(true);
       fetch(`/api/admin?password=${encodeURIComponent(pw)}`)
         .then((r) => {
-          if (!r.ok) throw new Error("Parol noto'g'ri");
+          if (!r.ok) throw new Error("bad password");
           return r.json();
         })
         .then((d: AdminData) => {
@@ -59,15 +60,11 @@ export function AdminView() {
           sessionStorage.setItem("topbid_admin_pw", pw);
         })
         .catch(() => {
-          toast({
-            title: "Kirish rad etildi",
-            description: "Admin paroli noto'g'ri",
-            variant: "destructive",
-          });
+          toast({ title: t("admin.denied"), description: t("admin.deniedDesc"), variant: "destructive" });
         })
         .finally(() => setLoading(false));
     },
-    [toast]
+    [toast, t]
   );
 
   useEffect(() => {
@@ -76,12 +73,7 @@ export function AdminView() {
   }, [load]);
 
   const handleDelete = async (profile: ProfileDTO) => {
-    if (
-      !confirm(
-        `"${profile.name}" profilini o'chirish?\nBarcha to'lovlar qaytariladi.`
-      )
-    )
-      return;
+    if (!confirm(`"${profile.name}" ${t("admin.deleteConfirm")}`)) return;
     setDeletingId(profile.id);
     try {
       const res = await fetch(`/api/profiles/${profile.id}`, {
@@ -92,16 +84,13 @@ export function AdminView() {
         }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Xatolik");
-      toast({
-        title: "Profil o'chirildi 🗑",
-        description: "Barcha to'lovlar qaytarildi va guruhga xabar yuborildi",
-      });
+      if (!res.ok) throw new Error(json.error || "error");
+      toast({ title: `🗑 ${t("admin.deleted")}`, description: t("admin.deletedDesc") });
       load(sessionStorage.getItem("topbid_admin_pw") || password);
     } catch (e) {
       toast({
-        title: "Xatolik",
-        description: e instanceof Error ? e.message : "O'chirishda xatolik",
+        title: t("err.generic"),
+        description: e instanceof Error ? e.message : t("err.server"),
         variant: "destructive",
       });
     } finally {
@@ -110,11 +99,7 @@ export function AdminView() {
   };
 
   const handleVerifyDecision = async (req: VerificationRequestDTO, decision: "approve" | "reject") => {
-    if (
-      decision === "reject" &&
-      !confirm(`"${req.profileName}" verifikatsiyasini rad etish?\nTo'lov qaytariladi: ${formatSom(req.fee)}`)
-    )
-      return;
+    if (decision === "reject" && !confirm(`"${req.profileName}" ${t("admin.verifyRejectConfirm")} ${formatSom(req.fee, lang)}`)) return;
     setVerifyingId(req.id);
     try {
       const res = await fetch("/api/admin/verify", {
@@ -127,19 +112,19 @@ export function AdminView() {
         }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Xatolik");
+      if (!res.ok) throw new Error(json.error || "error");
       toast({
-        title: decision === "approve" ? "Verifikatsiya tasdiqlandi ✅" : "Verifikatsiya rad etildi",
+        title: decision === "approve" ? `✅ ${t("admin.verifyApproveTitle")}` : t("admin.verifyRejectTitle"),
         description:
           decision === "approve"
-            ? `${req.profileName} profiliga ko'k belgi berildi`
-            : `${formatSom(req.fee)} qaytarildi`,
+            ? `${req.profileName} — ${t("admin.verifyApproveDesc")}`
+            : `${formatSom(req.fee, lang)} ${t("admin.verifyRefunded")}`,
       });
       load(sessionStorage.getItem("topbid_admin_pw") || password);
     } catch (e) {
       toast({
-        title: "Xatolik",
-        description: e instanceof Error ? e.message : "Qaror berishda xatolik",
+        title: t("err.generic"),
+        description: e instanceof Error ? e.message : t("err.server"),
         variant: "destructive",
       });
     } finally {
@@ -155,10 +140,8 @@ export function AdminView() {
           <div className="w-14 h-14 mx-auto rounded-2xl bg-[#241c14] flex items-center justify-center">
             <Lock className="w-6 h-6 text-[#e9a05c]" />
           </div>
-          <h1 className="mt-4 font-extrabold text-lg text-[#241c14]">Admin panel</h1>
-          <p className="text-xs text-[#94836f] font-medium mt-1">
-            Faqat platforma administratori uchun
-          </p>
+          <h1 className="mt-4 font-extrabold text-lg text-[#241c14]">{t("admin.title")}</h1>
+          <p className="text-xs text-[#94836f] font-medium mt-1">{t("admin.subtitle")}</p>
           <form
             className="mt-5 space-y-3 text-left"
             onSubmit={(e) => {
@@ -170,7 +153,7 @@ export function AdminView() {
           >
             <div>
               <Label htmlFor="admin-pw" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-                Admin paroli
+                {t("admin.password")}
               </Label>
               <Input
                 id="admin-pw"
@@ -187,7 +170,7 @@ export function AdminView() {
               disabled={loggingIn || loading}
               className="w-full h-11 bg-[#241c14] hover:bg-[#3a2e22] text-white font-extrabold rounded-lg"
             >
-              {loading ? "Tekshirilmoqda..." : "Kirish"}
+              {loading ? t("admin.checking") : t("admin.login")}
             </Button>
           </form>
           <Button
@@ -196,11 +179,9 @@ export function AdminView() {
             className="mt-3 text-[#94836f] hover:bg-[#f6efe6] font-semibold text-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            Bosh sahifaga qaytish
+            {t("admin.backHome")}
           </Button>
-          <p className="text-[10px] text-[#c4b5a1] font-medium mt-4">
-            Demo parol: ustar2024 (.env orqali o'zgartiriladi)
-          </p>
+          <p className="text-[10px] text-[#c4b5a1] font-medium mt-4">{t("admin.demoHint")}</p>
         </div>
       </div>
     );
@@ -217,15 +198,13 @@ export function AdminView() {
             size="icon"
             onClick={() => setView({ name: "home" })}
             className="rounded-lg hover:bg-[#f6efe6] text-[#574634]"
-            aria-label="Bosh sahifa"
+            aria-label="Home"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14]">Admin panel</h1>
-            <p className="text-xs text-[#94836f] font-medium mt-0.5">
-              Profillar, verifikatsiya va bildirishnomalar
-            </p>
+            <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14]">{t("admin.title")}</h1>
+            <p className="text-xs text-[#94836f] font-medium mt-0.5">{t("admin.panelSubtitle")}</p>
           </div>
         </div>
         <Button
@@ -235,33 +214,31 @@ export function AdminView() {
           className="border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] font-bold rounded-lg shrink-0"
         >
           <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
-          <span className="hidden sm:inline">Yangilash</span>
+          <span className="hidden sm:inline">{t("admin.refresh")}</span>
         </Button>
       </div>
 
       {/* Umumiy statistika */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-6">
-        <MiniStat label="Profillar" value={`${data?.profiles.length ?? 0}`} />
+        <MiniStat label={t("admin.statProfiles")} value={`${data?.profiles.length ?? 0}`} />
         <MiniStat
-          label="Daromad (umumi)"
-          value={data ? formatCompactSom(data.revenue.total) : "—"}
+          label={t("admin.statRevenue")}
+          value={data ? formatCompactSom(data.revenue.total, lang) : "—"}
           icon={<Wallet className="w-3 h-3" />}
         />
-        <MiniStat label="Bidlar" value={data ? formatCompactSom(data.revenue.bids) : "—"} />
-        <MiniStat
-          label="Verifikatsiya"
-          value={data ? formatCompactSom(data.revenue.verification) : "—"}
-        />
+        <MiniStat label={t("admin.statBids")} value={data ? formatCompactSom(data.revenue.bids, lang) : "—"} />
+        <MiniStat label={t("admin.statVerify")} value={data ? formatCompactSom(data.revenue.verification, lang) : "—"} />
       </div>
 
-      {/* ===== VERIFIKATSIYA ===== */}
-      <section className="mt-6" aria-label="Verifikatsiya so'rovlari">
+      {/* VERIFIKATSIYA */}
+      <section className="mt-6" aria-label={t("admin.verifySection")}>
         <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
-          <BadgeCheck className="w-4 h-4 text-[#1d7ed8]" />
-          Verifikatsiya so'rovlari
+          { }
+          <img src="/verify-badge-48.png" alt="verify" className="w-4 h-4" />
+          {t("admin.verifySection")}
           {pendingVerifications.length > 0 && (
             <span className="text-[10px] font-extrabold bg-[#1d7ed8] text-white px-2 py-0.5 rounded-full">
-              {pendingVerifications.length} yangi
+              {pendingVerifications.length} {t("admin.verifyNew")}
             </span>
           )}
         </h2>
@@ -274,7 +251,7 @@ export function AdminView() {
           </div>
         ) : (data?.verifications.length ?? 0) === 0 ? (
           <p className="mt-3 text-center text-xs text-[#94836f] font-medium bg-white border border-border rounded-xl py-5">
-            Verifikatsiya so'rovlari yo'q
+            {t("admin.verifyEmpty")}
           </p>
         ) : (
           <div className="mt-3 space-y-2">
@@ -289,33 +266,25 @@ export function AdminView() {
                 <div
                   className={cn(
                     "w-9 h-9 rounded-lg flex items-center justify-center shrink-0",
-                    v.status === "pending"
-                      ? "bg-[#e8f2fc]"
-                      : v.status === "approved"
-                        ? "bg-green-50"
-                        : "bg-[#f6efe6]"
+                    v.status === "pending" ? "bg-[#e8f2fc]" : v.status === "approved" ? "bg-green-50" : "bg-[#f6efe6]"
                   )}
                 >
-                  <BadgeCheck
-                    className={cn(
-                      "w-5 h-5",
-                      v.status === "pending"
-                        ? "text-[#1d7ed8]"
-                        : v.status === "approved"
-                          ? "text-green-600"
-                          : "text-[#94836f]"
-                    )}
-                  />
+                  {v.status === "approved" ? (
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  ) : v.status === "pending" ? (
+                     
+                    <img src="/verify-badge-48.png" alt="verify" className="w-5 h-5" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-[#94836f]" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-[13px] text-[#241c14] truncate">{v.profileName}</p>
                   <p className="text-[11px] text-[#94836f] font-medium truncate">
-                    {v.profileContact} • {formatSom(v.fee)} • {timeAgo(v.createdAt)}
+                    {v.profileContact} • {formatSom(v.fee, lang)} • {timeAgo(v.createdAt, lang)}
                   </p>
                   {v.status === "pending" && (
-                    <p className="text-[10px] text-[#1d7ed8] font-bold mt-0.5">
-                      Hujjatlar Telegram orqali so'naladi
-                    </p>
+                    <p className="text-[10px] text-[#1d7ed8] font-bold mt-0.5">{t("admin.docsNote")}</p>
                   )}
                 </div>
                 {v.status === "pending" ? (
@@ -324,32 +293,30 @@ export function AdminView() {
                       size="sm"
                       onClick={() => handleVerifyDecision(v, "approve")}
                       disabled={verifyingId === v.id}
-                      className="h-8 bg-[#1d7ed8] hover:bg-[#1769b8] text-white font-extrabold text-xs rounded-lg px-2.5"
+                      className="h-9 bg-[#1d7ed8] hover:bg-[#1769b8] text-white font-extrabold text-xs rounded-lg px-2.5"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      Tasdiqlash
+                      {t("admin.approve")}
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleVerifyDecision(v, "reject")}
                       disabled={verifyingId === v.id}
-                      className="h-8 border-red-200 text-red-600 hover:bg-red-50 font-extrabold text-xs rounded-lg px-2.5"
+                      className="h-9 border-red-200 text-red-600 hover:bg-red-50 font-extrabold text-xs rounded-lg px-2.5"
                     >
                       <XCircle className="w-3.5 h-3.5" />
-                      Rad etish
+                      {t("admin.reject")}
                     </Button>
                   </div>
                 ) : (
                   <span
                     className={cn(
                       "text-[10px] font-extrabold px-2 py-1 rounded-full shrink-0",
-                      v.status === "approved"
-                        ? "bg-green-50 text-green-700"
-                        : "bg-[#f6efe6] text-[#94836f]"
+                      v.status === "approved" ? "bg-green-50 text-green-700" : "bg-[#f6efe6] text-[#94836f]"
                     )}
                   >
-                    {v.status === "approved" ? "Tasdiqlangan" : "Rad etilgan"}
+                    {v.status === "approved" ? t("admin.approved") : t("admin.rejected")}
                   </span>
                 )}
               </div>
@@ -358,13 +325,13 @@ export function AdminView() {
         )}
       </section>
 
-      {/* ===== BILDIRISHNOMALAR ===== */}
-      <section className="mt-6" aria-label="Admin bildirishnomalari">
+      {/* BILDIRISHNOMALAR */}
+      <section className="mt-6" aria-label={t("admin.notifications")}>
         <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
           <Bell className="w-4 h-4 text-[#d97b29]" />
-          Bildirishnomalar
+          {t("admin.notifications")}
           <span className="text-[10px] font-bold text-[#229ed9] bg-[#e8f4fc] px-2 py-0.5 rounded-full uppercase tracking-wide">
-            Telegram guruh
+            Telegram
           </span>
         </h2>
 
@@ -377,23 +344,16 @@ export function AdminView() {
         ) : (
           <div className="mt-3 bg-[#eef4f9] rounded-2xl p-3 space-y-2 max-h-80 overflow-y-auto scrollbar-thin">
             {(data?.logs.length ?? 0) === 0 ? (
-              <p className="text-center text-xs text-[#94836f] font-medium py-6">
-                Hozircha bildirishnoma yo'q
-              </p>
+              <p className="text-center text-xs text-[#94836f] font-medium py-6">{t("admin.notifEmpty")}</p>
             ) : (
               data!.logs.map((log) => (
-                <div
-                  key={log.id}
-                  className="bg-white rounded-xl rounded-tl-sm px-3.5 py-2.5 shadow-sm max-w-[92%]"
-                >
+                <div key={log.id} className="bg-white rounded-xl rounded-tl-sm px-3.5 py-2.5 shadow-sm max-w-[92%]">
                   <div className="flex items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-[#229ed9] uppercase tracking-wide">
                       <Send className="w-3 h-3" />
                       TopBid Bot
                     </span>
-                    <span className="text-[10px] text-[#94836f] font-medium">
-                      {timeAgo(log.createdAt)}
-                    </span>
+                    <span className="text-[10px] text-[#94836f] font-medium">{timeAgo(log.createdAt, lang)}</span>
                   </div>
                   <p className="text-[13px] text-[#241c14] font-medium leading-relaxed mt-1 whitespace-pre-line">
                     {log.message}
@@ -405,11 +365,11 @@ export function AdminView() {
         )}
       </section>
 
-      {/* ===== PROILLAR ===== */}
-      <section className="mt-6" aria-label="Profillar boshqaruvi">
+      {/* PROILLAR */}
+      <section className="mt-6" aria-label={t("admin.profilesSection")}>
         <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
           <ShieldAlert className="w-4 h-4 text-[#d97b29]" />
-          Profil boshqaruvi ({data?.profiles.length ?? 0})
+          {t("admin.profilesSection")} ({data?.profiles.length ?? 0})
         </h2>
 
         <div className="mt-3 bg-white border border-border rounded-2xl divide-y divide-[#f0e6da] overflow-hidden">
@@ -422,8 +382,8 @@ export function AdminView() {
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-[13px] text-[#241c14] truncate">{p.name}</p>
                 <p className="text-[11px] text-[#94836f] font-medium truncate">
-                  {p.pool === "education" ? "O'rganish" : "Yollash"} • {p.categoryName} •{" "}
-                  {formatSom(p.totalBid)}
+                  {p.pool === "education" ? t("admin.eduPool") : t("admin.itPool")} • {p.categoryName} •{" "}
+                  {formatSom(p.totalBid, lang)}
                 </p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
@@ -438,18 +398,18 @@ export function AdminView() {
                   )}
                 >
                   {p.verifyStatus === "verified"
-                    ? "Tekshirilgan"
+                    ? t("admin.statusVerified")
                     : p.verifyStatus === "pending"
-                      ? "Kutilmoqda"
-                      : "Oddiy"}
+                      ? t("admin.statusPending")
+                      : t("admin.statusNone")}
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => handleDelete(p)}
                   disabled={deletingId === p.id}
-                  className="w-8 h-8 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-600"
-                  aria-label={`${p.name} profilini o'chirish`}
+                  className="w-9 h-9 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-600"
+                  aria-label={`${p.name} ${t("admin.delete")}`}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -457,14 +417,13 @@ export function AdminView() {
             </div>
           ))}
           {data?.profiles.length === 0 && (
-            <p className="text-center text-xs text-[#94836f] font-medium py-8">Profillar yo'q</p>
+            <p className="text-center text-xs text-[#94836f] font-medium py-8">{t("admin.profilesEmpty")}</p>
           )}
         </div>
 
         <div className="mt-3 flex items-start gap-2 text-[11px] text-[#94836f] font-medium bg-[#fff9f2] border border-[#f0d5b8] rounded-xl px-3.5 py-3">
           <CheckCircle2 className="w-4 h-4 text-[#d97b29] shrink-0 mt-px" />
-          Profil o'chirilganda to'lovlar «qaytarildi» deb belgilanadi, jami daromad avtomatik
-          kamayadi va guruhga xabar yuboriladi.
+          {t("admin.deleteNote")}
         </div>
       </section>
     </div>

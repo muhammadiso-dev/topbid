@@ -9,12 +9,10 @@ import { ProfileCard } from "./profile-card";
 import { StatsBar } from "./stats-bar";
 import { PromoBanner } from "./promo-banner";
 import { useUstarStore } from "@/lib/ustar/store";
+import { useI18n } from "@/lib/ustar/i18n";
 import {
-  CATEGORY_GROUPS,
   CITIES,
   EDUCATION_SUBTYPES,
-  POOL_LABELS,
-  POOL_SUBTITLES,
   formatCompactSom,
   type Pool,
   type PriceTier,
@@ -38,6 +36,7 @@ export function HomeView() {
     openAddForm,
     highlightId,
   } = useUstarStore();
+  const { t, lang } = useI18n();
 
   const [data, setData] = useState<{
     pool: Pool;
@@ -72,11 +71,9 @@ export function HomeView() {
   const profiles = loading ? null : data.profiles;
   const promoActive = loading ? false : data.promoActive;
 
-  // Filtrlar faolmi?
   const filtersActive =
     categoryFilter !== "all" || cityFilter !== "all" || (pool === "education" && eduSubFilter !== "all");
 
-  // Filtrlangan ro'yxat (lokal pozitsiyalar bilan)
   const filtered = useMemo(() => {
     if (!profiles) return [];
     return profiles.filter((p) => {
@@ -87,7 +84,6 @@ export function HomeView() {
     });
   }, [profiles, pool, eduSubFilter, categoryFilter, cityFilter]);
 
-  /** Karta CTA narxi: aniq tier yoki (Barchasi) ikkala ta'lim tieridan arzoni */
   const ctaPriceLabel = useCallback(
     (globalPosition: number): string => {
       if (!profiles) return "";
@@ -96,14 +92,14 @@ export function HomeView() {
       else if (eduSubFilter === "center") tiers = ["edu_center"];
       else if (eduSubFilter === "individual") tiers = ["edu_individual"];
       else tiers = ["edu_center", "edu_individual"];
-      const pays = tiers.map((t) =>
-        payableAmount(fullPriceForPosition(profiles, globalPosition, t), promoActive)
+      const pays = tiers.map((tr) =>
+        payableAmount(fullPriceForPosition(profiles, globalPosition, tr), promoActive)
       );
       const min = Math.min(...pays);
-      const label = formatCompactSom(min);
-      return tiers.length > 1 ? `dan ${label}` : label;
+      const label = formatCompactSom(min, lang);
+      return tiers.length > 1 ? `${t("home.from")} ${label}` : label;
     },
-    [profiles, pool, eduSubFilter, promoActive]
+    [profiles, pool, eduSubFilter, promoActive, lang, t]
   );
 
   const poolCategoryGroups = useMemo(() => {
@@ -118,9 +114,14 @@ export function HomeView() {
   }, [categories, pool]);
 
   const selectedCategory = categories.find((c) => c.id === categoryFilter);
-  const entryLabel = formatCompactSom(entryPrice(pool, promoActive));
+  const entryLabel = formatCompactSom(entryPrice(pool, promoActive), lang);
 
   const openProfile = (id: string) => setView({ name: "profile-detail", profileId: id });
+  const clearAllFilters = () => {
+    setCategoryFilter("all");
+    setCityFilter("all");
+    if (pool === "education") setEduSubFilter("all");
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 pb-16">
@@ -128,46 +129,44 @@ export function HomeView() {
       <section className="pt-6 md:pt-10 pb-6 text-center">
         <div className="inline-flex items-center gap-1.5 bg-[#fdeedd] text-[#b25e14] text-[11px] md:text-xs font-extrabold px-3 py-1 rounded-full mb-3">
           <Sparkles className="w-3.5 h-3.5" />
-          {POOL_SUBTITLES[pool]}
+          {pool === "education" ? t("home.heroEduBadge") : t("home.heroItBadge")}
         </div>
         <h1 className="text-[26px] leading-[1.15] md:text-[40px] md:leading-[1.1] font-extrabold tracking-tight text-[#241c14]">
           {pool === "education" ? (
             <>
-              O'zingizga mos repetitor yoki{" "}
-              <span className="text-[#d97b29]">markazni</span> toping
+              {t("home.heroEduTitle1")} <span className="text-[#d97b29]">{t("home.heroEduTitle2")}</span>{" "}
+              {t("home.heroEduTitle3")}
             </>
           ) : (
             <>
-              Tayyor IT mutaxassislarni{" "}
-              <span className="text-[#d97b29]">yollang</span>
+              {t("home.heroItTitle1")} <span className="text-[#d97b29]">{t("home.heroItTitle2")}</span>
             </>
           )}
         </h1>
         <p className="mt-2.5 text-sm md:text-base text-[#6b5d4d] max-w-xl mx-auto leading-relaxed">
-          {pool === "education"
-            ? "Haqiqiy sharhlar va reyting asosida tanlang. Siz ham o'quv xizmatingizni reytingga qo'shing."
-            : "Dasturchi, dizayner, marketolog — barchasi reytingda. Siz ham xizmatingizni taklif qiling."}
+          {pool === "education" ? t("home.heroEduDesc") : t("home.heroItDesc")}
         </p>
         <Button
           onClick={() => openAddForm()}
           className="mt-4 h-11 md:h-12 px-6 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-xl text-sm md:text-base shadow-md shadow-[#d97b29]/25 active:scale-[0.98] transition-transform"
         >
-          {pool === "education" ? "Reytingga qo'shilish" : "Xizmatimni qo'shish"} — {entryLabel}dan
+          {pool === "education" ? t("home.eduCta") : t("home.itCta")} — {entryLabel}
+          {t("home.from")}
         </Button>
       </section>
 
       {/* Statistika */}
-      <section aria-label="Sayt statistikasi">
+      <section aria-label={t("stats.online")}>
         <StatsBar />
       </section>
 
       {/* Ochilish aksiyasi */}
-      <section className="mt-3 md:mt-4" aria-label="Ochilish aksiyasi">
+      <section className="mt-3 md:mt-4" aria-label={t("promo.title")}>
         <PromoBanner />
       </section>
 
       {/* Tab: O'rganish / Yollash */}
-      <section className="mt-6 md:mt-8" aria-label="Reyting turi">
+      <section className="mt-6 md:mt-8" aria-label={t("home.tabEdu")}>
         <div className="grid grid-cols-2 gap-2 p-1 bg-[#f6efe6] rounded-xl">
           <button
             onClick={() => setPool("education")}
@@ -180,7 +179,7 @@ export function HomeView() {
             aria-pressed={pool === "education"}
           >
             <GraduationCap className={cn("w-4 h-4 md:w-5 md:h-5", pool === "education" && "text-[#d97b29]")} />
-            O'rganish
+            {t("home.tabEdu")}
           </button>
           <button
             onClick={() => setPool("it")}
@@ -191,18 +190,16 @@ export function HomeView() {
             aria-pressed={pool === "it"}
           >
             <Briefcase className={cn("w-4 h-4 md:w-5 md:h-5", pool === "it" && "text-[#d97b29]")} />
-            Yollash
+            {t("home.tabIt")}
           </button>
         </div>
         <p className="text-center text-[11px] md:text-xs text-[#94836f] font-semibold mt-2">
-          {pool === "education"
-            ? "Repetitor, ta'lim markazi va kurslar reytingi"
-            : "Frilanser va IT mutaxassislar reytingi"}
+          {pool === "education" ? t("home.tabEduSub") : t("home.tabItSub")}
         </p>
       </section>
 
-      {/* Sub-toifa (faqat O'rganish) + filtrlar */}
-      <section className="mt-4 md:mt-5" aria-label="Filtrlar">
+      {/* Sub-toifa + filtrlar */}
+      <section className="mt-4 md:mt-5" aria-label={t("filter.category")}>
         <div className="flex flex-col gap-2.5">
           {pool === "education" && (
             <div className="flex gap-1.5 overflow-x-auto scrollbar-thin -mx-1 px-1 pb-0.5">
@@ -210,7 +207,7 @@ export function HomeView() {
                 active={eduSubFilter === "all"}
                 onClick={() => setEduSubFilter("all")}
                 icon={<Filter className="w-3.5 h-3.5" />}
-                label="Barchasi"
+                label={t("filter.all")}
               />
               {EDUCATION_SUBTYPES.map((st) => (
                 <SubTab
@@ -218,7 +215,7 @@ export function HomeView() {
                   active={eduSubFilter === st.value}
                   onClick={() => setEduSubFilter(st.value)}
                   icon={st.value === "center" ? <Users className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
-                  label={st.short}
+                  label={st.value === "center" ? t("filter.center") : t("filter.individual")}
                 />
               ))}
             </div>
@@ -227,11 +224,11 @@ export function HomeView() {
           <div className="grid grid-cols-2 gap-2">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="h-11 md:h-10 bg-white border-[#e8ddd0] text-[#241c14] text-[13px] font-semibold rounded-lg">
-                <SelectValue placeholder="Yo'nalish" />
+                <SelectValue placeholder={t("filter.category")} />
               </SelectTrigger>
               <SelectContent className="bg-white border-[#e8ddd0] max-h-80">
                 <SelectItem value="all" className="font-semibold">
-                  Yo'nalish: barchasi
+                  {t("filter.categoryAll")}
                 </SelectItem>
                 {poolCategoryGroups.map(([group, items]) => (
                   <SelectGroup key={group}>
@@ -250,11 +247,11 @@ export function HomeView() {
 
             <Select value={cityFilter} onValueChange={setCityFilter}>
               <SelectTrigger className="h-11 md:h-10 bg-white border-[#e8ddd0] text-[#241c14] text-[13px] font-semibold rounded-lg">
-                <SelectValue placeholder="Shahar" />
+                <SelectValue placeholder={t("filter.city")} />
               </SelectTrigger>
               <SelectContent className="bg-white border-[#e8ddd0] max-h-72">
                 <SelectItem value="all" className="font-semibold">
-                  Shahar: barchasi
+                  {t("filter.cityAll")}
                 </SelectItem>
                 {CITIES.map((c) => (
                   <SelectItem key={c} value={c}>
@@ -268,23 +265,20 @@ export function HomeView() {
           {/* Aktiv filtr chiplari */}
           {filtersActive && (
             <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
-              <span className="text-[#94836f] font-bold">Filtrlar:</span>
+              <span className="text-[#94836f] font-bold">{t("filter.active")}</span>
               {pool === "education" && eduSubFilter !== "all" && (
-                <Chip label={eduSubFilter === "center" ? "Markaz" : "Repetitor"} onClear={() => setEduSubFilter("all")} />
+                <Chip
+                  label={eduSubFilter === "center" ? t("filter.center") : t("filter.individual")}
+                  onClear={() => setEduSubFilter("all")}
+                />
               )}
-              {selectedCategory && (
-                <Chip label={selectedCategory.name} onClear={() => setCategoryFilter("all")} />
-              )}
+              {selectedCategory && <Chip label={selectedCategory.name} onClear={() => setCategoryFilter("all")} />}
               {cityFilter !== "all" && <Chip label={cityFilter} onClear={() => setCityFilter("all")} />}
               <button
-                onClick={() => {
-                  setCategoryFilter("all");
-                  setCityFilter("all");
-                  if (pool === "education") setEduSubFilter("all");
-                }}
+                onClick={clearAllFilters}
                 className="text-[#d97b29] font-extrabold hover:underline cursor-pointer"
               >
-                Hammasini tozalash
+                {t("filter.clearAll")}
               </button>
             </div>
           )}
@@ -292,19 +286,11 @@ export function HomeView() {
       </section>
 
       {/* Reyting ro'yxati */}
-      <section className="mt-5 md:mt-6" aria-label="Reyting ro'yxati">
+      <section className="mt-5 md:mt-6" aria-label={t("nav.home")}>
         {!profiles ? (
           <LoadingSkeleton />
         ) : filtered.length === 0 ? (
-          <EmptyState
-            hasFilters={filtersActive}
-            entryLabel={entryLabel}
-            onClear={() => {
-              setCategoryFilter("all");
-              setCityFilter("all");
-              if (pool === "education") setEduSubFilter("all");
-            }}
-          />
+          <EmptyState hasFilters={filtersActive} entryLabel={entryLabel} onClear={clearAllFilters} />
         ) : (
           <div className="flex flex-col gap-3 md:gap-4">
             {filtered.map((p, idx) => (
@@ -317,7 +303,7 @@ export function HomeView() {
                 priceLabel={ctaPriceLabel(p.position)}
                 promoActive={promoActive}
                 highlighted={highlightId === p.id}
-                onOpen={openProfile}
+                onOpenDetail={openProfile}
                 onTakeSpot={openAddForm}
               />
             ))}
@@ -325,21 +311,19 @@ export function HomeView() {
             {/* Pastki CTA */}
             <div className="mt-2 bg-white border border-dashed border-[#e0cdb4] rounded-xl p-5 md:p-6 text-center">
               <p className="text-sm md:text-[15px] font-extrabold text-[#241c14]">
-                {pool === "education"
-                  ? "Repetitor yoki o'quv markazisizmi?"
-                  : "IT mutaxassis yoki frilansermisiz?"}
+                {pool === "education" ? t("cta.eduTitle") : t("cta.itTitle")}
               </p>
               <p className="text-xs md:text-sm text-[#6b5d4d] mt-1 leading-relaxed">
-                Reytingda o'rin egallang — minglab foydalanuvchi profilingizni ko'radi.
+                {t("cta.desc")}
                 {promoActive && (
-                  <span className="text-[#b25e14] font-bold"> Aksiya davrida barcha narxlar 50% arzon!</span>
+                  <span className="text-[#b25e14] font-bold"> {t("cta.promoNote")}</span>
                 )}
               </p>
               <Button
                 onClick={() => openAddForm()}
                 className="mt-3.5 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-xl h-11 px-6 text-sm shadow-md shadow-[#d97b29]/25 active:scale-[0.98] transition-transform"
               >
-                {entryLabel}dan boshlash
+                {t("cta.start")} {entryLabel}
               </Button>
             </div>
           </div>
@@ -353,7 +337,11 @@ function Chip({ label, onClear }: { label: string; onClear: () => void }) {
   return (
     <span className="inline-flex items-center gap-1 bg-[#fdeedd] text-[#b25e14] font-bold px-2 py-0.5 rounded-full">
       {label}
-      <button onClick={onClear} className="hover:text-[#d97b29] cursor-pointer" aria-label={`${label} filtrini o'chirish`}>
+      <button
+        onClick={onClear}
+        className="hover:text-[#d97b29] cursor-pointer"
+        aria-label={label}
+      >
         ✕
       </button>
     </span>
@@ -390,7 +378,7 @@ function SubTab({
 
 function LoadingSkeleton() {
   return (
-    <div className="flex flex-col gap-3 md:gap-4" aria-label="Yuklanmoqda">
+    <div className="flex flex-col gap-3 md:gap-4" aria-label="...">
       {[1, 2, 3, 4].map((i) => (
         <div key={i} className="bg-white border border-border rounded-xl p-4 md:p-5 flex flex-col gap-3 md:flex-row md:gap-4">
           <div className="hidden md:flex w-14 justify-center">
@@ -430,6 +418,7 @@ function EmptyState({
   entryLabel: string;
   onClear: () => void;
 }) {
+  const { t } = useI18n();
   const { openAddForm } = useUstarStore();
   return (
     <div className="bg-white border border-border rounded-xl p-10 text-center">
@@ -437,12 +426,10 @@ function EmptyState({
         <SearchX className="w-7 h-7 text-[#d97b29]" />
       </div>
       <h3 className="mt-4 font-extrabold text-[#241c14] text-lg">
-        {hasFilters ? "Hech narsa topilmadi" : "Reyting hali bo'sh"}
+        {hasFilters ? t("empty.notFoundTitle") : t("empty.emptyListTitle")}
       </h3>
       <p className="mt-1.5 text-sm text-[#6b5d4d] max-w-sm mx-auto leading-relaxed">
-        {hasFilters
-          ? "Tanlangan filtrlarga mos profil yo'q. Filtrlarni o'zgartirib ko'ring yoki bo'sh o'rinni egallang!"
-          : `Birinchi bo'lib o'rin egallang — raqobatchilar sizdan keyin qoladi. Boshlanish narxi: ${entryLabel}.`}
+        {hasFilters ? t("empty.notFoundDesc") : `${t("empty.emptyListDesc")} ${entryLabel}.`}
       </p>
       <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
         {hasFilters && (
@@ -451,14 +438,14 @@ function EmptyState({
             onClick={onClear}
             className="border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] font-bold rounded-lg"
           >
-            Filtrlarni tozalash
+            {t("empty.clearFilters")}
           </Button>
         )}
         <Button
           onClick={() => openAddForm()}
           className="bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-lg shadow-sm shadow-[#d97b29]/25"
         >
-          1-o'rinni egallash — {entryLabel}
+          {t("empty.takeFirst")} — {entryLabel}
         </Button>
       </div>
     </div>

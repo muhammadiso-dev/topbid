@@ -11,13 +11,45 @@ import { AboutView } from "@/components/ustar/about-view";
 import { RulesView } from "@/components/ustar/rules-view";
 import { AdminView } from "@/components/ustar/admin-view";
 import { useUstarStore } from "@/lib/ustar/store";
+import { useI18nStore } from "@/lib/ustar/i18n";
+import type { Lang } from "@/lib/ustar/i18n/constants-lang";
 
 /**
- * Ustar — ta'lim va IT mutaxassislar reyting platformasi.
+ * TopBid — ta'lim va IT mutaxassislar reyting platformasi.
  * Barcha "sahifalar" client-side view-lar sifatida bitta routeda ishlaydi.
+ * Admin panel: ochiq havolada ko'rinmaydi — faqat #admin hash orqali.
  */
-export default function UstarApp() {
+export default function TopBidApp() {
   const view = useUstarStore((s) => s.view);
+  const setView = useUstarStore((s) => s.setView);
+  const setLang = useI18nStore((s) => s.setLang);
+
+  // Tilni localStorage'dan yuklash
+  useEffect(() => {
+    const saved = localStorage.getItem("topbid_lang") as Lang | null;
+    if (saved && ["uz", "ru", "en", "kk"].includes(saved)) {
+      setLang(saved);
+    }
+  }, [setLang]);
+
+  // #admin hash — maxfiy admin kirish
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === "#admin") {
+        setView({ name: "admin" });
+      }
+    };
+    checkHash();
+    window.addEventListener("hashchange", checkHash);
+    return () => window.removeEventListener("hashchange", checkHash);
+  }, [setView]);
+
+  // Admin'dan chiqsa — hashni tozalash
+  useEffect(() => {
+    if (view.name !== "admin" && window.location.hash === "#admin") {
+      history.replaceState(null, "", window.location.pathname);
+    }
+  }, [view]);
 
   // View o'zgarganda tepaga qaytish
   useEffect(() => {

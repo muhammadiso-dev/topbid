@@ -78,8 +78,7 @@ export async function POST(req: NextRequest) {
       if (pool !== "education" && pool !== "it") errors.pool = "Yo'nalish noto'g'ri";
       if (!name || name.trim().length < 2) errors.name = "Nom kamida 2 belgidan iborat bo'lsin";
       if (name && name.trim().length > 60) errors.name = "Nom 60 belgidan oshmasin";
-      if (!description || description.trim().length < 10)
-        errors.description = "Tavsif kamida 10 belgidan iborat bo'lsin";
+      // Tavsif ixtiyoriy (URL dan avtomatik olinadi); bo'sh bo'lsa nomdan yasaladi
       if (description && description.trim().length > 300)
         errors.description = "Tavsif 300 belgidan oshmasin";
       if (!city) errors.city = "Shaharni tanlang";

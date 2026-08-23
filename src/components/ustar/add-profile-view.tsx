@@ -15,6 +15,9 @@ import {
   User,
   Users,
   Rocket,
+  Wand2,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,10 +28,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { PaymentModal } from "./payment-modal";
 import { useUstarStore, getSessionId } from "@/lib/ustar/store";
+import { useI18n } from "@/lib/ustar/i18n";
 import {
   CITIES,
   EDUCATION_SUBTYPES,
-  POOL_LABELS,
   PRICE_TIERS,
   formatSom,
   isValidContactUrl,
@@ -40,11 +43,19 @@ import { fullPriceForPosition, payableAmount } from "@/lib/ustar/pricing";
 import type { CategoryDTO, CreateProfileResult, ProfileDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 
-/** Profil qo'shish / o'rin olish — tier-based narxlar + logo yuklash */
+interface FetchedMeta {
+  name: string;
+  description: string;
+  imageUrl: string | null;
+  source: string;
+}
+
+/** Profil qo'shish / o'rin olish — URL dan avtomatik metadata + tier narxlar */
 export function AddProfileView() {
   const { setView, setPool, setHighlight, goHome, addIntentPosition, setAddIntentPosition } =
     useUstarStore();
   const { toast } = useToast();
+  const { t, lang } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Forma holati
@@ -57,6 +68,11 @@ export function AddProfileView() {
   const [contactUrl, setContactUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [targetPosition, setTargetPosition] = useState<number | null>(null);
+
+  // Auto-fetch holati
+  const [fetchState, setFetchState] = useState<"idle" | "loading" | "done" | "failed">("idle");
+  const [fetchedMeta, setFetchedMeta] = useState<FetchedMeta | null>(null);
+  const [autoFilled, setAutoFilled] = useState(false);
 
   const [categories, setCategories] = useState<CategoryDTO[]>([]);
   const [ranked, setRanked] = useState<ProfileDTO[] | null>(null);
@@ -80,7 +96,7 @@ export function AddProfileView() {
       .catch(() => null);
   }, []);
 
-  // Pool o'zgarganda: reyting + standart toifa
+  // Pool o'zgarganda
   useEffect(() => {
     setRanked(null);
     fetch(`/api/profiles?pool=${pool}`)
@@ -91,7 +107,7 @@ export function AddProfileView() {
     setCategoryId("");
   }, [pool]);
 
-  // Intent (kartochkadagi "O'rinni egallash") — reyting kelgach qo'llanadi
+  // Intent pozitsiyasi
   useEffect(() => {
     if (ranked && addIntentPosition && addIntentPosition <= ranked.length + 1) {
       setTargetPosition(addIntentPosition);
@@ -99,33 +115,57 @@ export function AddProfileView() {
     }
   }, [ranked, addIntentPosition, setAddIntentPosition]);
 
-  // Kontakt mavjudligini tekshirish (debounce)
+  // ===== AVTOMATIK METADATA: kontakt + mavjudlik tekshiruvi (debounce) =====
   useEffect(() => {
     const u = contactUrl.trim();
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       if (!u || !isValidContactUrl(u)) {
         setExistingProfile(null);
+        setFetchState("idle");
+        setFetchedMeta(null);
         return;
       }
+      // 1) Mavjud profil tekshiruvi
       fetch(`/api/profiles/check?contact=${encodeURIComponent(u)}`)
         .then((r) => r.json())
-        .then(
-          (d: { exists: boolean; profile?: { id: string; name: string; totalBid: number } }) => {
-            setExistingProfile(d.exists && d.profile ? d.profile : null);
+        .then((d: { exists: boolean; profile?: { id: string; name: string; totalBid: number } }) => {
+          setExistingProfile(d.exists && d.profile ? d.profile : null);
+          // 2) Agar yangi profil bo'lsa — metadata avtomatik olish
+          if (!d.exists) {
+            setFetchState("loading");
+            fetch(`/api/fetch-meta?url=${encodeURIComponent(u)}`)
+              .then((r) => r.json())
+              .then((m: FetchedMeta) => {
+                if (m && (m.name || m.imageUrl)) {
+                  setFetchedMeta(m);
+                  setFetchState("done");
+                  // Faqat bo'sh maydonlarni to'ldirish (foydalanuvchi yozganini buzmaymiz)
+                  if (!name.trim() && m.name) setName(m.name);
+                  if (!description.trim() && m.description) setDescription(m.description.slice(0, 300));
+                  if (!imageUrl && m.imageUrl) setImageUrl(m.imageUrl);
+                  setAutoFilled(true);
+                } else {
+                  setFetchState("failed");
+                }
+              })
+              .catch(() => setFetchState("failed"));
+          } else {
+            setFetchState("idle");
+            setFetchedMeta(null);
           }
-        )
+        })
         .catch(() => null);
-    }, 500);
-    return () => clearTimeout(t);
+    }, 600);
+    return () => clearTimeout(timer);
+    // name/description/imageUrl ni qasddan dependency'dan chiqarmadik — faqat URL o'zgarsa
+     
   }, [contactUrl]);
 
   // ===== Narx darajasi =====
-  const tier: PriceTier =
-    pool === "it" ? "it" : subType === "center" ? "edu_center" : "edu_individual";
+  const tier: PriceTier = pool === "it" ? "it" : subType === "center" ? "edu_center" : "edu_individual";
   const tierInfo = PRICE_TIERS[tier];
   const topupMode = existingProfile !== null;
 
-  /** Tanlangan o'rin uchun to'lov (top-up rejimida farq) */
   const amountFor = useCallback(
     (position: number) => {
       if (!ranked) return 0;
@@ -139,7 +179,6 @@ export function AddProfileView() {
     [ranked, tier, topupMode, existingProfile, tierInfo.step, promo.active]
   );
 
-  /** Reytingga yoziladigan to'liq summa (ko'rsatish uchun) */
   const fullFor = useCallback(
     (position: number) => {
       if (!ranked) return 0;
@@ -157,12 +196,13 @@ export function AddProfileView() {
   const fullAmount = selectedPosition ? fullFor(selectedPosition) : 0;
   const hasPromoDiscount = promo.active && fullAmount > amount;
 
-  const poolLabel = pool === "education" ? "O'rganish (ta'lim)" : "Yollash (IT mutaxassislar)";
+  const poolLabel =
+    pool === "education" ? `${t("home.tabEdu")} (ta'lim)` : `${t("home.tabIt")} (IT)`;
   const targetLabel = selectedPosition
     ? topupMode
-      ? `${selectedPosition}-o'ringa ko'tarilish (mavjud profilga qo'shiladi)`
-      : `${selectedPosition}-o'rinni egallash`
-    : "O'rin tanlanmadi";
+      ? `${selectedPosition}${t("form.targetTopup")}`
+      : `${selectedPosition}${t("form.targetPosition")}`
+    : t("form.targetNone");
 
   const poolCategories = useMemo(
     () => categories.filter((c) => c.pool === pool),
@@ -182,11 +222,11 @@ export function AddProfileView() {
   const handleFileSelect = async (file: File | null) => {
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
-      toast({ title: "Fayl juda katta", description: "Maksimal hajm: 2MB", variant: "destructive" });
+      toast({ title: t("err.fileBig"), description: t("err.fileBigDesc"), variant: "destructive" });
       return;
     }
     if (!["image/png", "image/jpeg", "image/webp", "image/gif"].includes(file.type)) {
-      toast({ title: "Noto'g'ri format", description: "PNG, JPG, WEBP yoki GIF yuklang", variant: "destructive" });
+      toast({ title: t("err.fileType"), description: t("err.fileTypeDesc"), variant: "destructive" });
       return;
     }
     setUploading(true);
@@ -195,15 +235,11 @@ export function AddProfileView() {
       fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Yuklashda xatolik");
+      if (!res.ok) throw new Error(data.error || "upload error");
       setImageUrl(data.url);
-      toast({ title: "Logo yuklandi", description: "Rasm profilingizga biriktirildi" });
-    } catch (e) {
-      toast({
-        title: "Yuklashda xatolik",
-        description: e instanceof Error ? e.message : "Qayta urinib ko'ring",
-        variant: "destructive",
-      });
+      toast({ title: t("toast.logoUploaded"), description: t("toast.logoUploadedDesc") });
+    } catch {
+      toast({ title: t("err.uploadFail"), description: t("err.retry"), variant: "destructive" });
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -214,12 +250,13 @@ export function AddProfileView() {
   const validate = (): boolean => {
     const e: Record<string, string> = {};
     if (!contactUrl.trim() || !isValidContactUrl(contactUrl))
-      e.contactUrl = "Noto'g'ri format: @username yoki https://sayt.uz ko'rinishida yozing";
+      e.contactUrl = t("err.contact");
     if (!topupMode) {
-      if (!name.trim() || name.trim().length < 2) e.name = "Nom kamida 2 belgidan iborat bo'lsin";
-      if (!categoryId) e.categoryId = "Yo'nalishni tanlang";
-      if (!city) e.city = "Shaharni tanlang";
-      if (description.trim().length < 10) e.description = "Tavsif kamida 10 belgidan iborat bo'lsin";
+      if (!name.trim() || name.trim().length < 2) e.name = t("err.name");
+      if (!categoryId) e.categoryId = t("err.category");
+      if (!city) e.city = t("err.city");
+      // Avtomatik olingan tavsif qisqa bo'lishi mumkin — faqat qo'lda kiritilganda qat'iy
+      if (description.trim().length < 10 && !fetchedMeta?.description) e.description = t("err.desc");
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -242,7 +279,7 @@ export function AddProfileView() {
           categoryId,
           name,
           city,
-          description,
+          description: description || fetchedMeta?.description || name,
           contactUrl,
           imageUrl,
           targetPosition: targetPosition ?? (ranked?.length ?? 0) + 1,
@@ -252,20 +289,17 @@ export function AddProfileView() {
       const data = await res.json();
       if (!res.ok) {
         if (data.errors) setErrors(data.errors);
-        throw new Error(data.error || "Xatolik yuz berdi");
+        throw new Error(data.error || "error");
       }
       const result = data as CreateProfileResult;
-      toast({
-        title: "🎉 To'lov qabul qilindi!",
-        description: result.message,
-      });
+      toast({ title: t("toast.paidTitle"), description: result.message });
       setPool(pool);
       setHighlight(result.profile.id);
       setTimeout(() => goHome(), 400);
     } catch (err) {
       toast({
-        title: "Xatolik",
-        description: err instanceof Error ? err.message : "Profil qo'shishda xatolik",
+        title: t("err.generic"),
+        description: err instanceof Error ? err.message : t("err.server"),
         variant: "destructive",
       });
       throw err;
@@ -283,15 +317,13 @@ export function AddProfileView() {
           size="icon"
           onClick={() => setView({ name: "home" })}
           className="rounded-lg hover:bg-[#f6efe6] text-[#574634]"
-          aria-label="Orqaga"
+          aria-label={t("form.back")}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14]">O'rin olish</h1>
-          <p className="text-xs md:text-sm text-[#6b5d4d] mt-0.5">
-            Profilingizni qo'shing va reytingda o'rin egallang
-          </p>
+          <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14]">{t("form.title")}</h1>
+          <p className="text-xs md:text-sm text-[#6b5d4d] mt-0.5">{t("form.subtitle")}</p>
         </div>
       </div>
 
@@ -303,29 +335,28 @@ export function AddProfileView() {
         }}
       >
         {/* 1-qadam: Yo'nalish */}
-        <Section step={1} title="Yo'nalish" hint="Qaysi sohadasiz?">
+        <Section step={1} title={t("form.step1")} hint={t("form.step1Hint")}>
           <div className="grid grid-cols-2 gap-2">
             <PoolButton
               active={pool === "education"}
               onClick={() => setFormPool("education")}
               icon={<GraduationCap className="w-4 h-4" />}
-              label="O'rganish"
-              sub="Markaz yoki repetitor"
+              label={t("form.eduPool")}
+              sub={t("form.eduPoolSub")}
             />
             <PoolButton
               active={pool === "it"}
               onClick={() => setFormPool("it")}
               icon={<Briefcase className="w-4 h-4" />}
-              label="Yollash"
-              sub="IT mutaxassis/frilanser"
+              label={t("form.itPool")}
+              sub={t("form.itPoolSub")}
             />
           </div>
 
-          {/* Taifa — narx darajasi bilan */}
           {pool === "education" ? (
             <div className="mt-3">
               <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-                Siz kimsiz? <span className="text-[#d97b29]">*</span>
+                {t("form.whoAreYou")} <span className="text-[#d97b29]">*</span>
               </Label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {EDUCATION_SUBTYPES.map((st) => {
@@ -351,14 +382,25 @@ export function AddProfileView() {
                           active ? "bg-[#d97b29] text-white" : "bg-[#f6efe6] text-[#574634]"
                         )}
                       >
-                        {st.value === "center" ? <Users className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                        {st.value === "center" ? (
+                          <Users className="w-4 h-4" />
+                        ) : (
+                          <User className="w-4 h-4" />
+                        )}
                       </div>
                       <div className="min-w-0">
-                        <p className={cn("text-[13px] font-extrabold", active ? "text-[#b25e14]" : "text-[#241c14]")}>
-                          {st.label}
+                        <p
+                          className={cn(
+                            "text-[13px] font-extrabold",
+                            active ? "text-[#b25e14]" : "text-[#241c14]"
+                          )}
+                        >
+                          {st.value === "center" ? t("form.centerLabel") : t("form.individualLabel")}
                         </p>
                         <p className="text-[11px] text-[#94836f] font-bold mt-0.5 tabular-nums">
-                          {formatSom(entry)}dan{promo.active && " (aksiya)"}
+                          {formatSom(entry, lang)}
+                          {t("home.from")}
+                          {promo.active && ` ${t("form.actionPromo")}`}
                         </p>
                       </div>
                     </button>
@@ -370,19 +412,19 @@ export function AddProfileView() {
             <div className="mt-3 flex items-center gap-2.5 bg-[#fdeedd] border border-[#f0d5b8] rounded-xl px-3.5 py-2.5">
               <Briefcase className="w-4 h-4 text-[#d97b29] shrink-0" />
               <p className="text-[12px] text-[#574634] font-semibold">
-                IT mutaxassislar narx darajasi:{" "}
+                {t("form.itTierNote")}{" "}
                 <b className="tabular-nums">
-                  {formatSom(payableAmount(PRICE_TIERS.it.min, promo.active))}dan
+                  {formatSom(payableAmount(PRICE_TIERS.it.min, promo.active), lang)}
+                  {t("home.from")}
                 </b>{" "}
-                (aksiya bilan)
+                {promo.active && t("form.actionPromo")}
               </p>
             </div>
           )}
 
-          {/* Kategoriya — guruhlar bilan */}
           <div className="mt-3">
             <Label htmlFor="category" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-              Yo'nalish (fan/soha) <span className="text-[#d97b29]">*</span>
+              {t("form.categoryLabel")} <span className="text-[#d97b29]">*</span>
             </Label>
             <Select value={categoryId} onValueChange={(v) => setCategoryId(v)}>
               <SelectTrigger
@@ -391,7 +433,7 @@ export function AddProfileView() {
                   errors.categoryId ? "border-red-300" : "border-[#e8ddd0]"
                 )}
               >
-                <SelectValue placeholder="Tanlang (masalan: Ingliz tili (IELTS), Frontend...)" />
+                <SelectValue placeholder={t("form.categoryPlaceholder")} />
               </SelectTrigger>
               <SelectContent className="bg-white border-[#e8ddd0] max-h-80">
                 {poolCategoryGroups.map(([group, items]) => (
@@ -412,12 +454,101 @@ export function AddProfileView() {
           </div>
         </Section>
 
-        {/* 2-qadam: Profil ma'lumotlari */}
-        <Section step={2} title="Profil ma'lumotlari" hint="Reytingda shu ma'lumotlar ko'rinadi">
+        {/* 2-qadam: Profil ma'lumotlari — URL birinchi! */}
+        <Section
+          step={2}
+          title={t("form.step2")}
+          hint={t("form.step2Hint")}
+        >
           <div className="space-y-3.5">
+            {/* KONTAKT HAVOLASI — asosiy maydon */}
+            <div>
+              <Label htmlFor="contact" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+                {t("form.contact")} <span className="text-[#d97b29]">*</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  id="contact"
+                  value={contactUrl}
+                  onChange={(e) => setContactUrl(e.target.value)}
+                  placeholder={t("form.contactPlaceholder")}
+                  className={cn(
+                    "h-11 bg-white text-sm font-semibold rounded-lg pr-10",
+                    errors.contactUrl ? "border-red-300" : "border-[#e8ddd0]"
+                  )}
+                />
+                {/* Fetch indikatori */}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  {fetchState === "loading" && <Loader2 className="w-4 h-4 text-[#d97b29] animate-spin" />}
+                  {fetchState === "done" && <CheckCircle2 className="w-4 h-4 text-green-600" />}
+                  {fetchState === "failed" && <XCircle className="w-4 h-4 text-[#c4b5a1]" />}
+                </div>
+              </div>
+              {errors.contactUrl ? (
+                <FieldError msg={errors.contactUrl} />
+              ) : fetchState === "loading" ? (
+                <p className="text-[11px] text-[#b25e14] font-bold mt-1.5 flex items-center gap-1">
+                  <Wand2 className="w-3 h-3" />
+                  {t("fetch.loading")}
+                </p>
+              ) : fetchState === "done" && !topupMode ? (
+                <div className="mt-2 bg-[#f0faf4] border border-[#c8ecd5] rounded-xl px-3 py-2.5">
+                  <p className="text-[11px] text-[#1a7a3c] font-extrabold flex items-center gap-1">
+                    <Wand2 className="w-3 h-3" />
+                    {t("fetch.fetched")}
+                  </p>
+                  {/* Preview kartochka */}
+                  {fetchedMeta && (
+                    <div className="flex items-center gap-2.5 mt-2 bg-white rounded-lg p-2.5 border border-[#dcefe3]">
+                      {fetchedMeta.imageUrl ? (
+                         
+                        <img
+                          src={fetchedMeta.imageUrl}
+                          alt={fetchedMeta.name}
+                          className="w-10 h-10 rounded-lg object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-[#f6efe6] shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-extrabold text-[#241c14] truncate">
+                          {fetchedMeta.name}
+                        </p>
+                        <p className="text-[11px] text-[#94836f] truncate">
+                          {fetchedMeta.description || contactUrl}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : fetchState === "failed" && !topupMode ? (
+                <p className="text-[11px] text-[#94836f] font-medium mt-1.5 flex items-start gap-1">
+                  <Info className="w-3 h-3 mt-px shrink-0" />
+                  {t("fetch.failed")}
+                </p>
+              ) : topupMode && existingProfile ? (
+                <div className="mt-1.5 flex items-start gap-1.5 bg-[#f0f9ff] border border-[#cbe9f8] rounded-lg px-2.5 py-2">
+                  <Info className="w-3 h-3 mt-0.5 shrink-0 text-[#229ed9]" />
+                  <p className="text-[11px] text-[#1a6da8] font-semibold leading-snug">
+                    {t("topup.banner")} <b>{existingProfile.name}</b> {t("topup.exists")}{" "}
+                    {formatSom(existingProfile.totalBid, lang)}).
+                  </p>
+                </div>
+              ) : (
+                <p className="text-[11px] text-[#94836f] font-medium mt-1.5 flex items-start gap-1">
+                  <Info className="w-3 h-3 mt-px shrink-0" />
+                  {t("form.contactHint")}
+                </p>
+              )}
+            </div>
+
             <div>
               <Label htmlFor="name" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-                Nom <span className="text-[#d97b29]">*</span>
+                {t("form.name")}{" "}
+                {autoFilled && (
+                  <span className="text-[10px] text-green-600 font-bold">✓ auto</span>
+                )}{" "}
+                <span className="text-[#d97b29]">*</span>
               </Label>
               <Input
                 id="name"
@@ -427,9 +558,9 @@ export function AddProfileView() {
                 placeholder={
                   pool === "education"
                     ? subType === "center"
-                      ? "Masalan: Smart English Academy"
-                      : "Masalan: Aziza Karimova"
-                    : "Masalan: CodeCraft Studio"
+                      ? t("form.namePlaceholderCenter")
+                      : t("form.namePlaceholderIndividual")
+                    : t("form.namePlaceholderIt")
                 }
                 className={cn(
                   "h-11 bg-white text-sm font-semibold rounded-lg",
@@ -441,7 +572,7 @@ export function AddProfileView() {
 
             <div>
               <Label htmlFor="city" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-                Shahar <span className="text-[#d97b29]">*</span>
+                {t("form.city")} <span className="text-[#d97b29]">*</span>
               </Label>
               <Select value={city} onValueChange={setCity}>
                 <SelectTrigger
@@ -450,7 +581,7 @@ export function AddProfileView() {
                     errors.city ? "border-red-300" : "border-[#e8ddd0]"
                   )}
                 >
-                  <SelectValue placeholder="Shaharni tanlang" />
+                  <SelectValue placeholder={t("form.cityPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-[#e8ddd0] max-h-72">
                   {CITIES.map((c) => (
@@ -466,7 +597,10 @@ export function AddProfileView() {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <Label htmlFor="description" className="text-[13px] font-bold text-[#574634]">
-                  Qisqa tavsif <span className="text-[#d97b29]">*</span>
+                  {t("form.description")}{" "}
+                  {fetchedMeta?.description && autoFilled && (
+                    <span className="text-[10px] text-green-600 font-bold">✓ auto</span>
+                  )}
                 </Label>
                 <span
                   className={cn(
@@ -483,7 +617,7 @@ export function AddProfileView() {
                 onChange={(e) => setDescription(e.target.value)}
                 maxLength={300}
                 rows={3}
-                placeholder="Xizmatlaringiz qisqacha: tajriba, natijalar, afzalliklar..."
+                placeholder={t("form.descriptionPlaceholder")}
                 className={cn(
                   "bg-white text-sm font-medium rounded-lg resize-none leading-relaxed",
                   errors.description ? "border-red-300" : "border-[#e8ddd0]"
@@ -492,57 +626,27 @@ export function AddProfileView() {
               {errors.description && <FieldError msg={errors.description} />}
             </div>
 
-            <div>
-              <Label htmlFor="contact" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-                Kontakt havolasi <span className="text-[#d97b29]">*</span>
-              </Label>
-              <Input
-                id="contact"
-                value={contactUrl}
-                onChange={(e) => setContactUrl(e.target.value)}
-                placeholder="@username yoki https://sayt.uz"
-                className={cn(
-                  "h-11 bg-white text-sm font-semibold rounded-lg",
-                  errors.contactUrl ? "border-red-300" : "border-[#e8ddd0]"
-                )}
-              />
-              {errors.contactUrl ? (
-                <FieldError msg={errors.contactUrl} />
-              ) : topupMode && existingProfile ? (
-                <div className="mt-1.5 flex items-start gap-1.5 bg-[#f0f9ff] border border-[#cbe9f8] rounded-lg px-2.5 py-2">
-                  <Info className="w-3 h-3 mt-0.5 shrink-0 text-[#229ed9]" />
-                  <p className="text-[11px] text-[#1a6da8] font-semibold leading-snug">
-                    Bu kontakt <b>{existingProfile.name}</b> nomi bilan ro'yxatda — yangi profil
-                    ochilmaydi, summa mavjud profilga qo'shiladi (reyting summasi:{" "}
-                    {formatSom(existingProfile.totalBid)}).
-                  </p>
-                </div>
-              ) : (
-                <p className="text-[11px] text-[#94836f] font-medium mt-1.5 flex items-start gap-1">
-                  <Info className="w-3 h-3 mt-px shrink-0" />
-                  Bir xil kontakt qayta kiritilsa, yangi profil ochilmaydi — summa mavjud profilga
-                  qo'shiladi.
-                </p>
-              )}
-            </div>
-
-            {/* Logo yuklash */}
+            {/* Logo */}
             <div>
               <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-                Logo / rasm <span className="text-[#94836f] font-medium">(ixtiyoriy)</span>
+                {t("form.logo")}{" "}
+                {fetchedMeta?.imageUrl && autoFilled && (
+                  <span className="text-[10px] text-green-600 font-bold">✓ auto</span>
+                )}{" "}
+                <span className="text-[#94836f] font-medium">({t("form.optional")})</span>
               </Label>
               {imageUrl ? (
                 <div className="flex items-center gap-3 bg-[#fffdfa] border border-[#f0e6da] rounded-xl p-3">
                   { }
                   <img
                     src={imageUrl}
-                    alt="Yuklangan logo"
+                    alt="Logo"
                     className="w-14 h-14 rounded-xl object-cover border border-[#f0e6da]"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-bold text-[#241c14]">Logo biriktirildi</p>
+                    <p className="text-[13px] font-bold text-[#241c14]">{t("form.logoAttached")}</p>
                     <p className="text-[11px] text-[#94836f] font-medium mt-0.5">
-                      Reytingda shu rasm ko'rinadi
+                      {t("form.logoAttachedDesc")}
                     </p>
                   </div>
                   <Button
@@ -551,7 +655,7 @@ export function AddProfileView() {
                     size="icon"
                     className="w-9 h-9 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-600"
                     onClick={() => setImageUrl("")}
-                    aria-label="Logoni o'chirish"
+                    aria-label={t("form.logoRemove")}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -566,16 +670,16 @@ export function AddProfileView() {
                   {uploading ? (
                     <>
                       <Loader2 className="w-6 h-6 text-[#d97b29] animate-spin" />
-                      <span className="text-xs font-bold text-[#574634]">Yuklanmoqda...</span>
+                      <span className="text-xs font-bold text-[#574634]">{t("form.uploading")}</span>
                     </>
                   ) : (
                     <>
                       <ImagePlus className="w-6 h-6 text-[#d97b29]" />
                       <span className="text-[13px] font-extrabold text-[#241c14]">
-                        Logo yuklash (bosib tanlang)
+                        {t("form.logoUpload")}
                       </span>
                       <span className="text-[11px] text-[#94836f] font-medium">
-                        PNG, JPG, WEBP yoki GIF — maksimal 2MB
+                        {t("form.logoFormats")}
                       </span>
                     </>
                   )}
@@ -587,17 +691,17 @@ export function AddProfileView() {
                 accept="image/png,image/jpeg,image/webp,image/gif"
                 className="hidden"
                 onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
-                aria-label="Logo faylini tanlash"
+                aria-label="Logo"
               />
               {!imageUrl && (
-                <details className="mt-2 group">
+                <details className="mt-2">
                   <summary className="text-[11px] text-[#94836f] font-bold cursor-pointer hover:text-[#b25e14] list-none select-none">
-                    yoki rasm havolasi bilan ↗
+                    {t("form.logoUrl")} ↗
                   </summary>
                   <Input
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://misol.uz/logo.png"
+                    placeholder="https://..."
                     className="mt-1.5 h-10 bg-white text-[13px] font-semibold rounded-lg border-[#e8ddd0]"
                   />
                 </details>
@@ -609,9 +713,9 @@ export function AddProfileView() {
         {/* 3-qadam: O'rin tanlash */}
         <Section
           step={3}
-          title="O'riningizni tanlang"
-          hint={`${tierInfo.label} narx darajasi — qadam ${formatSom(tierInfo.step)}${
-            tierInfo.top1Extra ? `, TOP-1 premium ${formatSom(tierInfo.top1Extra)}` : ""
+          title={t("form.step3")}
+          hint={`${tierInfo.label} — ${t("about.tableStep")} ${formatSom(tierInfo.step, lang)}${
+            tierInfo.top1Extra ? `, TOP-1 ${t("form.top1Premium")} ${formatSom(tierInfo.top1Extra, lang)}` : ""
           }`}
         >
           {!ranked ? (
@@ -658,7 +762,8 @@ export function AddProfileView() {
                             active ? "text-[#b25e14]" : "text-[#241c14]"
                           )}
                         >
-                          {pos}-o'rin
+                          {pos}
+                          {t("form.targetPosition")}
                           {isTop1 && (
                             <span className="text-[9px] font-extrabold uppercase bg-[#d97b29] text-white px-1.5 py-0.5 rounded-full shrink-0">
                               TOP-1
@@ -672,11 +777,11 @@ export function AddProfileView() {
                         </span>
                         {holder ? (
                           <span className="block text-[10px] sm:text-[11px] text-[#94836f] font-semibold truncate mt-0.5">
-                            hozir: {holder.name}
+                            {t("form.holderNow")} {holder.name}
                           </span>
                         ) : (
                           <span className="block text-[10px] sm:text-[11px] text-[#94836f] font-semibold mt-0.5">
-                            bo'sh o'rin
+                            {t("form.emptySpot")}
                           </span>
                         )}
                       </span>
@@ -685,16 +790,16 @@ export function AddProfileView() {
                       <span className="text-right">
                         {discounted && (
                           <span className="block text-[10px] font-bold text-[#c4b5a1] line-through tabular-nums leading-none">
-                            {formatSom(full)}
+                            {formatSom(full, lang)}
                           </span>
                         )}
                         <span
                           className={cn(
                             "text-[13px] sm:text-sm font-extrabold tabular-nums",
-                            active ? "text-[#d97b29]" : discounted ? "text-[#d97b29]" : "text-[#241c14]"
+                            discounted ? "text-[#d97b29]" : active ? "text-[#d97b29]" : "text-[#241c14]"
                           )}
                         >
-                          {formatSom(pay)}
+                          {formatSom(pay, lang)}
                         </span>
                       </span>
                       <span
@@ -712,13 +817,11 @@ export function AddProfileView() {
             </div>
           )}
 
-          {/* Aksiya eslatmasi */}
           {promo.active && (
             <div className="mt-3 flex items-center gap-2 bg-gradient-to-r from-[#fdeedd] to-[#fff9f2] border border-[#f0d5b8] rounded-xl px-3.5 py-2.5">
               <Rocket className="w-4 h-4 text-[#d97b29] shrink-0" />
               <p className="text-[11px] sm:text-xs text-[#b25e14] font-bold leading-snug">
-                Ochilish aksiyasi: hozir barcha narxlar 50% arzon — reytingga to'liq summa
-                yoziladi! (chizilgan narx — oddiy narx)
+                {t("form.promoNote")}
               </p>
             </div>
           )}
@@ -729,7 +832,7 @@ export function AddProfileView() {
               <CircleDollarSign className="w-5 h-5 text-[#e9a05c] shrink-0" />
               <div className="min-w-0">
                 <p className="text-[11px] font-bold uppercase tracking-wide text-[#94836f] leading-none">
-                  {topupMode ? "To'lanadigan qo'shimcha" : "To'lov summasi"}
+                  {topupMode ? t("form.payTopup") : t("form.payTotal")}
                 </p>
                 <p className="text-xs text-[#c4b5a1] font-medium mt-1 truncate">{targetLabel}</p>
               </div>
@@ -737,11 +840,11 @@ export function AddProfileView() {
             <p className="text-right shrink-0">
               {hasPromoDiscount && (
                 <span className="block text-[11px] font-bold text-[#94836f] line-through tabular-nums leading-none mb-0.5">
-                  {formatSom(fullAmount)}
+                  {formatSom(fullAmount, lang)}
                 </span>
               )}
               <span className="text-xl md:text-2xl font-extrabold text-white tabular-nums">
-                {formatSom(amount)}
+                {formatSom(amount, lang)}
               </span>
             </p>
           </div>
@@ -753,15 +856,10 @@ export function AddProfileView() {
           disabled={submitting || !ranked}
           className="w-full h-12 md:h-13 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-xl text-base shadow-md shadow-[#d97b29]/25 active:scale-[0.99] transition-transform"
         >
-          {submitting ? (
-            "To'lov qilinmoqda..."
-          ) : (
-            <>To'lovga o'tish — {formatSom(amount)}</>
-          )}
+          {submitting ? t("form.processing") : <>{t("form.toPayment")} — {formatSom(amount, lang)}</>}
         </Button>
       </form>
 
-      {/* To'lov modali */}
       <PaymentModal
         open={paymentOpen}
         onOpenChange={setPaymentOpen}

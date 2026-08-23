@@ -1,12 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, GraduationCap, Code2, Info, Trophy, CircleDollarSign } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ArrowLeft,
+  GraduationCap,
+  Briefcase,
+  Info,
+  Trophy,
+  CircleDollarSign,
+  ImagePlus,
+  Trash2,
+  Loader2,
+  Crown,
+  User,
+  Users,
+  Rocket,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { PaymentModal } from "./payment-modal";
@@ -14,19 +28,24 @@ import { useUstarStore, getSessionId } from "@/lib/ustar/store";
 import {
   CITIES,
   EDUCATION_SUBTYPES,
-  IT_SUBTYPES,
-  MIN_BID,
+  POOL_LABELS,
+  PRICE_TIERS,
   formatSom,
   isValidContactUrl,
+  promoInfo,
   type Pool,
+  type PriceTier,
 } from "@/lib/ustar/constants";
-import type { CategoryDTO, CreateProfileResult, PriceOptionDTO } from "@/lib/ustar/types";
+import { fullPriceForPosition, payableAmount } from "@/lib/ustar/pricing";
+import type { CategoryDTO, CreateProfileResult, ProfileDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 
-/** Profil qo'shish / to'lov sahifasi — auksion mantig'i bilan */
+/** Profil qo'shish / o'rin olish — tier-based narxlar + logo yuklash */
 export function AddProfileView() {
-  const { setView, setPool, setHighlight, goHome } = useUstarStore();
+  const { setView, setPool, setHighlight, goHome, addIntentPosition, setAddIntentPosition } =
+    useUstarStore();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Forma holati
   const [pool, setFormPool] = useState<Pool>("education");
@@ -40,8 +59,7 @@ export function AddProfileView() {
   const [targetPosition, setTargetPosition] = useState<number | null>(null);
 
   const [categories, setCategories] = useState<CategoryDTO[]>([]);
-  const [priceOptions, setPriceOptions] = useState<PriceOptionDTO[]>([]);
-  const [loadingPrices, setLoadingPrices] = useState(true);
+  const [ranked, setRanked] = useState<ProfileDTO[] | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -50,8 +68,11 @@ export function AddProfileView() {
     name: string;
     totalBid: number;
   } | null>(null);
+  const [uploading, setUploading] = useState(false);
 
-  // Kategoriyalarni yuklash
+  const promo = promoInfo();
+
+  // Kategoriyalar
   useEffect(() => {
     fetch("/api/categories")
       .then((r) => r.json())
@@ -59,7 +80,26 @@ export function AddProfileView() {
       .catch(() => null);
   }, []);
 
-  // Kontakt allaqachon ro'yxatda bormi? (debounce bilan)
+  // Pool o'zgarganda: reyting + standart toifa
+  useEffect(() => {
+    setRanked(null);
+    fetch(`/api/profiles?pool=${pool}`)
+      .then((r) => r.json())
+      .then((d: { profiles: ProfileDTO[] }) => setRanked(d.profiles))
+      .catch(() => setRanked([]));
+    setSubType(pool === "education" ? "center" : "it");
+    setCategoryId("");
+  }, [pool]);
+
+  // Intent (kartochkadagi "O'rinni egallash") — reyting kelgach qo'llanadi
+  useEffect(() => {
+    if (ranked && addIntentPosition && addIntentPosition <= ranked.length + 1) {
+      setTargetPosition(addIntentPosition);
+      setAddIntentPosition(null);
+    }
+  }, [ranked, addIntentPosition, setAddIntentPosition]);
+
+  // Kontakt mavjudligini tekshirish (debounce)
   useEffect(() => {
     const u = contactUrl.trim();
     const t = setTimeout(() => {
@@ -69,67 +109,115 @@ export function AddProfileView() {
       }
       fetch(`/api/profiles/check?contact=${encodeURIComponent(u)}`)
         .then((r) => r.json())
-        .then((d: { exists: boolean; profile?: { id: string; name: string; totalBid: number } }) => {
-          setExistingProfile(d.exists && d.profile ? d.profile : null);
-        })
+        .then(
+          (d: { exists: boolean; profile?: { id: string; name: string; totalBid: number } }) => {
+            setExistingProfile(d.exists && d.profile ? d.profile : null);
+          }
+        )
         .catch(() => null);
     }, 500);
     return () => clearTimeout(t);
   }, [contactUrl]);
 
-  // Pool o'zgarganda narxlarni yangilash
-  const loadPrices = useCallback((p: Pool) => {
-    setLoadingPrices(true);
-    fetch(`/api/profiles?pool=${p}`)
-      .then((r) => r.json())
-      .then((d: { priceOptions: PriceOptionDTO[] }) => {
-        setPriceOptions(d.priceOptions);
-        setTargetPosition(d.priceOptions[d.priceOptions.length - 1]?.position ?? 1);
-      })
-      .catch(() => setPriceOptions([]))
-      .finally(() => setLoadingPrices(false));
-  }, []);
+  // ===== Narx darajasi =====
+  const tier: PriceTier =
+    pool === "it" ? "it" : subType === "center" ? "edu_center" : "edu_individual";
+  const tierInfo = PRICE_TIERS[tier];
+  const topupMode = existingProfile !== null;
 
-  useEffect(() => {
-    loadPrices(pool);
-    setSubType(pool === "education" ? "center" : IT_SUBTYPES[0]);
-    setCategoryId("");
-  }, [pool, loadPrices]);
+  /** Tanlangan o'rin uchun to'lov (top-up rejimida farq) */
+  const amountFor = useCallback(
+    (position: number) => {
+      if (!ranked) return 0;
+      const full = fullPriceForPosition(ranked, position, tier);
+      if (topupMode && existingProfile) {
+        const credit = Math.max(full - existingProfile.totalBid, tierInfo.step);
+        return payableAmount(credit, promo.active);
+      }
+      return payableAmount(full, promo.active);
+    },
+    [ranked, tier, topupMode, existingProfile, tierInfo.step, promo.active]
+  );
+
+  /** Reytingga yoziladigan to'liq summa (ko'rsatish uchun) */
+  const fullFor = useCallback(
+    (position: number) => {
+      if (!ranked) return 0;
+      const full = fullPriceForPosition(ranked, position, tier);
+      if (topupMode && existingProfile) {
+        return Math.max(full - existingProfile.totalBid, tierInfo.step);
+      }
+      return full;
+    },
+    [ranked, tier, topupMode, existingProfile, tierInfo.step]
+  );
+
+  const selectedPosition = targetPosition;
+  const amount = selectedPosition ? amountFor(selectedPosition) : 0;
+  const fullAmount = selectedPosition ? fullFor(selectedPosition) : 0;
+  const hasPromoDiscount = promo.active && fullAmount > amount;
+
+  const poolLabel = pool === "education" ? "O'rganish (ta'lim)" : "Yollash (IT mutaxassislar)";
+  const targetLabel = selectedPosition
+    ? topupMode
+      ? `${selectedPosition}-o'ringa ko'tarilish (mavjud profilga qo'shiladi)`
+      : `${selectedPosition}-o'rinni egallash`
+    : "O'rin tanlanmadi";
 
   const poolCategories = useMemo(
     () => categories.filter((c) => c.pool === pool),
     [categories, pool]
   );
+  const poolCategoryGroups = useMemo(() => {
+    const groups = new Map<string, CategoryDTO[]>();
+    for (const c of poolCategories) {
+      const key = c.group || "Boshqa";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(c);
+    }
+    return Array.from(groups.entries());
+  }, [poolCategories]);
 
-  const topupMode = existingProfile !== null;
+  // ===== Logo yuklash =====
+  const handleFileSelect = async (file: File | null) => {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "Fayl juda katta", description: "Maksimal hajm: 2MB", variant: "destructive" });
+      return;
+    }
+    if (!["image/png", "image/jpeg", "image/webp", "image/gif"].includes(file.type)) {
+      toast({ title: "Noto'g'ri format", description: "PNG, JPG, WEBP yoki GIF yuklang", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Yuklashda xatolik");
+      setImageUrl(data.url);
+      toast({ title: "Logo yuklandi", description: "Rasm profilingizga biriktirildi" });
+    } catch (e) {
+      toast({
+        title: "Yuklashda xatolik",
+        description: e instanceof Error ? e.message : "Qayta urinib ko'ring",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
-  /** O'sha o'rin uchun haqiqiy to'lov summasi (top-up rejimida farqi) */
-  const amountFor = useCallback(
-    (opt: PriceOptionDTO) =>
-      topupMode && existingProfile
-        ? Math.max(opt.price - existingProfile.totalBid, MIN_BID)
-        : opt.price,
-    [topupMode, existingProfile]
-  );
-
-  const selectedOption = priceOptions.find((o) => o.position === targetPosition);
-  const amount = selectedOption ? amountFor(selectedOption) : 0;
-
-  const poolLabel = pool === "education" ? "Ta'lim" : "IT mutaxassislar";
-  const targetLabel = selectedOption
-    ? topupMode
-      ? `${selectedOption.position}-o'ringa ko'tarilish (mavjud profilga qo'shiladi)`
-      : `${selectedOption.position}-o'rinni egallash`
-    : "O'rin tanlanmadi";
-
-  // Validatsiya (top-up rejimida faqat kontakt talab qilinadi)
+  // ===== Validatsiya =====
   const validate = (): boolean => {
     const e: Record<string, string> = {};
     if (!contactUrl.trim() || !isValidContactUrl(contactUrl))
       e.contactUrl = "Noto'g'ri format: @username yoki https://sayt.uz ko'rinishida yozing";
     if (!topupMode) {
       if (!name.trim() || name.trim().length < 2) e.name = "Nom kamida 2 belgidan iborat bo'lsin";
-      if (!categoryId) e.categoryId = "Fan / sohani tanlang";
+      if (!categoryId) e.categoryId = "Yo'nalishni tanlang";
       if (!city) e.city = "Shaharni tanlang";
       if (description.trim().length < 10) e.description = "Tavsif kamida 10 belgidan iborat bo'lsin";
     }
@@ -141,7 +229,7 @@ export function AddProfileView() {
     if (validate()) setPaymentOpen(true);
   };
 
-  // To'lov tasdiqlangach — profil yaratish
+  // ===== To'lov tasdiqlangach =====
   const handlePaid = async () => {
     setSubmitting(true);
     try {
@@ -150,14 +238,14 @@ export function AddProfileView() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           pool,
-          subType,
+          subType: pool === "it" ? "it" : subType,
           categoryId,
           name,
           city,
           description,
           contactUrl,
           imageUrl,
-          targetPosition: targetPosition ?? priceOptions.length,
+          targetPosition: targetPosition ?? (ranked?.length ?? 0) + 1,
           sessionId: getSessionId(),
         }),
       });
@@ -171,7 +259,6 @@ export function AddProfileView() {
         title: "🎉 To'lov qabul qilindi!",
         description: result.message,
       });
-      // Muaffaqiyat: bosh sahifaga qaytish va profilni ajratib ko'rsatish
       setPool(pool);
       setHighlight(result.profile.id);
       setTimeout(() => goHome(), 400);
@@ -181,7 +268,7 @@ export function AddProfileView() {
         description: err instanceof Error ? err.message : "Profil qo'shishda xatolik",
         variant: "destructive",
       });
-      throw err; // PaymentModal xatoni ko'rsatadi
+      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -201,72 +288,101 @@ export function AddProfileView() {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14]">Profil qo'shish</h1>
+          <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14]">O'rin olish</h1>
           <p className="text-xs md:text-sm text-[#6b5d4d] mt-0.5">
-            Reytingda o'rin egallang — to'lov Telegram bot orqali
+            Profilingizni qo'shing va reytingda o'rin egallang
           </p>
         </div>
       </div>
 
       <form
-        className="mt-6 space-y-6"
+        className="mt-6 space-y-5"
         onSubmit={(e) => {
           e.preventDefault();
           openPayment();
         }}
       >
         {/* 1-qadam: Yo'nalish */}
-        <Section
-          step={1}
-          title="Yo'nalish"
-          hint="Qaysi sohadasiz?"
-        >
+        <Section step={1} title="Yo'nalish" hint="Qaysi sohadasiz?">
           <div className="grid grid-cols-2 gap-2">
             <PoolButton
               active={pool === "education"}
               onClick={() => setFormPool("education")}
               icon={<GraduationCap className="w-4 h-4" />}
-              label="Ta'lim"
+              label="O'rganish"
               sub="Markaz yoki repetitor"
             />
             <PoolButton
               active={pool === "it"}
               onClick={() => setFormPool("it")}
-              icon={<Code2 className="w-4 h-4" />}
-              label="IT mutaxassis"
-              sub="Dasturchi, dizayner..."
+              icon={<Briefcase className="w-4 h-4" />}
+              label="Yollash"
+              sub="IT mutaxassis/frilanser"
             />
           </div>
 
-          {/* Kichik toifa */}
-          <div className="mt-3">
-            <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-              {pool === "education" ? "Siz kimsiz?" : "Mutaxassislik toifasi"}
-            </Label>
-            <div className="flex flex-wrap gap-1.5">
-              {(pool === "education" ? EDUCATION_SUBTYPES.map((s) => ({ value: s.value, label: s.label })) : IT_SUBTYPES.map((s) => ({ value: s as string, label: s as string }))).map((st) => (
-                <button
-                  key={st.value}
-                  type="button"
-                  onClick={() => setSubType(st.value)}
-                  className={cn(
-                    "px-3.5 py-2 rounded-lg text-[13px] font-bold transition-all cursor-pointer",
-                    subType === st.value
-                      ? "bg-[#d97b29] text-white shadow-sm"
-                      : "bg-white text-[#574634] border border-[#e8ddd0] hover:border-[#e0cdb4]"
-                  )}
-                  aria-pressed={subType === st.value}
-                >
-                  {st.label}
-                </button>
-              ))}
+          {/* Taifa — narx darajasi bilan */}
+          {pool === "education" ? (
+            <div className="mt-3">
+              <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+                Siz kimsiz? <span className="text-[#d97b29]">*</span>
+              </Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {EDUCATION_SUBTYPES.map((st) => {
+                  const info = PRICE_TIERS[st.tier];
+                  const active = subType === st.value;
+                  const entry = payableAmount(info.min, promo.active);
+                  return (
+                    <button
+                      key={st.value}
+                      type="button"
+                      onClick={() => setSubType(st.value)}
+                      className={cn(
+                        "flex items-center gap-2.5 p-3 rounded-xl border-2 transition-all cursor-pointer text-left",
+                        active
+                          ? "border-[#d97b29] bg-[#fff9f2]"
+                          : "border-[#f0e6da] bg-white hover:border-[#e0cdb4]"
+                      )}
+                      aria-pressed={active}
+                    >
+                      <div
+                        className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                          active ? "bg-[#d97b29] text-white" : "bg-[#f6efe6] text-[#574634]"
+                        )}
+                      >
+                        {st.value === "center" ? <Users className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className={cn("text-[13px] font-extrabold", active ? "text-[#b25e14]" : "text-[#241c14]")}>
+                          {st.label}
+                        </p>
+                        <p className="text-[11px] text-[#94836f] font-bold mt-0.5 tabular-nums">
+                          {formatSom(entry)}dan{promo.active && " (aksiya)"}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="mt-3 flex items-center gap-2.5 bg-[#fdeedd] border border-[#f0d5b8] rounded-xl px-3.5 py-2.5">
+              <Briefcase className="w-4 h-4 text-[#d97b29] shrink-0" />
+              <p className="text-[12px] text-[#574634] font-semibold">
+                IT mutaxassislar narx darajasi:{" "}
+                <b className="tabular-nums">
+                  {formatSom(payableAmount(PRICE_TIERS.it.min, promo.active))}dan
+                </b>{" "}
+                (aksiya bilan)
+              </p>
+            </div>
+          )}
 
-          {/* Fan / soha */}
+          {/* Kategoriya — guruhlar bilan */}
           <div className="mt-3">
             <Label htmlFor="category" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-              Fan / soha <span className="text-[#d97b29]">*</span>
+              Yo'nalish (fan/soha) <span className="text-[#d97b29]">*</span>
             </Label>
             <Select value={categoryId} onValueChange={(v) => setCategoryId(v)}>
               <SelectTrigger
@@ -275,13 +391,20 @@ export function AddProfileView() {
                   errors.categoryId ? "border-red-300" : "border-[#e8ddd0]"
                 )}
               >
-                <SelectValue placeholder="Tanlang (masalan: IELTS, Frontend...)" />
+                <SelectValue placeholder="Tanlang (masalan: Ingliz tili (IELTS), Frontend...)" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-[#e8ddd0] max-h-72">
-                {poolCategories.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </SelectItem>
+              <SelectContent className="bg-white border-[#e8ddd0] max-h-80">
+                {poolCategoryGroups.map(([group, items]) => (
+                  <SelectGroup key={group}>
+                    <SelectLabel className="text-[11px] font-extrabold uppercase tracking-wide text-[#b25e14]">
+                      {group}
+                    </SelectLabel>
+                    {items.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 ))}
               </SelectContent>
             </Select>
@@ -308,7 +431,10 @@ export function AddProfileView() {
                       : "Masalan: Aziza Karimova"
                     : "Masalan: CodeCraft Studio"
                 }
-                className={cn("h-11 bg-white text-sm font-semibold rounded-lg", errors.name ? "border-red-300" : "border-[#e8ddd0]")}
+                className={cn(
+                  "h-11 bg-white text-sm font-semibold rounded-lg",
+                  errors.name ? "border-red-300" : "border-[#e8ddd0]"
+                )}
               />
               {errors.name && <FieldError msg={errors.name} />}
             </div>
@@ -375,7 +501,10 @@ export function AddProfileView() {
                 value={contactUrl}
                 onChange={(e) => setContactUrl(e.target.value)}
                 placeholder="@username yoki https://sayt.uz"
-                className={cn("h-11 bg-white text-sm font-semibold rounded-lg", errors.contactUrl ? "border-red-300" : "border-[#e8ddd0]")}
+                className={cn(
+                  "h-11 bg-white text-sm font-semibold rounded-lg",
+                  errors.contactUrl ? "border-red-300" : "border-[#e8ddd0]"
+                )}
               />
               {errors.contactUrl ? (
                 <FieldError msg={errors.contactUrl} />
@@ -383,40 +512,109 @@ export function AddProfileView() {
                 <div className="mt-1.5 flex items-start gap-1.5 bg-[#f0f9ff] border border-[#cbe9f8] rounded-lg px-2.5 py-2">
                   <Info className="w-3 h-3 mt-0.5 shrink-0 text-[#229ed9]" />
                   <p className="text-[11px] text-[#1a6da8] font-semibold leading-snug">
-                    Bu kontakt <b>{existingProfile.name}</b> nomi bilan ro'yxatda — yangi profil ochilmaydi,
-                    summa ({formatSom(existingProfile.totalBid)} ustiga) mavjud profilga qo'shiladi.
+                    Bu kontakt <b>{existingProfile.name}</b> nomi bilan ro'yxatda — yangi profil
+                    ochilmaydi, summa mavjud profilga qo'shiladi (reyting summasi:{" "}
+                    {formatSom(existingProfile.totalBid)}).
                   </p>
                 </div>
               ) : (
                 <p className="text-[11px] text-[#94836f] font-medium mt-1.5 flex items-start gap-1">
                   <Info className="w-3 h-3 mt-px shrink-0" />
-                  Bir xil kontakt qayta kiritilsa, yangi profil ochilmaydi — summa mavjud profilga qo'shiladi.
+                  Bir xil kontakt qayta kiritilsa, yangi profil ochilmaydi — summa mavjud profilga
+                  qo'shiladi.
                 </p>
               )}
             </div>
 
+            {/* Logo yuklash */}
             <div>
-              <Label htmlFor="image" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-                Logo / rasm URL <span className="text-[#94836f] font-medium">(ixtiyoriy)</span>
+              <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+                Logo / rasm <span className="text-[#94836f] font-medium">(ixtiyoriy)</span>
               </Label>
-              <Input
-                id="image"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://... (bo'sh qoldirsangiz — avtomatik avatar)"
-                className="h-11 bg-white text-sm font-semibold rounded-lg border-[#e8ddd0]"
+              {imageUrl ? (
+                <div className="flex items-center gap-3 bg-[#fffdfa] border border-[#f0e6da] rounded-xl p-3">
+                  { }
+                  <img
+                    src={imageUrl}
+                    alt="Yuklangan logo"
+                    className="w-14 h-14 rounded-xl object-cover border border-[#f0e6da]"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-bold text-[#241c14]">Logo biriktirildi</p>
+                    <p className="text-[11px] text-[#94836f] font-medium mt-0.5">
+                      Reytingda shu rasm ko'rinadi
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="w-9 h-9 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-600"
+                    onClick={() => setImageUrl("")}
+                    aria-label="Logoni o'chirish"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="w-full flex flex-col items-center justify-center gap-1.5 border-2 border-dashed border-[#e0cdb4] hover:border-[#d97b29] bg-[#fffdfa] hover:bg-[#fff9f2] rounded-xl py-5 cursor-pointer transition-colors disabled:opacity-60"
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-6 h-6 text-[#d97b29] animate-spin" />
+                      <span className="text-xs font-bold text-[#574634]">Yuklanmoqda...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ImagePlus className="w-6 h-6 text-[#d97b29]" />
+                      <span className="text-[13px] font-extrabold text-[#241c14]">
+                        Logo yuklash (bosib tanlang)
+                      </span>
+                      <span className="text-[11px] text-[#94836f] font-medium">
+                        PNG, JPG, WEBP yoki GIF — maksimal 2MB
+                      </span>
+                    </>
+                  )}
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="hidden"
+                onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
+                aria-label="Logo faylini tanlash"
               />
+              {!imageUrl && (
+                <details className="mt-2 group">
+                  <summary className="text-[11px] text-[#94836f] font-bold cursor-pointer hover:text-[#b25e14] list-none select-none">
+                    yoki rasm havolasi bilan ↗
+                  </summary>
+                  <Input
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://misol.uz/logo.png"
+                    className="mt-1.5 h-10 bg-white text-[13px] font-semibold rounded-lg border-[#e8ddd0]"
+                  />
+                </details>
+              )}
             </div>
           </div>
         </Section>
 
-        {/* 3-qadam: O'rin tanlash (auksion) */}
+        {/* 3-qadam: O'rin tanlash */}
         <Section
           step={3}
-          title="O'rin tanlang"
-          hint="Yuqori o'rin ko'proq ko'rinadi — narx raqobatga qarab shakllanadi"
+          title="O'riningizni tanlang"
+          hint={`${tierInfo.label} narx darajasi — qadam ${formatSom(tierInfo.step)}${
+            tierInfo.top1Extra ? `, TOP-1 premium ${formatSom(tierInfo.top1Extra)}` : ""
+          }`}
         >
-          {loadingPrices ? (
+          {!ranked ? (
             <div className="space-y-2">
               {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-12 rounded-lg bg-[#f0e6da]" />
@@ -424,50 +622,84 @@ export function AddProfileView() {
             </div>
           ) : (
             <div className="space-y-1.5 max-h-72 overflow-y-auto scrollbar-thin pr-1 -mr-1">
-              {priceOptions.map((opt) => {
-                const active = targetPosition === opt.position;
-                const isTop = opt.position <= 3;
+              {Array.from({ length: ranked.length + 1 }, (_, i) => i + 1).map((pos) => {
+                const holder = ranked[pos - 1];
+                const pay = amountFor(pos);
+                const full = fullFor(pos);
+                const active = targetPosition === pos;
+                const isTop = pos <= 3;
+                const isTop1 = pos === 1;
+                const discounted = pay < full;
                 return (
                   <button
-                    key={opt.position}
+                    key={pos}
                     type="button"
-                    onClick={() => setTargetPosition(opt.position)}
+                    onClick={() => setTargetPosition(pos)}
                     className={cn(
-                      "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg border-2 transition-all cursor-pointer text-left",
+                      "w-full flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 rounded-lg border-2 transition-all cursor-pointer text-left",
                       active
                         ? "border-[#d97b29] bg-[#fff9f2]"
                         : "border-[#f0e6da] bg-white hover:border-[#e0cdb4]"
                     )}
                     aria-pressed={active}
                   >
-                    <span className="flex items-center gap-2.5 min-w-0">
-                      <Trophy
-                        className={cn(
-                          "w-4 h-4 shrink-0",
-                          isTop ? "text-[#d97b29]" : "text-[#c4b5a1]"
-                        )}
-                      />
-                      <span className={cn("text-sm font-extrabold truncate", active ? "text-[#b25e14]" : "text-[#241c14]")}>
-                        {opt.position}-o'rin
-                        {isTop && (
-                          <span className="ml-1.5 text-[10px] font-extrabold uppercase bg-[#fdeedd] text-[#b25e14] px-1.5 py-0.5 rounded-full">
-                            TOP
+                    <span className="flex items-center gap-2 min-w-0">
+                      {isTop1 ? (
+                        <Crown className="w-4 h-4 shrink-0 text-[#d97b29]" />
+                      ) : (
+                        <Trophy
+                          className={cn("w-4 h-4 shrink-0", isTop ? "text-[#d97b29]" : "text-[#c4b5a1]")}
+                        />
+                      )}
+                      <span className="min-w-0">
+                        <span
+                          className={cn(
+                            "flex items-center gap-1.5 text-[13px] sm:text-sm font-extrabold truncate",
+                            active ? "text-[#b25e14]" : "text-[#241c14]"
+                          )}
+                        >
+                          {pos}-o'rin
+                          {isTop1 && (
+                            <span className="text-[9px] font-extrabold uppercase bg-[#d97b29] text-white px-1.5 py-0.5 rounded-full shrink-0">
+                              TOP-1
+                            </span>
+                          )}
+                          {isTop && !isTop1 && (
+                            <span className="text-[9px] font-extrabold uppercase bg-[#fdeedd] text-[#b25e14] px-1.5 py-0.5 rounded-full shrink-0">
+                              TOP
+                            </span>
+                          )}
+                        </span>
+                        {holder ? (
+                          <span className="block text-[10px] sm:text-[11px] text-[#94836f] font-semibold truncate mt-0.5">
+                            hozir: {holder.name}
+                          </span>
+                        ) : (
+                          <span className="block text-[10px] sm:text-[11px] text-[#94836f] font-semibold mt-0.5">
+                            bo'sh o'rin
                           </span>
                         )}
                       </span>
                     </span>
                     <span className="flex items-center gap-2 shrink-0">
-                      {opt.price <= 20000 && !topupMode && (
-                        <span className="text-[10px] font-bold text-[#94836f] uppercase tracking-wide">
-                          minimal
+                      <span className="text-right">
+                        {discounted && (
+                          <span className="block text-[10px] font-bold text-[#c4b5a1] line-through tabular-nums leading-none">
+                            {formatSom(full)}
+                          </span>
+                        )}
+                        <span
+                          className={cn(
+                            "text-[13px] sm:text-sm font-extrabold tabular-nums",
+                            active ? "text-[#d97b29]" : discounted ? "text-[#d97b29]" : "text-[#241c14]"
+                          )}
+                        >
+                          {formatSom(pay)}
                         </span>
-                      )}
-                      <span className={cn("text-sm font-extrabold tabular-nums", active ? "text-[#d97b29]" : "text-[#241c14]")}>
-                        {formatSom(amountFor(opt))}
                       </span>
                       <span
                         className={cn(
-                          "w-4.5 h-4.5 w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0",
+                          "w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0",
                           active ? "border-[#d97b29]" : "border-[#e0d3c2]"
                         )}
                       >
@@ -480,21 +712,37 @@ export function AddProfileView() {
             </div>
           )}
 
+          {/* Aksiya eslatmasi */}
+          {promo.active && (
+            <div className="mt-3 flex items-center gap-2 bg-gradient-to-r from-[#fdeedd] to-[#fff9f2] border border-[#f0d5b8] rounded-xl px-3.5 py-2.5">
+              <Rocket className="w-4 h-4 text-[#d97b29] shrink-0" />
+              <p className="text-[11px] sm:text-xs text-[#b25e14] font-bold leading-snug">
+                Ochilish aksiyasi: hozir barcha narxlar 50% arzon — reytingga to'liq summa
+                yoziladi! (chizilgan narx — oddiy narx)
+              </p>
+            </div>
+          )}
+
           {/* Umumiy hisob */}
           <div className="mt-4 bg-[#241c14] rounded-xl p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <CircleDollarSign className="w-5 h-5 text-[#e9a05c] shrink-0" />
               <div className="min-w-0">
                 <p className="text-[11px] font-bold uppercase tracking-wide text-[#94836f] leading-none">
-                  {topupMode ? "Qo'shiladigan summa" : "To'lov summasi"}
+                  {topupMode ? "To'lanadigan qo'shimcha" : "To'lov summasi"}
                 </p>
-                <p className="text-xs text-[#c4b5a1] font-medium mt-1 truncate">
-                  {targetLabel}
-                </p>
+                <p className="text-xs text-[#c4b5a1] font-medium mt-1 truncate">{targetLabel}</p>
               </div>
             </div>
-            <p className="text-xl md:text-2xl font-extrabold text-white tabular-nums shrink-0">
-              {formatSom(amount)}
+            <p className="text-right shrink-0">
+              {hasPromoDiscount && (
+                <span className="block text-[11px] font-bold text-[#94836f] line-through tabular-nums leading-none mb-0.5">
+                  {formatSom(fullAmount)}
+                </span>
+              )}
+              <span className="text-xl md:text-2xl font-extrabold text-white tabular-nums">
+                {formatSom(amount)}
+              </span>
             </p>
           </div>
         </Section>
@@ -502,8 +750,8 @@ export function AddProfileView() {
         {/* Yuborish */}
         <Button
           type="submit"
-          disabled={submitting || loadingPrices}
-          className="w-full h-12 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-xl text-base shadow-md shadow-[#d97b29]/25"
+          disabled={submitting || !ranked}
+          className="w-full h-12 md:h-13 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-xl text-base shadow-md shadow-[#d97b29]/25 active:scale-[0.99] transition-transform"
         >
           {submitting ? (
             "To'lov qilinmoqda..."
@@ -518,8 +766,13 @@ export function AddProfileView() {
         open={paymentOpen}
         onOpenChange={setPaymentOpen}
         amount={amount}
+        fullAmount={hasPromoDiscount ? fullAmount : null}
         onPaid={handlePaid}
-        summary={{ name: name || "Profil", poolLabel, targetLabel }}
+        summary={{
+          name: existingProfile?.name || name || "Profil",
+          poolLabel,
+          targetLabel,
+        }}
       />
     </div>
   );
@@ -542,7 +795,7 @@ function Section({
         <span className="w-7 h-7 rounded-lg bg-[#fdeedd] text-[#b25e14] font-extrabold text-sm flex items-center justify-center shrink-0">
           {step}
         </span>
-        <div>
+        <div className="min-w-0">
           <h2 className="font-extrabold text-[#241c14] leading-none">{title}</h2>
           {hint && <p className="text-xs text-[#94836f] font-medium mt-1">{hint}</p>}
         </div>
@@ -575,7 +828,12 @@ function PoolButton({
       )}
       aria-pressed={active}
     >
-      <span className={cn("flex items-center gap-1.5 font-extrabold text-sm", active ? "text-[#b25e14]" : "text-[#241c14]")}>
+      <span
+        className={cn(
+          "flex items-center gap-1.5 font-extrabold text-sm",
+          active ? "text-[#b25e14]" : "text-[#241c14]"
+        )}
+      >
         {icon}
         {label}
       </span>

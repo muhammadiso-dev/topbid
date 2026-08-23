@@ -1,0 +1,383 @@
+{
+  "mobile_390": {
+    "viewport": "390x844",
+    "h_overflow": 0,
+    "dev_N_button": null,
+    "targets": {
+      "navbar_cta": {
+        "w": 121,
+        "h": 36
+      },
+      "hamburger": {
+        "w": 36,
+        "h": 36
+      },
+      "hero_cta": {
+        "w": 315,
+        "h": 44
+      },
+      "banner_mobile_cta": {
+        "w": 0,
+        "h": 0
+      },
+      "banner_desktop_cta": {
+        "w": 0,
+        "h": 0
+      },
+      "filter_pill_barchasi": {
+        "w": 100,
+        "h": 34,
+        "x": 16,
+        "y": 776
+      },
+      "select_trigger": {
+        "w": 169,
+        "h": 36
+      }
+    },
+    "banner_spacing": {
+      "banner": {
+        "h": 219,
+        "w": 358
+      },
+      "desc_bottom": 550,
+      "countdown_top": 459,
+      "cta_top": 0,
+      "cta_h": 0
+    },
+    "cards": {
+      "found": 9,
+      "cards": [
+        {
+          "idx": 1,
+          "w": 358,
+          "h": 252,
+          "has_top_badge": true,
+          "num": {
+            "text": "1",
+            "x": 0,
+            "size": "36px"
+          },
+          "name": {
+            "text": "Smart English Academy"
+          },
+          "price": {
+            "text": "215 000 so'm",
+            "x": 0
+          },
+          "orin_label_size": "10px",
+          "cta": {
+            "h": 0,
+            "w": 0
+          },
+          "has_truncation_class": true,
+          "category_chip_truncates": true
+        },
+        {
+          "idx": 2,
+          "w": 358,
+          "h": 254,
+          "has_top_badge": true,
+          "num": {
+            "text": "2",
+            "x": 0,
+            "size": "36px"
+          },
+          "name": {
+            "text": "IELTS Zone"
+          },
+          "price": {
+            "text": "170 000 so'm",
+            "x": 0
+          },
+          "orin_label_size": "10px",
+          "cta": {
+            "h": 0,
+            "w": 0
+          },
+          "has_truncation_class": true,
+          "category_chip_truncates": true
+        },
+        {
+          "idx": 3,
+          "w": 358,
+          "h": 235,
+          "has_top_badge": true,
+          "num": {
+            "text": "3",
+            "x": 0,
+            "size": "36px"
+          },
+          "name": {
+            "text": "Westminster Education"
+          },
+          "price": {
+            "text": "125 000 so'm",
+            "x": 0
+          },
+          "orin_label_size": "10px",
+          "cta": {
+            "h": 0,
+            "w": 0
+          },
+          "has_truncation_class": true,
+          "category_chip_truncates": true
+        }
+      ]
+    }
+  },
+  "small_375": {
+    "viewport": "375x667",
+    "h_overflow": 0,
+    "dev_N_button": null,
+    "targets": {
+      "navbar_cta": {
+        "w": 121,
+        "h": 36
+      },
+      "hamburger": {
+        "w": 36,
+        "h": 36
+      },
+      "hero_cta": {
+        "w": 315,
+        "h": 44
+      },
+      "banner_mobile_cta": {
+        "w": 0,
+        "h": 0
+      },
+      "banner_desktop_cta": {
+        "w": 0,
+        "h": 0
+      },
+      "filter_pill_barchasi": {
+        "w": 100,
+        "h": 34,
+        "x": 16,
+        "y": 776
+      },
+      "select_trigger": {
+        "w": 169,
+        "h": 36
+      }
+    },
+    "banner_spacing": {
+      "banner": {
+        "h": 219,
+        "w": 343
+      },
+      "desc_bottom": 550,
+      "countdown_top": 459,
+      "cta_top": 0,
+      "cta_h": 0
+    },
+    "cards": {
+      "found": 9,
+      "cards": [
+        {
+          "idx": 1,
+          "w": 343,
+          "h": 252,
+          "has_top_badge": true,
+          "num": {
+            "text": "1",
+            "x": 0,
+            "size": "36px"
+          },
+          "name": {
+            "text": "Smart English Academy"
+          },
+          "price": {
+            "text": "215 000 so'm",
+            "x": 0
+          },
+          "orin_label_size": "10px",
+          "cta": {
+            "h": 0,
+            "w": 0
+          },
+          "has_truncation_class": true,
+          "category_chip_truncates": true
+        },
+        {
+          "idx": 2,
+          "w": 343,
+          "h": 254,
+          "has_top_badge": true,
+          "num": {
+            "text": "2",
+            "x": 0,
+            "size": "36px"
+          },
+          "name": {
+            "text": "IELTS Zone"
+          },
+          "price": {
+            "text": "170 000 so'm",
+            "x": 0
+          },
+          "orin_label_size": "10px",
+          "cta": {
+            "h": 0,
+            "w": 0
+          },
+          "has_truncation_class": true,
+          "category_chip_truncates": true
+        },
+        {
+          "idx": 3,
+          "w": 343,
+          "h": 260,
+          "has_top_badge": true,
+          "num": {
+            "text": "3",
+            "x": 0,
+            "size": "36px"
+          },
+          "name": {
+            "text": "Westminster Education"
+          },
+          "price": {
+            "text": "125 000 so'm",
+            "x": 0
+          },
+          "orin_label_size": "10px",
+          "cta": {
+            "h": 0,
+            "w": 0
+          },
+          "has_truncation_class": true,
+          "category_chip_truncates": true
+        }
+      ]
+    }
+  },
+  "desktop_1440_home": {
+    "viewport": "1440x900",
+    "h_overflow": 0,
+    "dev_N_button": null,
+    "targets": {
+      "navbar_cta": {
+        "w": 121,
+        "h": 40
+      },
+      "hamburger": {
+        "w": 0,
+        "h": 0
+      },
+      "hero_cta": {
+        "w": 345,
+        "h": 48
+      },
+      "banner_mobile_cta": {
+        "w": 119,
+        "h": 40
+      },
+      "banner_desktop_cta": {
+        "w": 119,
+        "h": 40
+      },
+      "filter_pill_barchasi": {
+        "w": 107,
+        "h": 35,
+        "x": 224,
+        "y": 635
+      },
+      "select_trigger": {
+        "w": 169,
+        "h": 36
+      }
+    },
+    "banner_spacing": {
+      "banner": {
+        "h": 93,
+        "w": 992
+      },
+      "desc_bottom": 490,
+      "countdown_top": 429,
+      "cta_top": 440,
+      "cta_h": 40
+    },
+    "cards": {
+      "found": 9,
+      "cards": [
+        {
+          "idx": 1,
+          "w": 992,
+          "h": 172,
+          "has_top_badge": true,
+          "num": {
+            "text": "1",
+            "x": 262,
+            "size": "36px"
+          },
+          "name": {
+            "text": "Smart English Academy"
+          },
+          "price": {
+            "text": "215 000 so'm",
+            "x": 1069
+          },
+          "orin_label_size": "10px",
+          "cta": {
+            "h": 36,
+            "w": 260
+          },
+          "has_truncation_class": true,
+          "category_chip_truncates": true
+        },
+        {
+          "idx": 2,
+          "w": 992,
+          "h": 174,
+          "has_top_badge": true,
+          "num": {
+            "text": "2",
+            "x": 263,
+            "size": "36px"
+          },
+          "name": {
+            "text": "IELTS Zone"
+          },
+          "price": {
+            "text": "170 000 so'm",
+            "x": 1068
+          },
+          "orin_label_size": "10px",
+          "cta": {
+            "h": 36,
+            "w": 248
+          },
+          "has_truncation_class": true,
+          "category_chip_truncates": true
+        },
+        {
+          "idx": 3,
+          "w": 992,
+          "h": 174,
+          "has_top_badge": true,
+          "num": {
+            "text": "3",
+            "x": 263,
+            "size": "36px"
+          },
+          "name": {
+            "text": "Westminster Education"
+          },
+          "price": {
+            "text": "125 000 so'm",
+            "x": 1068
+          },
+          "orin_label_size": "10px",
+          "cta": {
+            "h": 36,
+            "w": 250
+          },
+          "has_truncation_class": true,
+          "category_chip_truncates": true
+        }
+      ]
+    }
+  }
+}

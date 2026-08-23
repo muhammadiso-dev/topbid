@@ -7,75 +7,90 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Kategoriyalar: fan/soha bo'yicha (IELTS, Matematika, Frontend, ...)
+// Kategoriyalar — guruhlar bilan (Chet tillari, Maktab fanlari, Dasturlash...)
 model Category {
   id        String    @id @default(cuid())
   name      String    @unique
-  pool      String    // "education" | "it"
+  pool      String // "education" | "it"
+  groupName String    @default("") // "Chet tillari", "Dasturlash" va h.k.
   sortOrder Int       @default(0)
   profiles  Profile[]
 }
 
-// Reytingdagi profillar (markaz, repetitor, IT mutaxassis)
+// Reytingdagi profillar
 model Profile {
   id          String    @id @default(cuid())
   name        String
   description String
   city        String
   contactUrl  String // Telegram / Instagram / sayt
-  imageUrl    String? // logo yoki rasm URL
+  imageUrl    String? // logo (/api/media/... yoki URL)
   pool        String // "education" | "it"
-  subType     String // education: "center" | "individual"; it: kichik toifa nomi
+  subType     String // education: "center" | "individual"; it: kategoriya guruhi
   categoryId  String
   category    Category  @relation(fields: [categoryId], references: [id])
-  verified    Boolean   @default(false) // "Tekshirilgan" belgisi
-  totalBid    Int       @default(0) // jami to'langan summa (so'mda)
-  lastBidAt   DateTime  @default(now()) // teng summalarda kim ilgari to'lagan bo'lsa, yuqorida turadi
-  clicks      Int       @default(0) // kontakt havolasiga bosilganlar soni
-  views       Int       @default(0) // profil sahifasi ko'rilganlar soni
+  verifyStatus String   @default("none") // "none" | "pending" | "verified"
+  totalBid    Int       @default(0) // jami reyting summasi (to'liq qiymat)
+  lastBidAt   DateTime  @default(now())
+  clicks      Int       @default(0)
+  views       Int       @default(0)
   createdAt   DateTime  @default(now())
-  bids        Bid[]
-  reviews     Review[]
+  bids              Bid[]
+  reviews           Review[]
+  verificationRequests VerificationRequest[]
 
   @@index([pool, subType, totalBid])
 }
 
-// Har bir to'lov yozuvi (auksion taklifi)
+// To'lov yozuvlari — haqiqatda to'langan pul (aksiya davrida 50%)
 model Bid {
   id        String   @id @default(cuid())
   profileId String
   profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  amount    Int // so'mda
+  amount    Int // so'mda (haqiqiy to'lov)
   status    String   @default("paid") // "paid" | "refunded"
   createdAt DateTime @default(now())
 }
 
 // Bepul sharh/baholar (reytingga ta'sir qilmaydi)
 model Review {
-  id        String   @id @default(cuid())
-  profileId String
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  sessionId String // bir foydalanuvchi bir profilga bir marta yozishi uchun
+  id         String   @id @default(cuid())
+  profileId  String
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  sessionId  String
   authorName String
-  rating    Int // 1..5
-  comment   String
-  createdAt DateTime @default(now())
+  rating     Int // 1..5
+  comment    String
+  createdAt  DateTime @default(now())
 
   @@unique([profileId, sessionId])
 }
 
-// Sayt statistikasi (tashriflar hisoblagichi)
+// Sayt statistikasi
 model SiteStats {
   id        String   @id @default("main")
   visits    Int      @default(0)
   updatedAt DateTime @updatedAt
 }
 
-// Admin bildirishnomalari (Telegram xabarlari jurnali)
+// Admin bildirishnomalari (Telegram guruh xabarlari jurnali)
 model AdminLog {
   id        String   @id @default(cuid())
-  type      String // "new_profile" | "new_bid" | "topup" | "refund" | "review" | "info"
+  type      String // new_profile | topup | refund | review | verification | verify_approved | verify_rejected | info
   message   String
   profileId String?
   createdAt DateTime @default(now())
+}
+
+// Verifikatsiya so'rovlari (pullik "Tekshirilgan" belgisi)
+model VerificationRequest {
+  id         String    @id @default(cuid())
+  profileId  String
+  profile    Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  fee        Int // to'langan summ (aksiya bilan ham real pul)
+  status     String    @default("pending") // "pending" | "approved" | "refunded"
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+
+  @@index([status])
 }

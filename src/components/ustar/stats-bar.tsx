@@ -6,27 +6,20 @@ import { formatCompactNumber, formatCompactSom } from "@/lib/ustar/constants";
 import type { SiteStatsDTO } from "@/lib/ustar/types";
 import { getSessionId } from "@/lib/ustar/store";
 
-/**
- * Statistika paneli (ijtimoiy isbot): onlayn foydalanuvchilar,
- * jami tashriflar va ishga tushganidan beri jami daromad.
- */
+/** Statistika paneli — ijtimoiy isbot: onlayn, tashrif, daromad, profillar */
 export function StatsBar() {
   const [stats, setStats] = useState<SiteStatsDTO | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
-    // Birinchi yuklash — tashrif sifatida ham hisoblanadi
     const sessionId = getSessionId();
     fetch("/api/stats", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionId, visit: true }),
-    })
-      .then((r) => r.json())
-      .catch(() => null);
+    }).catch(() => null);
 
-    // Statistikani yuklash
     const load = () => {
       fetch("/api/stats")
         .then((r) => r.json())
@@ -37,7 +30,6 @@ export function StatsBar() {
     };
     load();
 
-    // Har 30 soniyada heartbeat + statistika yangilanishi
     const hb = setInterval(() => {
       fetch("/api/stats", {
         method: "POST",
@@ -90,16 +82,16 @@ export function StatsBar() {
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               {item.pulse && stats && stats.online > 0 && (
-                <span className="relative flex h-2 w-2">
+                <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                 </span>
               )}
-              <p className="text-sm md:text-[15px] font-extrabold leading-none text-[#241c14] truncate">
+              <p className="text-sm md:text-[15px] font-extrabold leading-none text-[#241c14] truncate tabular-nums">
                 {item.value}
               </p>
             </div>
-            <p className="text-[11px] md:text-xs text-[#94836f] font-medium mt-1 leading-none">
+            <p className="text-[11px] md:text-xs text-[#6b5d4d] font-semibold mt-1 leading-none">
               {item.label}
             </p>
           </div>

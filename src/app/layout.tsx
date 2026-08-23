@@ -10,11 +10,12 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Ustar — Ta'lim va IT mutaxassislar reytingi",
+  title: "TopBid — O'rganish va Yollash reytingi",
   description:
-    "O'zbekistondagi eng yaxshi ta'lim markazlari, repetitorlar va IT mutaxassislari reytingi. O'zingizga mos mutaxassisni tanlang yoz profilingizni reytingga qo'shing.",
+    "O'zbekistondagi eng yaxshi ta'lim markazlari, repetitorlar va IT mutaxassislari reytingi. O'z o'rinngizni egallang yoki mutaxassis toping.",
   keywords: [
-    "Ustar",
+    "TopBid",
+    "topbid.uz",
     "reyting",
     "repetitor",
     "ta'lim markazi",
@@ -22,13 +23,14 @@ export const metadata: Metadata = {
     "IT mutaxassis",
     "dasturchi",
     "dizayner",
+    "frilanser",
     "O'zbekiston",
   ],
   openGraph: {
-    title: "Ustar — Ta'lim va IT mutaxassislar reytingi",
+    title: "TopBid — O'rganish va Yollash reytingi",
     description:
       "O'zbekistondagi eng yaxshi ta'lim markazlari, repetitorlar va IT mutaxassislari reytingi.",
-    siteName: "Ustar",
+    siteName: "TopBid.uz",
     type: "website",
   },
 };

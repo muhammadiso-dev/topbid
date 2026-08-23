@@ -1,49 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { notifyAdmin } from "@/lib/ustar/telegram";
-import { computePriceForPosition, getRankedProfiles } from "@/lib/ustar/server";
+import { getRankedProfiles } from "@/lib/ustar/server";
+import { fullPriceForPosition, payableAmount, tierFor, promoInfo } from "@/lib/ustar/pricing";
 import {
+  PRICE_TIERS,
   isValidContactUrl,
   normalizeContactUrl,
   formatSom,
-  MIN_BID,
   type Pool,
 } from "@/lib/ustar/constants";
-import type { CreateProfilePayload, CreateProfileResult, PriceOptionDTO } from "@/lib/ustar/types";
+import type { CreateProfilePayload, CreateProfileResult } from "@/lib/ustar/types";
 
 export const dynamic = "force-dynamic";
 
 /**
  * GET /api/profiles?pool=education
- * Pool bo'yicha reyting (pozitsiyalar butun pool ichida hisoblanadi).
+ * Pool bo'yicha global reyting + aksiya holati.
  */
 export async function GET(req: NextRequest) {
   const pool = (req.nextUrl.searchParams.get("pool") || "education") as Pool;
-  const ranked = await getRankedProfiles(pool === "education" || pool === "it" ? pool : undefined);
-
-  // Har bir o'rin uchun narx variantlarini ham qaytaramiz (forma uchun)
-  const priceOptions: PriceOptionDTO[] = ranked.map((p, idx) => ({
-    position: idx + 1,
-    price: computePriceForPosition(ranked, idx + 1),
-    label: `${idx + 1}-o'rin — ${ranked[idx].name}`,
-  }));
-  // Ro'yxat oxiriga qo'shish varianti (minimal narx)
-  priceOptions.push({
-    position: ranked.length + 1,
-    price: MIN_BID,
-    label: `${ranked.length + 1}-o'rin (oxiri)`,
+  const safePool = pool === "it" ? "it" : "education";
+  const ranked = await getRankedProfiles(safePool);
+  return NextResponse.json({
+    profiles: ranked,
+    promo: promoInfo(),
   });
-
-  return NextResponse.json({ profiles: ranked, priceOptions });
 }
 
 /**
  * POST /api/profiles — yangi profil qo'shish yoki mavjud profilga summa qo'shish.
  *
- * Auksion mantig'i:
- *  - Kontakt havolasi allaqachon mavjud bo'lsa — yangi profil ochilmaydi,
- *    summa mavjud profilga qo'shiladi (top-up).
- *  - Summa server tomonida qayta hisoblanadi (maqsadli o'rindan +qadam).
+ * Auksion + aksiya mantig'i:
+ *  - Kontakt mavjud bo'lsa — yangi profil ochilmaydi, farq (top-up) mavjud profilga qo'shiladi.
+ *  - Reytingga TO'LIQ summa yoziladi, aksiya davrida haqiqiy to'lov 50% kam.
+ *  - Summa server tomonida qayta hisoblanadi (ishonch uchun).
  */
 export async function POST(req: NextRequest) {
   try {
@@ -61,54 +52,60 @@ export async function POST(req: NextRequest) {
       sessionId,
     } = body;
 
-    // --- Validatsiya ---
-    const errors: Record<string, string> = {};
-    if (pool !== "education" && pool !== "it") errors.pool = "Pool noto'g'ri";
-    if (!name || name.trim().length < 2) errors.name = "Nom kamida 2 belgidan iborat bo'lsin";
-    if (name && name.trim().length > 60) errors.name = "Nom 60 belgidan oshmasin";
-    if (!description || description.trim().length < 10)
-      errors.description = "Tavsif kamida 10 belgidan iborat bo'lsin";
-    if (description && description.trim().length > 300)
-      errors.description = "Tavsif 300 belgidan oshmasin";
-    if (!city) errors.city = "Shaharni tanlang";
-    if (!contactUrl || !isValidContactUrl(contactUrl))
-      errors.contactUrl = "Kontakt havolasi noto'g'ri (masalan: @username yoki https://...)";
-    if (!categoryId) errors.categoryId = "Fan/sohani tanlang";
-    if (!subType) errors.subType = "Toifani tanlang";
-    if (Object.keys(errors).length > 0) {
-      return NextResponse.json({ error: "Validatsiya xatosi", errors }, { status: 400 });
-    }
-
-    const category = await db.category.findUnique({ where: { id: categoryId } });
-    if (!category || category.pool !== pool) {
+    // --- 1-bosqich: kontakt formati va mavjudligini tekshirish ---
+    if (!contactUrl || !isValidContactUrl(contactUrl)) {
       return NextResponse.json(
-        { error: "Kategoriya topilmadi yoki poolga mos emas" },
+        {
+          error: "Validatsiya xatosi",
+          errors: { contactUrl: "Kontakt havolasi noto'g'ri (masalan: @username yoki https://...)" },
+        },
         { status: 400 }
       );
     }
 
+    const promo = promoInfo();
     const normalized = normalizeContactUrl(contactUrl);
-    const ranked = await getRankedProfiles(pool);
-    const pos = Math.max(1, Math.floor(Number(targetPosition) || ranked.length + 1));
 
-    // --- Mavjud profil tekshiruvi (bir xil kontakt) ---
+    // Mavjud profil (bir xil kontakt) — top-up rejimi, qolgan maydonlar talab qilinmaydi
     const existing = await db.profile.findFirst({
       where: { contactUrl: normalized },
       include: { category: true, reviews: { select: { rating: true } } },
     });
 
-    if (existing) {
-      // Top-up: summa mavjud profilga qo'shiladi
-      const requiredTotal = computePriceForPosition(ranked, pos);
-      const amount = Math.max(requiredTotal - existing.totalBid, MIN_BID);
+    // --- 2-bosqich: yangi profil uchun to'liq validatsiya ---
+    if (!existing) {
+      const errors: Record<string, string> = {};
+      if (pool !== "education" && pool !== "it") errors.pool = "Yo'nalish noto'g'ri";
+      if (!name || name.trim().length < 2) errors.name = "Nom kamida 2 belgidan iborat bo'lsin";
+      if (name && name.trim().length > 60) errors.name = "Nom 60 belgidan oshmasin";
+      if (!description || description.trim().length < 10)
+        errors.description = "Tavsif kamida 10 belgidan iborat bo'lsin";
+      if (description && description.trim().length > 300)
+        errors.description = "Tavsif 300 belgidan oshmasin";
+      if (!city) errors.city = "Shaharni tanlang";
+      if (!categoryId) errors.categoryId = "Yo'nalishni tanlang";
+      if (Object.keys(errors).length > 0) {
+        return NextResponse.json({ error: "Validatsiya xatosi", errors }, { status: 400 });
+      }
+    }
 
-      const [bid] = await db.$transaction([
-        db.bid.create({
-          data: { profileId: existing.id, amount, status: "paid" },
-        }),
+    const tier = tierFor(pool, subType || (pool === "it" ? "it" : "individual"));
+    const t = PRICE_TIERS[tier];
+
+    const ranked = await getRankedProfiles(pool);
+    const pos = Math.max(1, Math.floor(Number(targetPosition) || ranked.length + 1));
+
+    if (existing) {
+      const requiredFull = fullPriceForPosition(ranked, pos, tier);
+      let credit = requiredFull - existing.totalBid;
+      if (credit <= 0) credit = t.step; // minimal top-up
+      const paid = payableAmount(credit, promo.active);
+
+      await db.$transaction([
+        db.bid.create({ data: { profileId: existing.id, amount: paid, status: "paid" } }),
         db.profile.update({
           where: { id: existing.id },
-          data: { totalBid: { increment: amount }, lastBidAt: new Date() },
+          data: { totalBid: { increment: credit }, lastBidAt: new Date() },
         }),
       ]);
 
@@ -117,7 +114,7 @@ export async function POST(req: NextRequest) {
 
       await notifyAdmin(
         "topup",
-        `💰 Summa qo'shildi: ${existing.name} — ${formatSom(amount)}\nYangi jami: ${formatSom(updated?.totalBid ?? existing.totalBid + amount)} • ${updated ? updated.position : "?"}-o'rin`,
+        `💰 Summa qo'shildi: ${existing.name} — to'langan ${formatSom(paid)}${promo.active ? " (aksiya -50%)" : ""}\nReyting summasi: +${formatSom(credit)} • ${updated ? updated.position : "?"}-o'rin`,
         existing.id
       );
 
@@ -126,15 +123,22 @@ export async function POST(req: NextRequest) {
         mode: "topup",
         profile: updated!,
         position: updated?.position ?? pos,
-        amount,
-        message: `Bu kontakt allaqachon ro'yxatda edi. ${formatSom(amount)} summa profilingizga qo'shildi — hozir ${updated?.position ?? pos}-o'rindasiz.`,
+        amount: paid,
+        message: `Bu kontakt allaqachon ro'yxatda edi. To'lagan summingiz profilingizga qo'shildi — hozir ${updated?.position ?? pos}-o'rindasiz!`,
       };
-      void bid;
       return NextResponse.json(result);
     }
 
-    // --- Yangi profil yaratish ---
-    const amount = computePriceForPosition(ranked, pos);
+    // --- Yangi profil ---
+    const category = await db.category.findUnique({ where: { id: categoryId } });
+    if (!category || category.pool !== pool) {
+      return NextResponse.json(
+        { error: "Kategoriya topilmadi yoki yo'nalishga mos emas" },
+        { status: 400 }
+      );
+    }
+    const full = fullPriceForPosition(ranked, pos, tier);
+    const paid = payableAmount(full, promo.active);
 
     const profile = await db.profile.create({
       data: {
@@ -144,14 +148,14 @@ export async function POST(req: NextRequest) {
         contactUrl: normalized,
         imageUrl: imageUrl?.trim() || null,
         pool,
-        subType,
+        subType: pool === "it" ? category.groupName : subType,
         categoryId,
-        totalBid: amount,
+        totalBid: full,
         lastBidAt: new Date(),
       },
     });
     await db.bid.create({
-      data: { profileId: profile.id, amount, status: "paid" },
+      data: { profileId: profile.id, amount: paid, status: "paid" },
     });
 
     const newRanked = await getRankedProfiles(pool);
@@ -159,7 +163,7 @@ export async function POST(req: NextRequest) {
 
     await notifyAdmin(
       "new_profile",
-      `🆕 Yangi profil: ${name.trim()}\n${category.name} • ${city}\nTo'lov: ${formatSom(amount)} • ${created?.position ?? "?"}-o'rin\nKontakt: ${normalized}`,
+      `🆕 Yangi profil: ${name.trim()}\n${category.groupName ? category.groupName + " • " : ""}${category.name} • ${city}\nTo'langan: ${formatSom(paid)}${promo.active ? ` (aksiya -50%, reytingga ${formatSom(full)})` : ""} • ${created?.position ?? "?"}-o'rin\nKontakt: ${normalized}`,
       profile.id
     );
 
@@ -168,7 +172,7 @@ export async function POST(req: NextRequest) {
       mode: "created",
       profile: created!,
       position: created?.position ?? pos,
-      amount,
+      amount: paid,
       message: `Profilingiz reytingga qo'shildi — ${created?.position ?? pos}-o'rindasiz!`,
     };
     return NextResponse.json(result);

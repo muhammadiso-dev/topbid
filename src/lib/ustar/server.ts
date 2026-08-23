@@ -1,6 +1,5 @@
 import { db } from "@/lib/db";
-import type { ProfileDTO } from "./types";
-import { BID_INCREMENT, MIN_BID } from "./constants";
+import type { ProfileDTO, VerifyStatus } from "./types";
 import type { Prisma } from "@prisma/client";
 
 type ProfileWithRelations = Prisma.ProfileGetPayload<{
@@ -32,7 +31,8 @@ export function serializeProfile(p: ProfileWithRelations, position: number): Pro
     subType: p.subType,
     categoryId: p.categoryId,
     categoryName: p.category.name,
-    verified: p.verified,
+    categoryGroup: p.category.groupName,
+    verifyStatus: (p.verifyStatus as VerifyStatus) ?? "none",
     totalBid: p.totalBid,
     clicks: p.clicks,
     views: p.views,
@@ -45,23 +45,22 @@ export function serializeProfile(p: ProfileWithRelations, position: number): Pro
 }
 
 /**
- * Maqsadli o'rinni olish uchun kerakli summani hisoblash (server tomonida).
- * P-o'rinni olish uchun hozirgi P-o'rin egasidan BID_INCREMENT ga ko'p to'lash kerak.
+ * Jami haqiqiy daromad: to'langan bidlar + tasdiqlangan verifikatsiya to'lovlari.
+ * (Aksiya davrida bidlar real to'langan summada yoziladi)
  */
-export function computePriceForPosition(
-  ranked: ProfileDTO[],
-  targetPosition: number
-): number {
-  const holder = ranked[targetPosition - 1];
-  if (!holder) return MIN_BID; // ro'yxat oxiriga qo'shish — minimal narx
-  return Math.max(holder.totalBid + BID_INCREMENT, MIN_BID);
-}
-
-/** Jami daromad: faqat to'langan (qaytarilmagan) bidlar yig'indisi */
-export async function computeRevenue(): Promise<number> {
-  const agg = await db.bid.aggregate({
-    where: { status: "paid" },
-    _sum: { amount: true },
-  });
-  return agg._sum.amount ?? 0;
+export async function computeRevenue(): Promise<{
+  bids: number;
+  verification: number;
+  total: number;
+}> {
+  const [bidAgg, verAgg] = await Promise.all([
+    db.bid.aggregate({ where: { status: "paid" }, _sum: { amount: true } }),
+    db.verificationRequest.aggregate({
+      where: { status: "approved" },
+      _sum: { fee: true },
+    }),
+  ]);
+  const bids = bidAgg._sum.amount ?? 0;
+  const verification = verAgg._sum.fee ?? 0;
+  return { bids, verification, total: bids + verification };
 }

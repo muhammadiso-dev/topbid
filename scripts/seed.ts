@@ -1,32 +1,64 @@
 /**
- * Ustar demo ma'lumotlari seed skripti.
+ * TopBid demo ma'lumotlari seed skripti.
  * Ishga tushirish: bun run scripts/seed.ts
  */
 import { PrismaClient } from "@prisma/client";
 
 const db = new PrismaClient();
 
-const CATEGORIES: { name: string; pool: string }[] = [
-  { name: "IELTS / CEFR", pool: "education" },
-  { name: "Ingliz tili", pool: "education" },
-  { name: "Matematika", pool: "education" },
-  { name: "Fizika", pool: "education" },
-  { name: "Kimyo", pool: "education" },
-  { name: "Biologiya", pool: "education" },
-  { name: "Rus tili", pool: "education" },
-  { name: "Informatika", pool: "education" },
-  { name: "Abituriyent tayyorlov", pool: "education" },
-  { name: "Boshqa fan", pool: "education" },
-  { name: "Frontend", pool: "it" },
-  { name: "Backend", pool: "it" },
-  { name: "Fullstack", pool: "it" },
-  { name: "Mobil dasturlash", pool: "it" },
-  { name: "UI/UX Dizayn", pool: "it" },
-  { name: "Grafik dizayn", pool: "it" },
-  { name: "SMM", pool: "it" },
-  { name: "Marketolog", pool: "it" },
-  { name: "QA / Testlash", pool: "it" },
-  { name: "DevOps", pool: "it" },
+const CATEGORIES: { name: string; pool: string; group: string }[] = [
+  // O'rganish — Chet tillari
+  { name: "Ingliz tili (IELTS)", pool: "education", group: "Chet tillari" },
+  { name: "Ingliz tili (umumiy/bolalar)", pool: "education", group: "Chet tillari" },
+  { name: "SAT/TOEFL", pool: "education", group: "Chet tillari" },
+  { name: "Rus tili", pool: "education", group: "Chet tillari" },
+  { name: "Koreys tili", pool: "education", group: "Chet tillari" },
+  { name: "Xitoy tili", pool: "education", group: "Chet tillari" },
+  { name: "Turk tili", pool: "education", group: "Chet tillari" },
+  { name: "Arab tili", pool: "education", group: "Chet tillari" },
+  { name: "Nemis/Fransuz tili", pool: "education", group: "Chet tillari" },
+  // O'rganish — Maktab fanlari
+  { name: "Matematika", pool: "education", group: "Maktab fanlari" },
+  { name: "Fizika", pool: "education", group: "Maktab fanlari" },
+  { name: "Kimyo", pool: "education", group: "Maktab fanlari" },
+  { name: "Biologiya", pool: "education", group: "Maktab fanlari" },
+  { name: "Tarix", pool: "education", group: "Maktab fanlari" },
+  { name: "Ona tili va adabiyot", pool: "education", group: "Maktab fanlari" },
+  { name: "Iqtisodiyot/Huquq", pool: "education", group: "Maktab fanlari" },
+  // O'rganish — Test tayyorlov
+  { name: "Milliy sertifikat / DTM", pool: "education", group: "Test tayyorlov" },
+  { name: "IELTS/TOEFL intensiv", pool: "education", group: "Test tayyorlov" },
+  { name: "Chet el universitetlariga tayyorlov", pool: "education", group: "Test tayyorlov" },
+  // O'rganish — IT kurslar
+  { name: "Python/dasturlash kursi", pool: "education", group: "IT kurslar" },
+  { name: "Frontend kursi", pool: "education", group: "IT kurslar" },
+  { name: "Dizayn kursi", pool: "education", group: "IT kurslar" },
+  { name: "SMM/marketing kursi", pool: "education", group: "IT kurslar" },
+  // O'rganish — Bolalar rivojlantirish
+  { name: "Robototexnika", pool: "education", group: "Bolalar rivojlantirish" },
+  { name: "Shaxmat", pool: "education", group: "Bolalar rivojlantirish" },
+  { name: "Rasm/San'at", pool: "education", group: "Bolalar rivojlantirish" },
+  { name: "Musiqa", pool: "education", group: "Bolalar rivojlantirish" },
+  // Yollash — Dasturlash
+  { name: "Frontend", pool: "it", group: "Dasturlash" },
+  { name: "Backend", pool: "it", group: "Dasturlash" },
+  { name: "Full-stack", pool: "it", group: "Dasturlash" },
+  { name: "Mobil (iOS/Android)", pool: "it", group: "Dasturlash" },
+  { name: "Game dev", pool: "it", group: "Dasturlash" },
+  // Yollash — Dizayn
+  { name: "UI/UX dizayn", pool: "it", group: "Dizayn" },
+  { name: "Grafik dizayn", pool: "it", group: "Dizayn" },
+  { name: "Motion dizayn", pool: "it", group: "Dizayn" },
+  // Yollash — Marketing
+  { name: "SMM", pool: "it", group: "Marketing" },
+  { name: "Target reklama", pool: "it", group: "Marketing" },
+  { name: "SEO", pool: "it", group: "Marketing" },
+  // Yollash — Boshqa
+  { name: "Data analyst / Data science", pool: "it", group: "Boshqa" },
+  { name: "DevOps", pool: "it", group: "Boshqa" },
+  { name: "QA/Testing", pool: "it", group: "Boshqa" },
+  { name: "Kiberxavfsizlik", pool: "it", group: "Boshqa" },
+  { name: "Copywriting/Kontent", pool: "it", group: "Boshqa" },
 ];
 
 interface SeedProfile {
@@ -35,10 +67,11 @@ interface SeedProfile {
   city: string;
   contactUrl: string;
   pool: string;
-  subType: string;
+  subType: string; // education: center|individual; it: kategoriya guruhi
   category: string;
   totalBid: number;
-  verified?: boolean;
+  paid: number; // aksiya bilan to'langan (50%)
+  verifyStatus?: "none" | "pending" | "verified";
   clicks: number;
   views: number;
   daysAgo: number;
@@ -46,7 +79,7 @@ interface SeedProfile {
 }
 
 const PROFILES: SeedProfile[] = [
-  // ===== TA'LIM — MARKAZLAR =====
+  // ===== O'RGANISH — MARKAZLAR (min 50k, qadam 15k) =====
   {
     name: "Smart English Academy",
     description:
@@ -55,9 +88,10 @@ const PROFILES: SeedProfile[] = [
     contactUrl: "@smartenglish_uz",
     pool: "education",
     subType: "center",
-    category: "IELTS / CEFR",
-    totalBid: 180_000,
-    verified: true,
+    category: "Ingliz tili (IELTS)",
+    totalBid: 215_000,
+    paid: 107_500,
+    verifyStatus: "verified",
     clicks: 412,
     views: 2830,
     daysAgo: 12,
@@ -75,8 +109,9 @@ const PROFILES: SeedProfile[] = [
     contactUrl: "@ieltszone",
     pool: "education",
     subType: "center",
-    category: "IELTS / CEFR",
-    totalBid: 150_000,
+    category: "Ingliz tili (IELTS)",
+    totalBid: 170_000,
+    paid: 85_000,
     clicks: 298,
     views: 1954,
     daysAgo: 9,
@@ -88,19 +123,19 @@ const PROFILES: SeedProfile[] = [
   {
     name: "Westminster Education",
     description:
-      "Xalqaro standartlarda ta'lim: IELTS, matematika va abituriyent tayyorlov. Filiallar Toshkent va Samarqandda.",
+      "Xalqaro standartlarda ta'lim: SAT, IMAT va chet el universitetlariga tayyorlov. Filiallar Toshkent va Samarqandda.",
     city: "Toshkent",
     contactUrl: "https://westminster-edu.uz",
     pool: "education",
     subType: "center",
-    category: "Abituriyent tayyorlov",
-    totalBid: 120_000,
-    verified: true,
+    category: "Chet el universitetlariga tayyorlov",
+    totalBid: 125_000,
+    paid: 62_500,
     clicks: 245,
     views: 1710,
     daysAgo: 15,
     reviews: [
-      { authorName: "Aziz", rating: 5, comment: "DTM imtihoniga juda yaxshi tayyorladi. Rahmat!", sessionId: "seed-6" },
+      { authorName: "Aziz", rating: 5, comment: "IMAT imtihoniga juda yaxshi tayyorladi. Rahmat!", sessionId: "seed-6" },
     ],
   },
   {
@@ -113,6 +148,7 @@ const PROFILES: SeedProfile[] = [
     subType: "center",
     category: "Matematika",
     totalBid: 65_000,
+    paid: 32_500,
     clicks: 132,
     views: 890,
     daysAgo: 7,
@@ -125,8 +161,9 @@ const PROFILES: SeedProfile[] = [
     contactUrl: "@englishhouse_bux",
     pool: "education",
     subType: "center",
-    category: "Ingliz tili",
-    totalBid: 40_000,
+    category: "Ingliz tili (umumiy/bolalar)",
+    totalBid: 50_000,
+    paid: 25_000,
     clicks: 87,
     views: 560,
     daysAgo: 5,
@@ -134,8 +171,7 @@ const PROFILES: SeedProfile[] = [
       { authorName: "Kamola", rating: 5, comment: "Bolam 3 oyda erkin gapirishni boshladi. Rahmat!", sessionId: "seed-7" },
     ],
   },
-
-  // ===== TA'LIM — INDIVIDUAL REPETITORLAR =====
+  // ===== O'RGANISH — INDIVIDUAL REPETITORLAR (min 15k, qadam 5k) =====
   {
     name: "Aziza Karimova",
     description:
@@ -144,9 +180,10 @@ const PROFILES: SeedProfile[] = [
     contactUrl: "@aziza_ielts",
     pool: "education",
     subType: "individual",
-    category: "IELTS / CEFR",
-    totalBid: 90_000,
-    verified: true,
+    category: "Ingliz tili (IELTS)",
+    totalBid: 75_000,
+    paid: 37_500,
+    verifyStatus: "verified",
     clicks: 356,
     views: 2140,
     daysAgo: 11,
@@ -165,6 +202,7 @@ const PROFILES: SeedProfile[] = [
     subType: "individual",
     category: "Matematika",
     totalBid: 45_000,
+    paid: 22_500,
     clicks: 154,
     views: 980,
     daysAgo: 6,
@@ -180,8 +218,9 @@ const PROFILES: SeedProfile[] = [
     contactUrl: "@dilnoza_english",
     pool: "education",
     subType: "individual",
-    category: "Ingliz tili",
+    category: "Ingliz tili (umumiy/bolalar)",
     totalBid: 30_000,
+    paid: 15_000,
     clicks: 76,
     views: 445,
     daysAgo: 4,
@@ -195,13 +234,13 @@ const PROFILES: SeedProfile[] = [
     pool: "education",
     subType: "individual",
     category: "Fizika",
-    totalBid: 25_000,
+    totalBid: 15_000,
+    paid: 7_500,
     clicks: 64,
     views: 380,
     daysAgo: 3,
   },
-
-  // ===== IT MUTAXASSISLAR =====
+  // ===== YOLLASH — IT MUTAXASSISLAR (min 20k, qadam 5k) =====
   {
     name: "CodeCraft Studio",
     description:
@@ -209,10 +248,11 @@ const PROFILES: SeedProfile[] = [
     city: "Toshkent",
     contactUrl: "@codecraft_studio",
     pool: "it",
-    subType: "Dasturchi",
-    category: "Fullstack",
-    totalBid: 200_000,
-    verified: true,
+    subType: "Dasturlash",
+    category: "Full-stack",
+    totalBid: 135_000,
+    paid: 67_500,
+    verifyStatus: "verified",
     clicks: 520,
     views: 3120,
     daysAgo: 14,
@@ -228,9 +268,10 @@ const PROFILES: SeedProfile[] = [
     city: "Toshkent",
     contactUrl: "@pixelpro_design",
     pool: "it",
-    subType: "Dizayner",
-    category: "UI/UX Dizayn",
-    totalBid: 130_000,
+    subType: "Dizayn",
+    category: "UI/UX dizayn",
+    totalBid: 90_000,
+    paid: 45_000,
     clicks: 388,
     views: 2410,
     daysAgo: 10,
@@ -245,10 +286,11 @@ const PROFILES: SeedProfile[] = [
     city: "Toshkent",
     contactUrl: "@ali_frontend",
     pool: "it",
-    subType: "Dasturchi",
+    subType: "Dasturlash",
     category: "Frontend",
-    totalBid: 85_000,
-    verified: true,
+    totalBid: 55_000,
+    paid: 27_500,
+    verifyStatus: "verified",
     clicks: 276,
     views: 1650,
     daysAgo: 8,
@@ -264,9 +306,10 @@ const PROFILES: SeedProfile[] = [
     city: "Samarqand",
     contactUrl: "@mediaboost_uz",
     pool: "it",
-    subType: "SMM mutaxassis",
+    subType: "Marketing",
     category: "SMM",
-    totalBid: 55_000,
+    totalBid: 35_000,
+    paid: 17_500,
     clicks: 198,
     views: 1204,
     daysAgo: 6,
@@ -278,9 +321,10 @@ const PROFILES: SeedProfile[] = [
     city: "Toshkent",
     contactUrl: "https://growthlab.uz",
     pool: "it",
-    subType: "Marketolog",
-    category: "Marketolog",
-    totalBid: 48_000,
+    subType: "Marketing",
+    category: "Target reklama",
+    totalBid: 25_000,
+    paid: 12_500,
     clicks: 176,
     views: 1020,
     daysAgo: 9,
@@ -295,9 +339,10 @@ const PROFILES: SeedProfile[] = [
     city: "Namangan",
     contactUrl: "@qamasters_uz",
     pool: "it",
-    subType: "QA mutaxassis",
-    category: "QA / Testlash",
-    totalBid: 25_000,
+    subType: "Boshqa",
+    category: "QA/Testing",
+    totalBid: 20_000,
+    paid: 10_000,
     clicks: 92,
     views: 610,
     daysAgo: 4,
@@ -305,11 +350,11 @@ const PROFILES: SeedProfile[] = [
 ];
 
 async function main() {
-  console.log("🚀 Seed boshlanmoqda...");
+  console.log("🚀 TopBid seed boshlanmoqda...");
 
-  // Tozalash
   await db.review.deleteMany();
   await db.bid.deleteMany();
+  await db.verificationRequest.deleteMany();
   await db.adminLog.deleteMany();
   await db.profile.deleteMany();
   await db.category.deleteMany();
@@ -318,16 +363,18 @@ async function main() {
   // Kategoriyalar
   const catMap = new Map<string, string>();
   for (const c of CATEGORIES) {
-    const cat = await db.category.create({ data: { name: c.name, pool: c.pool } });
+    const cat = await db.category.create({
+      data: { name: c.name, pool: c.pool, groupName: c.group },
+    });
     catMap.set(c.name, cat.id);
   }
   console.log(`✅ ${CATEGORIES.length} kategoriya qo'shildi`);
 
   // Profillar
-  let totalRevenue = 0;
+  let bidsRevenue = 0;
+  const createdIds: Record<string, string> = {};
   for (const p of PROFILES) {
-    const daysAgo = p.daysAgo;
-    const createdAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
+    const createdAt = new Date(Date.now() - p.daysAgo * 24 * 60 * 60 * 1000);
     const profile = await db.profile.create({
       data: {
         name: p.name,
@@ -337,7 +384,7 @@ async function main() {
         pool: p.pool,
         subType: p.subType,
         categoryId: catMap.get(p.category)!,
-        verified: p.verified ?? false,
+        verifyStatus: p.verifyStatus ?? "none",
         totalBid: p.totalBid,
         clicks: p.clicks,
         views: p.views,
@@ -345,10 +392,12 @@ async function main() {
         lastBidAt: createdAt,
       },
     });
+    createdIds[p.name] = profile.id;
+    // Haqiqiy to'lov (aksiya 50%) — Bid yozuvlari real pulni aks ettiradi
     await db.bid.create({
-      data: { profileId: profile.id, amount: p.totalBid, status: "paid", createdAt },
+      data: { profileId: profile.id, amount: p.paid, status: "paid", createdAt },
     });
-    totalRevenue += p.totalBid;
+    bidsRevenue += p.paid;
 
     for (const r of p.reviews ?? []) {
       await db.review.create({
@@ -363,16 +412,56 @@ async function main() {
       });
     }
   }
-  console.log(`✅ ${PROFILES.length} profil, ${totalRevenue.toLocaleString("ru-RU")} so'm daromad seed qilindi`);
+  console.log(`✅ ${PROFILES.length} profil, bidlar daromadi: ${bidsRevenue.toLocaleString("ru-RU")} so'm`);
 
-  // Bazaviy tashriflar statistikasi
-  await db.siteStats.create({ data: { id: "main", visits: 3421 } });
+  // Verifikatsiya so'rovlari: tasdiqlanganlar (o'tgan) + 1 ta kutilayotgan
+  const verifiedSeeds = [
+    { name: "Smart English Academy", fee: 25_000, daysAgo: 11 },
+    { name: "Aziza Karimova", fee: 25_000, daysAgo: 10 },
+    { name: "CodeCraft Studio", fee: 25_000, daysAgo: 13 },
+    { name: "Ali Vohidov", fee: 25_000, daysAgo: 7 },
+  ];
+  let verRevenue = 0;
+  for (const v of verifiedSeeds) {
+    await db.verificationRequest.create({
+      data: {
+        profileId: createdIds[v.name],
+        fee: v.fee,
+        status: "approved",
+        createdAt: new Date(Date.now() - v.daysAgo * 86_400_000),
+        reviewedAt: new Date(Date.now() - (v.daysAgo - 1) * 86_400_000),
+      },
+    });
+    verRevenue += v.fee;
+  }
+  // Kutilayotgan so'rov — admin panelda ko'rinadi
+  await db.verificationRequest.create({
+    data: {
+      profileId: createdIds["IELTS Zone"],
+      fee: 25_000,
+      status: "pending",
+      createdAt: new Date(Date.now() - 6 * 3600_000),
+    },
+  });
+  await db.profile.update({
+    where: { id: createdIds["IELTS Zone"] },
+    data: { verifyStatus: "pending" },
+  });
+  console.log(`✅ Verifikatsiya: ${verifiedSeeds.length} tasdiqlangan (+${verRevenue.toLocaleString("ru-RU")} so'm), 1 kutilayotgan`);
 
-  // Admin jurnaliga boshlang'ich yozuv
+  // Statistika va admin log
+  await db.siteStats.create({ data: { id: "main", visits: 4823 } });
   await db.adminLog.create({
     data: {
       type: "info",
-      message: "🏁 Ustar platformasi ishga tushdi. Demo ma'lumotlar yuklandi.",
+      message: "🏁 TopBid platformasi ishga tushdi. Ochilish aksiyasi: 2 hafta 50% chegirma!",
+    },
+  });
+  await db.adminLog.create({
+    data: {
+      type: "verification",
+      message: "🛡️ Verifikatsiya so'rovi: IELTS Zone\nTo'lov: 25 000 so'm (aksiya -50%)\nKontakt: @ieltszone\nHujjatlarni tekshirib, panelda tasdiqlang yoki rad eting.",
+      profileId: createdIds["IELTS Zone"],
     },
   });
 

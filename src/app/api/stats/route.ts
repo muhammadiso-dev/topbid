@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { heartbeat } from "@/lib/ustar/online";
+import { heartbeat, getOnlineCount } from "@/lib/ustar/online";
 import { computeRevenue } from "@/lib/ustar/server";
 import type { SiteStatsDTO } from "@/lib/ustar/types";
 
@@ -12,18 +12,17 @@ export async function GET() {
     computeRevenue(),
     db.profile.count(),
   ]);
-  const { getOnlineCount } = await import("@/lib/ustar/online");
   const dto: SiteStatsDTO = {
     online: getOnlineCount(),
     visits: stats?.visits ?? 0,
-    revenue,
+    revenue: revenue.total,
     profilesCount,
   };
   return NextResponse.json(dto);
 }
 
 /**
- * POST — yurak urishi (heartbeat) va tashriflarni hisoblash.
+ * POST — heartbeat va tashriflarni hisoblash.
  * Body: { sessionId: string, visit?: boolean }
  */
 export async function POST(req: NextRequest) {

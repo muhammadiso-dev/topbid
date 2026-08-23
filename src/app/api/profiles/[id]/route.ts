@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { computePriceForPosition, getRankedProfiles, serializeProfile } from "@/lib/ustar/server";
-import { BID_INCREMENT, formatSom, MIN_BID } from "@/lib/ustar/constants";
+import { getRankedProfiles, serializeProfile } from "@/lib/ustar/server";
+import { formatSom } from "@/lib/ustar/constants";
+import { fullPriceForPosition, payableAmount, tierFor, promoInfo } from "@/lib/ustar/pricing";
+import { PRICE_TIERS } from "@/lib/ustar/constants";
 import { notifyAdmin } from "@/lib/ustar/telegram";
 import type { CreateProfileResult } from "@/lib/ustar/types";
 
 export const dynamic = "force-dynamic";
 
 /**
- * GET /api/profiles/[id] — profil batafsil ma'lumoti + sharhlar.
+ * GET /api/profiles/[id] — profil batafsil + sharhlar.
  */
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
@@ -34,7 +36,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
 
 /**
  * POST /api/profiles/[id] — mavjud profilga qo'shimcha to'lov (o'rin uchun raqobat).
- * Body: { targetPosition: number, sessionId: string }
+ * Body: { targetPosition: number }
  */
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
@@ -47,15 +49,21 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       return NextResponse.json({ error: "Profil topilmadi" }, { status: 404 });
     }
 
+    const promo = promoInfo();
+    const tier = tierFor(profile.pool, profile.subType);
+    const t = PRICE_TIERS[tier];
+
     const ranked = await getRankedProfiles(profile.pool);
-    const requiredTotal = computePriceForPosition(ranked, targetPosition);
-    const amount = Math.max(requiredTotal - profile.totalBid, MIN_BID);
+    const requiredFull = fullPriceForPosition(ranked, targetPosition, tier);
+    let credit = requiredFull - profile.totalBid;
+    if (credit <= 0) credit = t.step; // minimal top-up
+    const paid = payableAmount(credit, promo.active);
 
     await db.$transaction([
-      db.bid.create({ data: { profileId: id, amount, status: "paid" } }),
+      db.bid.create({ data: { profileId: id, amount: paid, status: "paid" } }),
       db.profile.update({
         where: { id },
-        data: { totalBid: { increment: amount }, lastBidAt: new Date() },
+        data: { totalBid: { increment: credit }, lastBidAt: new Date() },
       }),
     ]);
 
@@ -64,7 +72,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
 
     await notifyAdmin(
       "topup",
-      `💰 Summa qo'shildi: ${profile.name} — ${formatSom(amount)} (+${BID_INCREMENT.toLocaleString("ru-RU")})\nYangi o'rin: ${updated?.position}`,
+      `💰 Summa qo'shildi: ${profile.name} — to'langan ${formatSom(paid)}${promo.active ? " (aksiya -50%)" : ""}\nReyting summasi: +${formatSom(credit)} • Yangi o'rin: ${updated?.position}`,
       id
     );
 
@@ -73,8 +81,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       mode: "topup",
       profile: updated!,
       position: updated?.position ?? targetPosition,
-      amount,
-      message: `${formatSom(amount)} profilingizga qo'shildi — hozir ${updated?.position ?? targetPosition}-o'rindasiz!`,
+      amount: paid,
+      message: `To'lovingiz qabul qilindi — hozir ${updated?.position ?? targetPosition}-o'rindasiz!`,
     };
     return NextResponse.json(result);
   } catch (e) {
@@ -102,7 +110,7 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
       return NextResponse.json({ error: "Profil topilmadi" }, { status: 404 });
     }
 
-    // Barcha bidlarni "refunded" deb belgilash (daromad kamayadi)
+    // Bidlar "refunded" deb belgilanadi (daromad kamayadi), verifikatsiya so'rovlari cascade o'chadi
     await db.$transaction([
       db.bid.updateMany({ where: { profileId: id }, data: { status: "refunded" } }),
       db.profile.delete({ where: { id } }),
@@ -110,11 +118,11 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
 
     await notifyAdmin(
       "refund",
-      `🗑 Profil o'chirildi: ${profile.name}\nQaytarilgan summa: ${formatSom(profile.totalBid)}`,
+      `🗑 Profil o'chirildi: ${profile.name}\nBarcha to'lovlar qaytarildi`,
       id
     );
 
-    return NextResponse.json({ ok: true, refunded: profile.totalBid });
+    return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("Profilni o'chirishda xato:", e);
     return NextResponse.json({ error: "Server xatosi" }, { status: 500 });

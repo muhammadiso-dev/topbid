@@ -8,6 +8,8 @@ export interface ReviewDTO {
   createdAt: string;
 }
 
+export type VerifyStatus = "none" | "pending" | "verified";
+
 export interface ProfileDTO {
   id: string;
   name: string;
@@ -19,7 +21,8 @@ export interface ProfileDTO {
   subType: string;
   categoryId: string;
   categoryName: string;
-  verified: boolean;
+  categoryGroup: string;
+  verifyStatus: VerifyStatus;
   totalBid: number;
   clicks: number;
   views: number;
@@ -27,7 +30,7 @@ export interface ProfileDTO {
   lastBidAt: string;
   reviewsCount: number;
   avgRating: number;
-  /** Butun pool ichidagi o'rni (1-based) */
+  /** Butun pool ichidagi global o'rni (1-based) */
   position: number;
 }
 
@@ -35,6 +38,7 @@ export interface CategoryDTO {
   id: string;
   name: string;
   pool: Pool;
+  group: string;
 }
 
 export interface SiteStatsDTO {
@@ -52,12 +56,29 @@ export interface AdminLogDTO {
   createdAt: string;
 }
 
+export interface VerificationRequestDTO {
+  id: string;
+  profileId: string;
+  profileName: string;
+  profileContact: string;
+  pool: string;
+  fee: number;
+  status: "pending" | "approved" | "refunded";
+  createdAt: string;
+  reviewedAt: string | null;
+}
+
 export interface PriceOptionDTO {
-  /** Maqsadli o'rin (1-based) */
+  /** Maqsadli o'rin (1-based, global) */
   position: number;
-  /** Shu o'rinni olish uchun to'lanadigan summa */
+  /** Reytingga yoziladigan to'liq summa */
+  fullPrice: number;
+  /** Haqiqiy to'lanadigan summa (aksiya bilan) */
   price: number;
-  label: string;
+  /** Aksiya davri yoki yo'q */
+  promo: boolean;
+  /** Shu o'rinning hozirgi egasi (bo'sh bo'lsa null) */
+  holderName: string | null;
 }
 
 export interface CreateProfileResult {
@@ -78,7 +99,6 @@ export interface CreateProfilePayload {
   description: string;
   contactUrl: string;
   imageUrl?: string;
-  /** Maqsadli o'rin (1-based) */
   targetPosition: number;
   sessionId: string;
 }

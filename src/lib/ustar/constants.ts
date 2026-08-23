@@ -1,25 +1,192 @@
-// Ustar platformasining umumiy konstantalari va sozlamalari
+// TopBid — platformaning umumiy konstantalari, narx darajalari va aksiya mantiqi
 
-/** Minimal taklif (boshlang'ich narx) — so'mda */
-export const MIN_BID = 20_000;
+/* ==================== BREND ==================== */
 
-/** Har bir raqobat qadami (o'sish) — so'mda */
-export const BID_INCREMENT = 10_000;
+export const BRAND = {
+  name: "TopBid",
+  domain: "topbid.uz",
+  bot: "@TopBidBot",
+};
 
-/** Admin paroli (demo; .env dagi ADMIN_PASSWORD bilan almashtiriladi) */
-export const ADMIN_PASSWORD_DEFAULT = "ustar2024";
+/* ==================== NARX DARAJALARI ==================== */
 
 export type Pool = "education" | "it";
-
 export type EducationSubType = "center" | "individual";
+export type PriceTier = "edu_center" | "edu_individual" | "it";
 
-/** Ta'lim poolidagi kichik toifalar */
-export const EDUCATION_SUBTYPES: { value: EducationSubType; label: string; short: string }[] = [
-  { value: "center", label: "Ta'lim markazlari", short: "Markaz" },
-  { value: "individual", label: "Individual repetitorlar", short: "Repetitor" },
+/** Uchta mustaqil narx darajasi — narxlar aralashmaydi */
+export const PRICE_TIERS: Record<
+  PriceTier,
+  { min: number; step: number; top1Extra: number; label: string; short: string }
+> = {
+  edu_center: {
+    min: 50_000,
+    step: 15_000,
+    top1Extra: 80_000,
+    label: "Ta'lim markazlari",
+    short: "Markazlar",
+  },
+  edu_individual: {
+    min: 15_000,
+    step: 5_000,
+    top1Extra: 25_000,
+    label: "Individual repetitorlar",
+    short: "Repetitorlar",
+  },
+  it: {
+    min: 20_000,
+    step: 5_000,
+    top1Extra: 30_000,
+    label: "IT mutaxassislar",
+    short: "IT",
+  },
+};
+
+/** Verifikatsiya ("Tekshirilgan" belgisi) to'lovi — bir martalik */
+export const VERIFICATION_FEE = 50_000;
+
+/* ==================== OCHILISH AKSIYASI ==================== */
+
+/** Platforma ishga tushgan sana (Toshkent vaqti bilan) */
+export const LAUNCH_DATE = new Date("2026-08-23T00:00:00+05:00");
+/** Aksiya davomiyligi — kunlarda */
+export const PROMO_DAYS = 14;
+/** Chegirma miqdori (50%) */
+export const PROMO_MULTIPLIER = 0.5;
+
+export interface PromoInfo {
+  active: boolean;
+  endsAt: string; // ISO
+  msLeft: number;
+}
+
+/** Aksiya holatini hisoblash — 2 hafta davomida barcha narxlarga 50% */
+export function promoInfo(now: Date = new Date()): PromoInfo {
+  const endsAtMs = LAUNCH_DATE.getTime() + PROMO_DAYS * 86_400_000;
+  const msLeft = endsAtMs - now.getTime();
+  return {
+    active: msLeft > 0,
+    endsAt: new Date(endsAtMs).toISOString(),
+    msLeft: Math.max(0, msLeft),
+  };
+}
+
+/* ==================== TAB NOMLARI ==================== */
+
+export const POOL_LABELS: Record<Pool, string> = {
+  education: "O'rganish",
+  it: "Yollash",
+};
+
+export const POOL_SUBTITLES: Record<Pool, string> = {
+  education: "Repetitor, markaz va kurs qidirayotganlar uchun",
+  it: "Tayyor mutaxassis va frilanser qidirayotganlar uchun",
+};
+
+export const EDUCATION_SUBTYPES: { value: EducationSubType; label: string; short: string; tier: PriceTier }[] = [
+  { value: "center", label: "Ta'lim markazlari", short: "Markaz", tier: "edu_center" },
+  { value: "individual", label: "Individual repetitorlar", short: "Repetitor", tier: "edu_individual" },
 ];
 
-/** O'zbekiston shaharlari */
+/* ==================== KATEGORIYALAR ==================== */
+
+export interface CategoryGroupDef {
+  pool: Pool;
+  group: string;
+  items: string[];
+}
+
+/** Kategoriya daraxti — guruhlar bilan */
+export const CATEGORY_GROUPS: CategoryGroupDef[] = [
+  // ===== O'RGANISH (Ta'lim) =====
+  {
+    pool: "education",
+    group: "Chet tillari",
+    items: [
+      "Ingliz tili (IELTS)",
+      "Ingliz tili (umumiy/bolalar)",
+      "SAT/TOEFL",
+      "Rus tili",
+      "Koreys tili",
+      "Xitoy tili",
+      "Turk tili",
+      "Arab tili",
+      "Nemis/Fransuz tili",
+    ],
+  },
+  {
+    pool: "education",
+    group: "Maktab fanlari",
+    items: [
+      "Matematika",
+      "Fizika",
+      "Kimyo",
+      "Biologiya",
+      "Tarix",
+      "Ona tili va adabiyot",
+      "Iqtisodiyot/Huquq",
+    ],
+  },
+  {
+    pool: "education",
+    group: "Test tayyorlov",
+    items: [
+      "Milliy sertifikat / DTM",
+      "IELTS/TOEFL intensiv",
+      "Chet el universitetlariga tayyorlov",
+    ],
+  },
+  {
+    pool: "education",
+    group: "IT kurslar",
+    items: [
+      "Python/dasturlash kursi",
+      "Frontend kursi",
+      "Dizayn kursi",
+      "SMM/marketing kursi",
+    ],
+  },
+  {
+    pool: "education",
+    group: "Bolalar rivojlantirish",
+    items: ["Robototexnika", "Shaxmat", "Rasm/San'at", "Musiqa"],
+  },
+  // ===== YOLLASH (IT mutaxassislar) =====
+  {
+    pool: "it",
+    group: "Dasturlash",
+    items: ["Frontend", "Backend", "Full-stack", "Mobil (iOS/Android)", "Game dev"],
+  },
+  {
+    pool: "it",
+    group: "Dizayn",
+    items: ["UI/UX dizayn", "Grafik dizayn", "Motion dizayn"],
+  },
+  {
+    pool: "it",
+    group: "Marketing",
+    items: ["SMM", "Target reklama", "SEO"],
+  },
+  {
+    pool: "it",
+    group: "Boshqa",
+    items: [
+      "Data analyst / Data science",
+      "DevOps",
+      "QA/Testing",
+      "Kiberxavfsizlik",
+      "Copywriting/Kontent",
+    ],
+  },
+];
+
+/** Barcha kategoriyalar (seed uchun yassi ro'yxat) */
+export const CATEGORY_SEED = CATEGORY_GROUPS.flatMap((g) =>
+  g.items.map((name) => ({ name, pool: g.pool, group: g.group }))
+);
+
+/* ==================== SHAHARLAR ==================== */
+
 export const CITIES = [
   "Toshkent",
   "Samarqand",
@@ -39,63 +206,24 @@ export const CITIES = [
   "Onlayn",
 ] as const;
 
-/** Kategoriya (fan/soha) seed konfiguratsiyasi */
-export const CATEGORY_SEED: { name: string; pool: Pool }[] = [
-  // Ta'lim
-  { name: "IELTS / CEFR", pool: "education" },
-  { name: "Ingliz tili", pool: "education" },
-  { name: "Matematika", pool: "education" },
-  { name: "Fizika", pool: "education" },
-  { name: "Kimyo", pool: "education" },
-  { name: "Biologiya", pool: "education" },
-  { name: "Rus tili", pool: "education" },
-  { name: "Informatika", pool: "education" },
-  { name: "Abituriyent tayyorlov", pool: "education" },
-  { name: "Boshqa fan", pool: "education" },
-  // IT
-  { name: "Frontend", pool: "it" },
-  { name: "Backend", pool: "it" },
-  { name: "Fullstack", pool: "it" },
-  { name: "Mobil dasturlash", pool: "it" },
-  { name: "UI/UX Dizayn", pool: "it" },
-  { name: "Grafik dizayn", pool: "it" },
-  { name: "SMM", pool: "it" },
-  { name: "Marketolog", pool: "it" },
-  { name: "QA / Testlash", pool: "it" },
-  { name: "DevOps", pool: "it" },
-];
+/* ==================== FORMATLASH ==================== */
 
-/** IT poolidagi kichik toifalar (subType qiymatlari) */
-export const IT_SUBTYPES = [
-  "Dasturchi",
-  "Dizayner",
-  "Marketolog",
-  "SMM mutaxassis",
-  "QA mutaxassis",
-  "DevOps",
-] as const;
-
-export const POOL_LABELS: Record<Pool, string> = {
-  education: "Ta'lim",
-  it: "IT mutaxassislar",
-};
-
-/** Summani o'zbekcha formatda chiqarish: 1 250 000 so'm */
+/** Summani o'zbekcha formatda: 1 250 000 so'm */
 export function formatSom(amount: number): string {
   return amount.toLocaleString("ru-RU").replace(/\u00a0/g, " ") + " so'm";
 }
 
-/** Qisqa format: 1.2 mln / 245 ming / 1 234 */
+/** Qisqa format: 1.2 mln / 245 ming / 15 000 (min narxlar uchun aniq) */
 export function formatCompactSom(amount: number): string {
   if (amount >= 1_000_000) {
     const v = amount / 1_000_000;
     return `${v % 1 === 0 ? v : v.toFixed(1)} mln so'm`;
   }
-  if (amount >= 1_000) {
+  if (amount >= 100_000) {
     const v = amount / 1_000;
-    return `${v % 1 === 0 ? v : v.toFixed(0)} ming so'm`;
+    return `${Math.round(v)} ming so'm`;
   }
-  return `${amount} so'm`;
+  return `${amount.toLocaleString("ru-RU").replace(/\u00a0/g, " ")} so'm`;
 }
 
 /** Raqam uchun qisqa format: 12.4k */
@@ -105,7 +233,7 @@ export function formatCompactNumber(n: number): string {
   return `${n}`;
 }
 
-/** "3 kun oldin", "2 soat oldin" kabilar */
+/** "3 kun oldin", "2 soat oldin" */
 export function timeAgo(date: string | Date): string {
   const d = typeof date === "string" ? new Date(date) : date;
   const diff = Date.now() - d.getTime();
@@ -120,6 +248,8 @@ export function timeAgo(date: string | Date): string {
   if (months < 12) return `${months} oy oldin`;
   return `${Math.floor(months / 12)} yil oldin`;
 }
+
+/* ==================== KONTAKT ==================== */
 
 /** Kontakt havolasini normalizatsiya qilish (dubl aniqlash uchun) */
 export function normalizeContactUrl(url: string): string {
@@ -157,7 +287,8 @@ export function contactInfo(url: string): {
   return { label: u.replace(/^https?:\/\//, ""), href: u.startsWith("http") ? u : `https://${u}`, kind: "site" };
 }
 
-/** Ismdan deterministik avatar rangi */
+/* ==================== AVATAR ==================== */
+
 const AVATAR_COLORS = [
   "#d97b29",
   "#b45f14",
@@ -168,6 +299,8 @@ const AVATAR_COLORS = [
   "#87573a",
   "#c97b4f",
 ];
+
+/** Ismdan deterministik avatar rangi */
 export function avatarColor(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
@@ -182,3 +315,6 @@ export function initials(name: string): string {
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
+
+/** Admin demo paroli (.env ADMIN_PASSWORD bilan almashtiriladi) */
+export const ADMIN_PASSWORD_DEFAULT = "ustar2024";

@@ -4,16 +4,19 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
   BadgeCheck,
+  Clock3,
   MapPin,
   Eye,
   MousePointerClick,
+  Globe,
   Send,
   Instagram,
-  Globe,
+  Globe2,
   MessageSquare,
   Star,
   TrendingUp,
   Lock,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,19 +26,29 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { ProfileAvatar } from "./profile-avatar";
 import { StarRating } from "./star-rating";
+import { VerifyModal } from "./verify-modal";
 import { useUstarStore, getSessionId } from "@/lib/ustar/store";
-import { contactInfo, formatCompactNumber, formatSom, timeAgo } from "@/lib/ustar/constants";
+import {
+  contactInfo,
+  formatCompactNumber,
+  formatSom,
+  promoInfo,
+  timeAgo,
+} from "@/lib/ustar/constants";
 import type { ProfileDTO, ReviewDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 
-/** Profil batafsil sahifasi — ma'lumotlar + bepul sharhlar */
+/** Profil batafsil sahifasi — ma'lumotlar + bepul sharhlar + verifikatsiya */
 export function ProfileDetailView({ profileId }: { profileId: string }) {
-  const { setView } = useUstarStore();
+  const { setView, openAddForm } = useUstarStore();
   const { toast } = useToast();
 
   const [profile, setProfile] = useState<ProfileDTO | null>(null);
   const [reviews, setReviews] = useState<ReviewDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [verifyOpen, setVerifyOpen] = useState(false);
+
+  const promo = promoInfo();
 
   const load = useCallback(
     (countView: boolean) => {
@@ -76,6 +89,18 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
       .catch(() => null);
   };
 
+  // Verifikatsiya to'lovidan so'ng — so'rov yaratish
+  const handleVerifyPaid = async () => {
+    const res = await fetch(`/api/profiles/${profileId}/verify`, { method: "POST" });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Xatolik");
+    toast({
+      title: "🛡️ So'rov yuborildi!",
+      description: data.message || "Admin 24 soat ichida ko'rib chiqadi.",
+    });
+    load(false);
+  };
+
   if (loading && !profile) {
     return (
       <div className="max-w-2xl mx-auto px-4 pb-16 pt-6 md:pt-8 space-y-4">
@@ -92,7 +117,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
         <p className="font-extrabold text-lg text-[#241c14]">Profil topilmadi</p>
         <Button
           onClick={() => setView({ name: "home" })}
-          className="mt-4 bg-[#d97b29] hover:bg-[#c2691f] text-white font-bold rounded-lg"
+          className="mt-4 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-lg"
         >
           Reytingga qaytish
         </Button>
@@ -102,8 +127,21 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
 
   const contact = contactInfo(profile.contactUrl);
   const ContactIcon =
-    contact.kind === "telegram" ? Send : contact.kind === "instagram" ? Instagram : Globe;
+    contact.kind === "telegram" ? Send : contact.kind === "instagram" ? Instagram : Globe2;
   const isTop3 = profile.position <= 3;
+
+  const verifyBadge =
+    profile.verifyStatus === "verified" ? (
+      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#1d7ed8] bg-[#e8f2fc] px-2 py-1 rounded-full">
+        <BadgeCheck className="w-3.5 h-3.5" />
+        Tekshirilgan
+      </span>
+    ) : profile.verifyStatus === "pending" ? (
+      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#a86a00] bg-[#fff4d6] px-2 py-1 rounded-full">
+        <Clock3 className="w-3.5 h-3.5" />
+        Tekshirilmoqda
+      </span>
+    ) : null;
 
   return (
     <div className="max-w-2xl mx-auto px-4 pb-16">
@@ -124,7 +162,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
         className={cn(
           "mt-4 bg-white rounded-2xl border p-5 md:p-6 relative",
           isTop3 && profile.position === 1 && "top-glow border-transparent",
-          isTop3 && profile.position !== 1 && "border-[#e9b98a]",
+          isTop3 && profile.position !== 1 && "border-2 border-[#e9b98a]",
           !isTop3 && "border-border"
         )}
       >
@@ -132,30 +170,27 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
           <div
             className={cn(
               "absolute -top-3 left-6 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wide shadow-sm",
-              profile.position === 1 ? "bg-[#d97b29] text-white" : "bg-[#fdeedd] text-[#b25e14] border border-[#f0d5b8]"
+              profile.position === 1
+                ? "bg-[#d97b29] text-white"
+                : "bg-[#fdeedd] text-[#b25e14] border border-[#f0d5b8]"
             )}
           >
             TOP {profile.position}
           </div>
         )}
 
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-4 flex-col sm:flex-row">
           <ProfileAvatar name={profile.name} imageUrl={profile.imageUrl} size={72} className="rounded-2xl" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14] leading-tight">
                 {profile.name}
               </h1>
-              {profile.verified && (
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-[#1d7ed8] bg-[#e8f2fc] px-2 py-1 rounded-full">
-                  <BadgeCheck className="w-3.5 h-3.5" />
-                  Tekshirilgan
-                </span>
-              )}
+              {verifyBadge}
             </div>
             <div className="flex items-center gap-1.5 flex-wrap mt-2">
               <span className="text-xs font-bold text-[#b25e14] bg-[#fdeedd] px-2.5 py-1 rounded-full">
-                {profile.categoryName}
+                {profile.categoryGroup ? `${profile.categoryGroup} · ${profile.categoryName}` : profile.categoryName}
               </span>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#574634] bg-[#f6efe6] px-2.5 py-1 rounded-full">
                 <MapPin className="w-3 h-3" />
@@ -173,12 +208,16 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
           </div>
         </div>
 
-        {/* Statistika paneli */}
+        {/* Statistika */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
-          <Stat label="O'rin" value={`${profile.position}-o'rin`} accent />
-          <Stat label="Taklif" value={formatSom(profile.totalBid)} />
+          <Stat label="Global o'rin" value={`${profile.position}-o'rin`} accent icon={<Globe className="w-3.5 h-3.5" />} />
+          <Stat label="Reyting summasi" value={formatSom(profile.totalBid)} />
           <Stat label="Ko'rilgan" value={formatCompactNumber(profile.views)} icon={<Eye className="w-3.5 h-3.5" />} />
-          <Stat label="Kliklar" value={formatCompactNumber(profile.clicks)} icon={<MousePointerClick className="w-3.5 h-3.5" />} />
+          <Stat
+            label="Kliklar"
+            value={formatCompactNumber(profile.clicks)}
+            icon={<MousePointerClick className="w-3.5 h-3.5" />}
+          />
         </div>
 
         {/* Kontakt + raqobat */}
@@ -188,15 +227,15 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleContactClick}
-            className="flex-1 h-11 inline-flex items-center justify-center gap-2 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-lg text-sm transition-colors"
+            className="flex-1 h-11 inline-flex items-center justify-center gap-2 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-lg text-sm transition-colors active:scale-[0.98]"
           >
             <ContactIcon className="w-4 h-4" />
             Bog'lanish — {contact.label}
           </a>
           <Button
             variant="outline"
-            onClick={() => setView({ name: "add-profile" })}
-            className="h-11 border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-bold rounded-lg text-sm"
+            onClick={() => openAddForm(profile.position)}
+            className="h-11 border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold rounded-lg text-sm"
           >
             <TrendingUp className="w-4 h-4" />
             O'rinni yaxshilash
@@ -204,10 +243,69 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
         </div>
       </article>
 
+      {/* Verifikatsiya bloki (tekshirilmagan profillar uchun) */}
+      {profile.verifyStatus !== "verified" && (
+        <section className="mt-4" aria-label="Verifikatsiya">
+          {profile.verifyStatus === "pending" ? (
+            <div className="bg-[#fffaf0] border border-[#f0d5b8] rounded-2xl p-4 md:p-5 flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#fff4d6] flex items-center justify-center shrink-0">
+                <Clock3 className="w-5 h-5 text-[#a86a00]" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-extrabold text-sm text-[#241c14]">
+                  Verifikatsiya ko'rib chiqilmoqda
+                </h3>
+                <p className="text-[13px] text-[#6b5d4d] leading-relaxed mt-1">
+                  So'rovingiz admin da. Hujjatlaringiz tekshirilgach, profilingizda ko'k
+                  «Tekshirilgan» belgisi paydo bo'ladi (odatda 24 soat ichida).
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-r from-[#e8f2fc] to-[#f0f7ff] border border-[#cbe9f8] rounded-2xl p-4 md:p-5">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+                  <ShieldCheck className="w-5 h-5 text-[#1d7ed8]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-extrabold text-sm text-[#241c14]">
+                    «Tekshirilgan» profil bo'ling
+                  </h3>
+                  <p className="text-[13px] text-[#574634] leading-relaxed mt-1">
+                    Ko'k belgi mijozlar ishonchini 2-3 barobar oshiradi. Diplom yoki
+                    litsenziyani tasdiqlang — bir martalik to'lov.
+                  </p>
+                  <Button
+                    onClick={() => setVerifyOpen(true)}
+                    className="mt-3 bg-[#1d7ed8] hover:bg-[#1769b8] text-white font-extrabold rounded-lg h-10 text-sm active:scale-[0.98] transition-transform"
+                  >
+                    <BadgeCheck className="w-4 h-4" />
+                    Verifikatsiyadan o'tish
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Sharhlar */}
       <section className="mt-6" aria-label="Sharhlar">
-        <ReviewsSection profile={profile} reviews={reviews} onAdded={() => load(false)} toast={toast} />
+        <ReviewsSection
+          profile={profile}
+          reviews={reviews}
+          onAdded={() => load(false)}
+          toast={toast}
+        />
       </section>
+
+      {/* Verifikatsiya to'lov modali */}
+      <VerifyModal
+        open={verifyOpen}
+        onOpenChange={setVerifyOpen}
+        promoActive={promo.active}
+        onPaid={handleVerifyPaid}
+      />
     </div>
   );
 }
@@ -234,7 +332,12 @@ function Stat({
         {icon}
         {label}
       </p>
-      <p className={cn("text-sm font-extrabold mt-1.5 tabular-nums truncate", accent ? "text-[#b25e14]" : "text-[#241c14]")}>
+      <p
+        className={cn(
+          "text-sm font-extrabold mt-1.5 tabular-nums truncate",
+          accent ? "text-[#b25e14]" : "text-[#241c14]"
+        )}
+      >
         {value}
       </p>
     </div>
@@ -260,18 +363,19 @@ function ReviewsSection({
   const [alreadyReviewed, setAlreadyReviewed] = useState(false);
 
   useEffect(() => {
-    // Bu sessiya allaqachon sharh yozganmi? (joriy sharhlar ichida sessionId yo'q,
-    // lekin server 409 qaytaradi — shuning uchun faqat server javobiga tayanamiz)
     setAlreadyReviewed(false);
   }, [profile.id]);
 
-  const avg =
-    reviews.length > 0 ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length : 0;
+  const avg = reviews.length > 0 ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length : 0;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) {
-      toast({ title: "Baho bering", description: "Yulduzchalardan baho tanlang (1-5)", variant: "destructive" });
+      toast({
+        title: "Baho bering",
+        description: "Yulduzchalardan baho tanlang (1-5)",
+        variant: "destructive",
+      });
       return;
     }
     setSubmitting(true);
@@ -322,9 +426,7 @@ function ReviewsSection({
           </span>
           <div>
             <StarRating value={avg} size={16} />
-            <p className="text-[11px] text-[#94836f] font-semibold mt-1">
-              {reviews.length} ta sharh
-            </p>
+            <p className="text-[11px] text-[#94836f] font-semibold mt-1">{reviews.length} ta sharh</p>
           </div>
         </div>
       </div>
@@ -334,7 +436,6 @@ function ReviewsSection({
         Sharhlar bepul va reytingdagi o'ringa ta'sir qilmaydi — faqat ishonch uchun
       </p>
 
-      {/* Sharhlar ro'yxati */}
       {reviews.length > 0 ? (
         <div className="mt-5 space-y-3 max-h-96 overflow-y-auto scrollbar-thin pr-1 -mr-1">
           {reviews.map((r) => (
@@ -356,14 +457,14 @@ function ReviewsSection({
         </p>
       )}
 
-      {/* Sharh formasi */}
       <div className="mt-6 pt-5 border-t border-[#f0e6da]">
         <h3 className="font-extrabold text-sm text-[#241c14]">Fikringizni qoldiring</h3>
         {alreadyReviewed ? (
           <div className="mt-3 flex items-center gap-2.5 bg-[#f6efe6] border border-[#e8ddd0] rounded-xl px-4 py-3.5">
             <Lock className="w-4 h-4 text-[#94836f] shrink-0" />
             <p className="text-[13px] font-semibold text-[#574634]">
-              Siz bu profilga allaqachon sharh yozgansiz. Har bir foydalanuvchi bir profilga bir marta yozadi.
+              Siz bu profilga allaqachon sharh yozgansiz. Har bir foydalanuvchi bir profilga bir
+              marta yozadi.
             </p>
           </div>
         ) : (
@@ -406,7 +507,7 @@ function ReviewsSection({
             <Button
               type="submit"
               disabled={submitting}
-              className="bg-[#241c14] hover:bg-[#3a2e22] text-white font-bold rounded-lg h-10 text-sm"
+              className="bg-[#241c14] hover:bg-[#3a2e22] text-white font-extrabold rounded-lg h-10 text-sm"
             >
               {submitting ? "Yuborilmoqda..." : "Sharh yuborish"}
             </Button>

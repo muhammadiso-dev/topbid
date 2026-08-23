@@ -103,11 +103,11 @@ export function ProfileCard({
       }}
       aria-label={`${displayPosition}-o'rin: ${profile.name} — ${t("card.visit")}`}
     >
-      {/* TOP badge */}
+      {/* TOP badge — karta ICHIDA, ustma-ust tushmaydi */}
       {isTop3 && (
         <div
           className={cn(
-            "absolute -top-2.5 left-4 md:left-6 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold tracking-wide uppercase shadow-sm z-10",
+            "absolute top-2.5 right-3 md:right-4 z-10 px-2.5 py-1 rounded-full text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase shadow-sm",
             isTop1 ? "bg-[#d97b29] text-white" : "bg-[#fdeedd] text-[#b25e14] border border-[#f0d5b8]"
           )}
         >
@@ -115,9 +115,9 @@ export function ProfileCard({
         </div>
       )}
 
-      <div className={cn("pt-4 md:pt-5", isTop3 ? "px-4 pb-4 md:px-5 md:pb-5" : "px-3.5 pb-3.5 md:p-4")}>
+      <div className={cn(isTop3 ? "px-4 pb-4 pt-8 md:px-5 md:pb-5 md:pt-9" : "px-3.5 pb-3.5 md:p-4")}>
         {/* ==================== DESKTOP (md+) ==================== */}
-        <div className="hidden md:flex gap-4">
+        <div className="hidden md:flex gap-4 items-start">
           {/* Rank */}
           <div className="flex flex-col items-center justify-start w-14 shrink-0 select-none">
             <span
@@ -148,12 +148,12 @@ export function ProfileCard({
             name={profile.name}
             imageUrl={profile.imageUrl}
             size={64}
-            className="rounded-2xl"
+            className="rounded-2xl mt-1"
           />
 
           {/* Ma'lumot */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start gap-1.5 flex-wrap">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <h3
                 className={cn(
                   "font-extrabold text-[#241c14] leading-tight",
@@ -163,7 +163,7 @@ export function ProfileCard({
                 {profile.name}
               </h3>
               {badge}
-              <ExternalLink className="w-3.5 h-3.5 text-[#c4b5a1] group-hover:text-[#d97b29] transition-colors shrink-0 mt-1" />
+              <ExternalLink className="w-3.5 h-3.5 text-[#c4b5a1] group-hover:text-[#d97b29] transition-colors shrink-0" />
             </div>
 
             <p
@@ -256,7 +256,7 @@ export function ProfileCard({
           <div className="flex items-start gap-3">
             <ProfileAvatar name={profile.name} imageUrl={profile.imageUrl} size={44} />
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center justify-between gap-2">
                 <h3
                   className={cn(
                     "font-extrabold text-[#241c14] leading-tight min-w-0",
@@ -265,22 +265,24 @@ export function ProfileCard({
                 >
                   {profile.name}
                 </h3>
-                <div className="flex flex-col items-end shrink-0 -mt-0.5">
-                  <span
-                    className={cn(
-                      "font-extrabold tabular-nums leading-none",
-                      isTop3 ? "text-2xl text-[#d97b29]" : "text-xl text-[#c4b5a1]"
-                    )}
-                  >
-                    {displayPosition}
-                  </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#c4b5a1] mt-0.5">
-                    {t("card.rank")}
-                  </span>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {badge}
+                  <div className="flex flex-col items-end -mt-0.5">
+                    <span
+                      className={cn(
+                        "font-extrabold tabular-nums leading-none",
+                        isTop3 ? "text-2xl text-[#d97b29]" : "text-xl text-[#c4b5a1]"
+                      )}
+                    >
+                      {displayPosition}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#c4b5a1] mt-0.5">
+                      {t("card.rank")}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-1 flex-wrap mt-1">
-                {badge}
                 {showGlobalChip && (
                   <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#94836f] bg-[#f6efe6] px-1.5 py-0.5 rounded-full">
                     <Globe className="w-2.5 h-2.5" />

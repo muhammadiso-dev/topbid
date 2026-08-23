@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Eye, Wallet, TrendingUp } from "lucide-react";
+import { Users, Eye, Wallet, Heart } from "lucide-react";
 import { formatCompactNumber, formatCompactSom } from "@/lib/ustar/constants";
 import type { SiteStatsDTO } from "@/lib/ustar/types";
 import { getSessionId } from "@/lib/ustar/store";
@@ -65,9 +65,9 @@ export function StatsBar() {
       value: stats ? formatCompactSom(stats.revenue, lang) : "—",
     },
     {
-      icon: TrendingUp,
-      label: t("stats.profiles"),
-      value: stats ? formatCompactNumber(stats.profilesCount) : "—",
+      icon: Heart,
+      label: t("stats.charity"),
+      value: stats ? formatCompactSom(stats.charity, lang) : "—",
     },
   ];
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import crypto from "crypto";
 import { notifyAdmin } from "@/lib/ustar/telegram";
 import { getRankedProfiles } from "@/lib/ustar/server";
 import { fullPriceForPosition, payableAmount, tierFor, promoInfo } from "@/lib/ustar/pricing";
@@ -8,20 +9,16 @@ import {
   isValidContactUrl,
   normalizeContactUrl,
   formatSom,
-  type Pool,
 } from "@/lib/ustar/constants";
 import type { CreateProfilePayload, CreateProfileResult } from "@/lib/ustar/types";
 
 export const dynamic = "force-dynamic";
 
 /**
- * GET /api/profiles?pool=education
- * Pool bo'yicha global reyting + aksiya holati.
+ * GET /api/profiles — YAGONA reyting (ta'lim + IT birga) + aksiya holati.
  */
-export async function GET(req: NextRequest) {
-  const pool = (req.nextUrl.searchParams.get("pool") || "education") as Pool;
-  const safePool = pool === "it" ? "it" : "education";
-  const ranked = await getRankedProfiles(safePool);
+export async function GET() {
+  const ranked = await getRankedProfiles();
   return NextResponse.json({
     profiles: ranked,
     promo: promoInfo(),
@@ -29,30 +26,16 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * POST /api/profiles — yangi profil qo'shish yoki mavjud profilga summa qo'shish.
- *
- * Auksion + aksiya mantig'i:
- *  - Kontakt mavjud bo'lsa — yangi profil ochilmaydi, farq (top-up) mavjud profilga qo'shiladi.
- *  - Reytingga TO'LIQ summa yoziladi, aksiya davrida haqiqiy to'lov 50% kam.
- *  - Summa server tomonida qayta hisoblanadi (ishonch uchun).
+ * POST /api/profiles — yangi profil yoki mavjud profilga summa qo'shish.
+ * Pool kategoriyadan olinadi (O'rganish/Yollash tanlovi yo'q).
  */
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as CreateProfilePayload;
-    const {
-      pool,
-      subType,
-      categoryId,
-      name,
-      city,
-      description,
-      contactUrl,
-      imageUrl,
-      targetPosition,
-      sessionId,
-    } = body;
+    const { subType, categoryId, name, city, description, contactUrl, imageUrl, targetPosition } =
+      body;
 
-    // --- 1-bosqich: kontakt formati va mavjudligini tekshirish ---
+    // --- 1: kontakt formati + mavjudlik ---
     if (!contactUrl || !isValidContactUrl(contactUrl)) {
       return NextResponse.json(
         {
@@ -65,39 +48,42 @@ export async function POST(req: NextRequest) {
 
     const promo = promoInfo();
     const normalized = normalizeContactUrl(contactUrl);
-
-    // Mavjud profil (bir xil kontakt) — top-up rejimi, qolgan maydonlar talab qilinmaydi
     const existing = await db.profile.findFirst({
       where: { contactUrl: normalized },
       include: { category: true, reviews: { select: { rating: true } } },
     });
 
-    // --- 2-bosqich: yangi profil uchun to'liq validatsiya ---
+    // --- 2: yangi profil validatsiyasi ---
+    let category: { id: string; pool: string; groupName: string; name: string } | null = null;
     if (!existing) {
       const errors: Record<string, string> = {};
-      if (pool !== "education" && pool !== "it") errors.pool = "Yo'nalish noto'g'ri";
-      if (!name || name.trim().length < 2) errors.name = "Nom kamida 2 belgidan iborat bo'lsin";
-      if (name && name.trim().length > 60) errors.name = "Nom 60 belgidan oshmasin";
-      // Tavsif ixtiyoriy (URL dan avtomatik olinadi); bo'sh bo'lsa nomdan yasaladi
-      if (description && description.trim().length > 300)
-        errors.description = "Tavsif 300 belgidan oshmasin";
+      if (!categoryId) errors.categoryId = "Kategoriyani tanlang";
       if (!city) errors.city = "Shaharni tanlang";
-      if (!categoryId) errors.categoryId = "Yo'nalishni tanlang";
+      if (!name || name.trim().length < 2) errors.name = "Nom kamida 2 belgidan iborat bo'lsin";
       if (Object.keys(errors).length > 0) {
         return NextResponse.json({ error: "Validatsiya xatosi", errors }, { status: 400 });
       }
+      const cat = await db.category.findUnique({ where: { id: categoryId } });
+      if (!cat) {
+        return NextResponse.json({ error: "Kategoriya topilmadi" }, { status: 400 });
+      }
+      category = { id: cat.id, pool: cat.pool, groupName: cat.groupName, name: cat.name };
     }
 
-    const tier = tierFor(pool, subType || (pool === "it" ? "it" : "individual"));
+    // Tier: kategoriya pool'i + subType dan
+    const pool = existing ? existing.pool : category!.pool;
+    const st = existing ? existing.subType : pool === "it" ? "it" : subType || "individual";
+    const tier = tierFor(pool, st);
     const t = PRICE_TIERS[tier];
 
-    const ranked = await getRankedProfiles(pool);
+    const ranked = await getRankedProfiles();
     const pos = Math.max(1, Math.floor(Number(targetPosition) || ranked.length + 1));
 
+    // --- Top-up (mavjud kontakt) ---
     if (existing) {
       const requiredFull = fullPriceForPosition(ranked, pos, tier);
       let credit = requiredFull - existing.totalBid;
-      if (credit <= 0) credit = t.step; // minimal top-up
+      if (credit <= 0) credit = t.step;
       const paid = payableAmount(credit, promo.active);
 
       await db.$transaction([
@@ -108,7 +94,7 @@ export async function POST(req: NextRequest) {
         }),
       ]);
 
-      const newRanked = await getRankedProfiles(pool);
+      const newRanked = await getRankedProfiles();
       const updated = newRanked.find((p) => p.id === existing.id);
 
       await notifyAdmin(
@@ -123,46 +109,42 @@ export async function POST(req: NextRequest) {
         profile: updated!,
         position: updated?.position ?? pos,
         amount: paid,
+        editToken: existing.editToken ?? undefined,
         message: `Bu kontakt allaqachon ro'yxatda edi. To'lagan summingiz profilingizga qo'shildi — hozir ${updated?.position ?? pos}-o'rindasiz!`,
       };
       return NextResponse.json(result);
     }
 
     // --- Yangi profil ---
-    const category = await db.category.findUnique({ where: { id: categoryId } });
-    if (!category || category.pool !== pool) {
-      return NextResponse.json(
-        { error: "Kategoriya topilmadi yoki yo'nalishga mos emas" },
-        { status: 400 }
-      );
-    }
     const full = fullPriceForPosition(ranked, pos, tier);
     const paid = payableAmount(full, promo.active);
+    const editToken = crypto.randomUUID();
 
     const profile = await db.profile.create({
       data: {
         name: name.trim(),
-        description: description.trim(),
+        description: (description || name).trim().slice(0, 300),
         city,
         contactUrl: normalized,
         imageUrl: imageUrl?.trim() || null,
         pool,
-        subType: pool === "it" ? category.groupName : subType,
-        categoryId,
+        subType: st,
+        categoryId: category!.id,
         totalBid: full,
         lastBidAt: new Date(),
+        editToken,
       },
     });
     await db.bid.create({
       data: { profileId: profile.id, amount: paid, status: "paid" },
     });
 
-    const newRanked = await getRankedProfiles(pool);
+    const newRanked = await getRankedProfiles();
     const created = newRanked.find((p) => p.id === profile.id);
 
     await notifyAdmin(
       "new_profile",
-      `🆕 Yangi profil: ${name.trim()}\n${category.groupName ? category.groupName + " • " : ""}${category.name} • ${city}\nTo'langan: ${formatSom(paid)}${promo.active ? ` (aksiya -50%, reytingga ${formatSom(full)})` : ""} • ${created?.position ?? "?"}-o'rin\nKontakt: ${normalized}`,
+      `🆕 Yangi profil: ${name.trim()}\n${category!.groupName ? category!.groupName + " • " : ""}${category!.name} • ${city}\nTo'langan: ${formatSom(paid)}${promo.active ? ` (aksiya -50%, reytingga ${formatSom(full)})` : ""} • ${created?.position ?? "?"}-o'rin\nKontakt: ${normalized}`,
       profile.id
     );
 
@@ -172,6 +154,7 @@ export async function POST(req: NextRequest) {
       profile: created!,
       position: created?.position ?? pos,
       amount: paid,
+      editToken,
       message: `Profilingiz reytingga qo'shildi — ${created?.position ?? pos}-o'rindasiz!`,
     };
     return NextResponse.json(result);

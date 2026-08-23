@@ -105,6 +105,15 @@ export function PaymentModal({
                 </div>
               </div>
 
+              {/* Xayriya eslatmasi */}
+              <div className="flex items-center gap-2 bg-[#fff5f0] border border-[#ffd9c9] rounded-xl px-3.5 py-2.5">
+                <span className="text-sm shrink-0">❤️</span>
+                <p className="text-[11px] text-[#b4522d] font-bold leading-snug">
+                  {t("charity.paymentNote")}: {formatSom(Math.floor((amount * 0.1) / 500) * 500, lang)}.{" "}
+                  {t("charity.note")}.
+                </p>
+              </div>
+
               <button
                 onClick={() => setStep("bot")}
                 className="w-full flex items-center gap-3.5 p-4 rounded-xl border-2 border-[#2aabee]/60 bg-[#f0f9ff] hover:bg-[#e3f4fd] transition-colors cursor-pointer text-left active:scale-[0.99]"

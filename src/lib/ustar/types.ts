@@ -45,6 +45,7 @@ export interface SiteStatsDTO {
   online: number;
   visits: number;
   revenue: number;
+  charity: number;
   profilesCount: number;
 }
 
@@ -88,6 +89,15 @@ export interface CreateProfileResult {
   position: number;
   amount: number;
   message: string;
+  editToken?: string;
+}
+
+export interface AnalyticsDTO {
+  totals: { views: number; clicks: number; unique: number; ctr: number };
+  daily: { date: string; label: string; views: number; clicks: number }[];
+  cities: { name: string; count: number }[];
+  devices: { name: string; count: number }[];
+  referrers: { name: string; count: number }[];
 }
 
 export interface CreateProfilePayload {

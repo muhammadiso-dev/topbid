@@ -128,3 +128,62 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
     return NextResponse.json({ error: "Server xatosi" }, { status: 500 });
   }
 }
+
+/**
+ * PUT /api/profiles/[id] — profilni tahrirlash (editToken bilan).
+ * Body: { editToken, name?, description?, city?, categoryId?, imageUrl? }
+ */
+export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await ctx.params;
+    const body = await req.json();
+    const editToken = String(body?.editToken || "");
+    const profile = await db.profile.findUnique({ where: { id } });
+    if (!profile) {
+      return NextResponse.json({ error: "Profil topilmadi" }, { status: 404 });
+    }
+    if (!profile.editToken || profile.editToken !== editToken) {
+      return NextResponse.json({ error: "Tahrirlash huquqi yo'q" }, { status: 403 });
+    }
+
+    const data: Record<string, string> = {};
+    if (typeof body?.name === "string" && body.name.trim().length >= 2) {
+      data.name = body.name.trim().slice(0, 60);
+    }
+    if (typeof body?.description === "string") {
+      data.description = body.description.trim().slice(0, 300);
+    }
+    if (typeof body?.city === "string" && body.city.trim()) {
+      data.city = body.city.trim();
+    }
+    if (typeof body?.imageUrl === "string") {
+      data.imageUrl = body.imageUrl.trim() || "";
+    }
+    if (typeof body?.categoryId === "string" && body.categoryId) {
+      const cat = await db.category.findUnique({ where: { id: body.categoryId } });
+      if (!cat) return NextResponse.json({ error: "Kategoriya topilmadi" }, { status: 400 });
+      data.categoryId = body.categoryId;
+      // subType yangilanadi: education → markaz/repetitor saqlanadi, IT → guruh nomi
+      if (cat.pool === "it") {
+        data.subType = cat.groupName;
+        data.pool = "it";
+      } else if (cat.pool === "education") {
+        data.pool = "education";
+        // subType center/individual qoladi
+      }
+    }
+
+    await db.profile.update({ where: { id }, data });
+
+    await notifyAdmin(
+      "info",
+      `✏️ Profil tahrirlandi: ${data.name || profile.name}`,
+      id
+    );
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("Tahrirlashda xato:", e);
+    return NextResponse.json({ error: "Server xatosi" }, { status: 500 });
+  }
+}

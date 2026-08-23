@@ -352,6 +352,7 @@ const PROFILES: SeedProfile[] = [
 async function main() {
   console.log("🚀 TopBid seed boshlanmoqda...");
 
+  await db.profileView.deleteMany();
   await db.review.deleteMany();
   await db.bid.deleteMany();
   await db.verificationRequest.deleteMany();
@@ -448,6 +449,71 @@ async function main() {
     data: { verifyStatus: "pending" },
   });
   console.log(`✅ Verifikatsiya: ${verifiedSeeds.length} tasdiqlangan (+${verRevenue.toLocaleString("ru-RU")} so'm), 1 kutilayotgan`);
+
+  // ===== ANALITIKA SEED (chuqur analytics demo) =====
+  const CITIES_DIST: [string, number][] = [
+    ["Toshkent", 45], ["Samarqand", 12], ["Buxoro", 8], ["Farg'ona", 7],
+    ["Namangan", 6], ["Andijon", 5], ["Nukus", 4], ["Urganch", 4], ["Onlayn", 9],
+  ];
+  const DEVICES: [string, number][] = [["mobile", 72], ["desktop", 24], ["tablet", 4]];
+  const REFS: [string, number][] = [["direct", 55], ["t.me", 18], ["google.com", 12], ["instagram.com", 10], ["yandex.ru", 5]];
+
+  function pickWeighted<T>(items: [T, number][]): T {
+    const total = items.reduce((a, x) => a + x[1], 0);
+    let r = Math.random() * total;
+    for (const [v, w] of items) {
+      r -= w;
+      if (r <= 0) return v;
+    }
+    return items[0][0];
+  }
+
+  console.log("📊 Analitika seed...");
+  let totalEvents = 0;
+  for (const p of PROFILES) {
+    const pid = createdIds[p.name];
+    if (!pid) continue;
+    // Har profil uchun 14 kunlik ko'rishlar (o'sish tendensiyasi bilan)
+    const baseViews = Math.floor(p.views * 0.12); // ~12% so'nggi 14 kunda
+    const events: {
+      profileId: string; sessionId: string; type: string;
+      city: string; country: string; device: string; referrer: string; createdAt: Date;
+    }[] = [];
+    let views = 0;
+    let clicks = 0;
+    for (let day = 13; day >= 0; day--) {
+      // oxirgi kunlarda ko'proq
+      const weight = 1 + (13 - day) * 0.12;
+      const dayViews = Math.max(1, Math.round((baseViews / 14) * weight * (0.6 + Math.random() * 0.8)));
+      for (let i = 0; i < dayViews; i++) {
+        const at = new Date(Date.now() - day * 86_400_000 - Math.random() * 86_400_000);
+        const sid = `seed-sess-${Math.random().toString(36).slice(2, 10)}`;
+        events.push({
+          profileId: pid, sessionId: sid, type: "view",
+          city: pickWeighted(CITIES_DIST), country: "O'zbekiston",
+          device: pickWeighted(DEVICES), referrer: pickWeighted(REFS), createdAt: at,
+        });
+        views++;
+        if (Math.random() < 0.14) {
+          events.push({
+            profileId: pid, sessionId: sid, type: "click",
+            city: events[events.length - 1].city, country: "O'zbekiston",
+            device: events[events.length - 1].device, referrer: events[events.length - 1].referrer,
+            createdAt: new Date(at.getTime() + 60_000),
+          });
+          clicks++;
+        }
+      }
+    }
+    // Bulk insert (1000 dan bo'lib)
+    for (let i = 0; i < events.length; i += 1000) {
+      await db.profileView.createMany({ data: events.slice(i, i + 1000) });
+    }
+    totalEvents += events.length;
+    // Profil counterglarini analitikaga sinxronlash
+    await db.profile.update({ where: { id: pid }, data: { views, clicks } });
+  }
+  console.log(`✅ ${totalEvents} analitika hodisasi yaratildi`);
 
   // Statistika va admin log
   await db.siteStats.create({ data: { id: "main", visits: 4823 } });

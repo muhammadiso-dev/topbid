@@ -35,9 +35,13 @@ model Profile {
   clicks      Int       @default(0)
   views       Int       @default(0)
   createdAt   DateTime  @default(now())
+  editToken   String?
+  claimCode   String?
+  claimExpiresAt DateTime?
   bids              Bid[]
   reviews           Review[]
   verificationRequests VerificationRequest[]
+  viewEvents         ProfileView[]
 
   @@index([pool, subType, totalBid])
 }
@@ -93,4 +97,20 @@ model VerificationRequest {
   reviewedAt DateTime?
 
   @@index([status])
+}
+
+// Profil analitikasi — har bir ko'rish/klik geo va qurilma bilan
+model ProfileView {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  sessionId String
+  type      String // "view" | "click"
+  city      String   @default("")
+  country   String   @default("")
+  device    String   @default("desktop") // desktop | mobile | tablet
+  referrer  String   @default("direct")
+  createdAt DateTime @default(now())
+
+  @@index([profileId, type, createdAt])
 }

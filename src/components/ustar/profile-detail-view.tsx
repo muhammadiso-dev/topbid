@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
   BadgeCheck,
+  Pencil,
+  ShieldCheck,
   Clock3,
   MapPin,
   Eye,
@@ -16,7 +18,6 @@ import {
   Star,
   TrendingUp,
   Lock,
-  ShieldCheck,
 } from "lucide-react";
 import { useI18n } from "@/lib/ustar/i18n";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,10 @@ import { ProfileAvatar } from "./profile-avatar";
 import { StarRating } from "./star-rating";
 import { VerifyBadge } from "./verify-badge";
 import { VerifyModal } from "./verify-modal";
+import { AnalyticsPanel } from "./analytics-panel";
+import { EditModal } from "./edit-modal";
+import { ClaimModal } from "./claim-modal";
+import { getEditTokens, saveEditToken } from "@/lib/ustar/store";
 import { useUstarStore, getSessionId } from "@/lib/ustar/store";
 import {
   contactInfo,
@@ -51,6 +56,9 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
   const [reviews, setReviews] = useState<ReviewDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [claimOpen, setClaimOpen] = useState(false);
+  const [editToken, setEditToken] = useState<string | null>(null);
 
   const promo = promoInfo();
 
@@ -78,7 +86,9 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
 
   useEffect(() => {
     load(true);
-  }, [load]);
+    const tokens = getEditTokens();
+    setEditToken(tokens[profileId] || null);
+  }, [load, profileId]);
 
   const handleContactClick = () => {
     if (!profile) return;
@@ -225,14 +235,35 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
             <ContactIcon className="w-4 h-4" />
             {t("detail.contact")} {contact.label}
           </a>
-          <Button
-            variant="outline"
-            onClick={() => openAddForm(profile.position)}
-            className="h-11 border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold rounded-lg text-sm"
-          >
-            <TrendingUp className="w-4 h-4" />
-            {t("detail.improve")}
-          </Button>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <Button
+              variant="outline"
+              onClick={() => openAddForm(profile.position)}
+              className="h-11 border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold rounded-lg text-sm"
+            >
+              <TrendingUp className="w-4 h-4" />
+              {t("detail.improve")}
+            </Button>
+            {editToken ? (
+              <Button
+                variant="outline"
+                onClick={() => setEditOpen(true)}
+                className="h-11 border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold rounded-lg text-sm"
+              >
+                <Pencil className="w-4 h-4" />
+                {t("edit.button")}
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={() => setClaimOpen(true)}
+                className="h-11 text-[#94836f] hover:bg-[#f6efe6] hover:text-[#574634] font-bold rounded-lg text-xs"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                {t("claim.button")}
+              </Button>
+            )}
+          </div>
         </div>
       </article>
 
@@ -280,6 +311,11 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
         </section>
       )}
 
+      {/* Chuqur analitika */}
+      <section className="mt-6" aria-label={t("analytics.title")}>
+        <AnalyticsPanel profileId={profileId} />
+      </section>
+
       {/* Sharhlar */}
       <section className="mt-6" aria-label="Sharhlar">
         <ReviewsSection
@@ -289,6 +325,28 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
           toast={toast}
         />
       </section>
+
+      {/* Tahrirlash modali */}
+      {editToken && (
+        <EditModal
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          profile={profile}
+          editToken={editToken}
+          onSaved={() => load(false)}
+        />
+      )}
+
+      {/* Egalik da'vo modali */}
+      <ClaimModal
+        open={claimOpen}
+        onOpenChange={setClaimOpen}
+        profile={profile}
+        onClaimed={(token) => {
+          saveEditToken(profile.id, token);
+          setEditToken(token);
+        }}
+      />
 
       {/* Verifikatsiya to'lov modali */}
       <VerifyModal

@@ -16,6 +16,7 @@ export async function GET() {
     online: getOnlineCount(),
     visits: stats?.visits ?? 0,
     revenue: revenue.total,
+    charity: Math.floor((revenue.total * 0.1) / 500) * 500, // 10% xayriya
     profilesCount,
   };
   return NextResponse.json(dto);

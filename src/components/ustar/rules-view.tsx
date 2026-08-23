@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Check, X, ScrollText } from "lucide-react";
+import { ArrowLeft, Check, X, ScrollText, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUstarStore } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
@@ -175,6 +175,15 @@ export function RulesView() {
             </li>
           ))}
         </ul>
+      </section>
+
+      {/* Xayriya fondi */}
+      <section className="mt-4 bg-gradient-to-r from-[#fff5f0] to-[#fffaf7] border border-[#ffd9c9] rounded-2xl p-5 md:p-6">
+        <h2 className="font-extrabold text-[#b4522d] flex items-center gap-2">
+          <Heart className="w-5 h-5 text-[#d94f29] fill-[#d94f29]" />
+          {t("charity.section")}
+        </h2>
+        <p className="mt-2.5 text-[13px] md:text-sm text-[#574634] leading-relaxed">{t("charity.desc")}</p>
       </section>
 
       {/* Admin huquqi */}

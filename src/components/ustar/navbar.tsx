@@ -8,7 +8,7 @@ import { useI18n, LANGS } from "@/lib/ustar/i18n";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
-  const { view, setView, setPool, pool, setEduSubFilter } = useUstarStore();
+  const { view, setView } = useUstarStore();
   const { t, lang, setLang } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -25,9 +25,7 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const goHomeTab = (p: "education" | "it") => {
-    setPool(p);
-    setEduSubFilter("all");
+  const goHomeTab = () => {
     setView({ name: "home" });
   };
 
@@ -45,7 +43,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <button
-            onClick={() => goHomeTab("education")}
+            onClick={() => goHomeTab()}
             className="flex items-center gap-2 cursor-pointer group"
             aria-label="TopBid bosh sahifa"
           >

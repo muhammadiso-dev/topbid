@@ -6,7 +6,7 @@ type ProfileWithRelations = Prisma.ProfileGetPayload<{
   include: { category: true; reviews: { select: { rating: true } } };
 }>;
 
-/** Reyting tartibi: totalBid kamayish bo'yicha, teng bo'lsa ilgari to'lov qilgan yuqorida */
+/** Reyting tartibi (yagona, pool ixtiyoriy): totalBid kamayish bo'yicha, teng bo'lsa ilgari to'lov qilgan yuqorda */
 export async function getRankedProfiles(pool?: string): Promise<ProfileDTO[]> {
   const where = pool ? { pool } : {};
   const profiles = await db.profile.findMany({

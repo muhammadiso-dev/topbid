@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, GraduationCap, Briefcase, Trophy, Wallet, Bot, ShieldCheck, Star, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, Trophy, Wallet, Bot, ShieldCheck, Star, TrendingUp, Users, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUstarStore } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
@@ -42,21 +42,16 @@ export function AboutView() {
         </div>
       </section>
 
-      {/* Ikki yo'nalish */}
-      <section className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="bg-white border border-border rounded-2xl p-5">
-          <div className="w-10 h-10 rounded-xl bg-[#fdeedd] flex items-center justify-center">
-            <GraduationCap className="w-5 h-5 text-[#d97b29]" />
+      {/* Xayriya fondi */}
+      <section className="mt-8 bg-gradient-to-r from-[#fff5f0] to-[#fffaf7] border border-[#ffd9c9] rounded-2xl p-5 md:p-6">
+        <div className="flex items-start gap-3">
+          <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+            <Heart className="w-5 h-5 text-[#d94f29] fill-[#d94f29]" />
           </div>
-          <h3 className="font-extrabold text-[#241c14] mt-3">{t("about.eduTitle")}</h3>
-          <p className="text-[13px] text-[#6b5d4d] leading-relaxed mt-1.5">{t("about.eduDesc")}</p>
-        </div>
-        <div className="bg-white border border-border rounded-2xl p-5">
-          <div className="w-10 h-10 rounded-xl bg-[#fdeedd] flex items-center justify-center">
-            <Briefcase className="w-5 h-5 text-[#d97b29]" />
+          <div>
+            <h3 className="font-extrabold text-lg text-[#b4522d]">{t("charity.section")}</h3>
+            <p className="text-[13px] md:text-sm text-[#574634] leading-relaxed mt-1.5">{t("charity.desc")}</p>
           </div>
-          <h3 className="font-extrabold text-[#241c14] mt-3">{t("about.itTitle")}</h3>
-          <p className="text-[13px] text-[#6b5d4d] leading-relaxed mt-1.5">{t("about.itDesc")}</p>
         </div>
       </section>
 

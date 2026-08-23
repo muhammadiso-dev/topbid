@@ -45,6 +45,7 @@ export function PaymentModal({
   const [step, setStep] = useState<Step>("card");
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedAmount, setCopiedAmount] = useState(false);
   
   // To'lovlarni unikal qilish uchun summadan -1 dan -99 gacha tasodifiy ayiramiz (agar summa 500 dan katta bo'lsa)
   const uniqueAmount = useMemo(() => {
@@ -76,6 +77,16 @@ export function PaymentModal({
       await navigator.clipboard.writeText(ADMIN_CARD.number.replace(/\s/g, ""));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* noop */
+    }
+  };
+
+  const copyAmountFn = async () => {
+    try {
+      await navigator.clipboard.writeText(uniqueAmount.toString());
+      setCopiedAmount(true);
+      setTimeout(() => setCopiedAmount(false), 2000);
     } catch {
       /* noop */
     }
@@ -144,9 +155,23 @@ export function PaymentModal({
                 <p>
                   1. {t("pay.cardStep1")}
                 </p>
-                <p className="text-[13px] font-medium text-[#574634] dark:text-[#c9bba7]">
-                  2. {t("pay.instruction2")} <b className="text-[#d97b29]">{formatSom(uniqueAmount, lang)}</b>
-                </p>
+                <div className="bg-[#fff0ed] dark:bg-[#4a221a] border border-[#ffcdbc] dark:border-[#6b3126] rounded-xl p-3 my-3">
+                  <p className="text-[13px] font-bold text-[#b43217] dark:text-[#ff9c8a] leading-tight mb-2">
+                    ⚠️ Diqqat! Tizim profilingizni avtomatik topib olishi uchun FAQATGINA quyidagi summani (tiyinigacha aniq qilib) o'tkazing:
+                  </p>
+                  <div className="flex items-center justify-between bg-white dark:bg-[#201a14] rounded-lg p-2 border border-[#ffd9c9] dark:border-[#523019]">
+                    <span className="font-extrabold text-[15px] text-[#d97b29] tabular-nums">
+                      {formatSom(uniqueAmount, lang)}
+                    </span>
+                    <button
+                      onClick={copyAmountFn}
+                      className="inline-flex items-center gap-1.5 bg-[#f6efe6] hover:bg-[#eadecc] dark:bg-[#2b241b] dark:hover:bg-[#3a2e22] text-[#d97b29] px-2.5 py-1.5 rounded-md font-bold text-[10px] cursor-pointer transition-colors"
+                    >
+                      {copiedAmount ? <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copiedAmount ? "Nusxalandi" : "Summani nusxalash"}
+                    </button>
+                  </div>
+                </div>
                 <p>3. {t("pay.cardStep3")}</p>
               </div>
 

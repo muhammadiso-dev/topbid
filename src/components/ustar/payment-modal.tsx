@@ -17,7 +17,7 @@ interface PaymentModalProps {
   /** Aksiya mavjud bo'lsa — to'liq narx (chizilgan ko'rinish uchun) */
   fullAmount?: number | null;
   /** To'lov e'lon qilindi — profil PENDING yaratiladi (pul tushishi bilan aktiv) */
-  onPaid: () => Promise<void> | void;
+  onPaid: (paidAmount: number) => Promise<void> | void;
   summary: {
     name: string;
     poolLabel: string;
@@ -45,6 +45,12 @@ export function PaymentModal({
   const [step, setStep] = useState<Step>("card");
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  
+  // To'lovlarni unikal qilish uchun summadan -1 dan -99 gacha tasodifiy ayiramiz (agar summa 500 dan katta bo'lsa)
+  const uniqueAmount = React.useMemo(() => {
+    if (amount <= 500) return amount;
+    return amount - (Math.floor(Math.random() * 99) + 1);
+  }, [amount]);
 
   const handleClose = () => {
     if (step === "processing") return;
@@ -57,7 +63,7 @@ export function PaymentModal({
   const confirmTransfer = async () => {
     setStep("processing");
     try {
-      await onPaid();
+      await onPaid(uniqueAmount);
       setTimeout(() => setStep("done"), 800);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Xatolik");
@@ -99,25 +105,16 @@ export function PaymentModal({
                   <span className="text-sm font-bold text-[#574634] dark:text-[#c9bba7]">{t("pay.amount")}</span>
                   <span className="text-right">
                     {promo && (
-                      <span className="block text-xs font-bold text-[#c4b5a1] line-through tabular-nums">
+                      <span className="block text-[11px] font-bold text-[#94836f] dark:text-[#8a7a68] line-through tabular-nums leading-none mb-0.5">
                         {formatSom(fullAmount!, lang)}
                       </span>
                     )}
-                    <span className="font-extrabold tabular-nums text-xl text-[#d97b29]">
-                      {formatSom(amount, lang)}
+                    <span className="text-lg font-extrabold text-[#d97b29] tabular-nums leading-none">
+                      {formatSom(uniqueAmount, lang)}
                     </span>
-                    {promo && (
-                      <span className="ml-2 text-[10px] font-extrabold bg-[#d97b29] text-white px-1.5 py-0.5 rounded-full align-middle">
-                        {t("pay.promoBadge")}
-                      </span>
-                    )}
                   </span>
                 </div>
               </div>
-
-              <p className="text-[12px] text-[#574634] dark:text-[#c9bba7] font-semibold leading-relaxed">
-                1. {t("pay.cardStep1")}
-              </p>
 
               {/* Karta vizual ko'rinishi */}
               <div className="relative bg-gradient-to-br from-[#241c14] via-[#3a2e22] to-[#241c14] rounded-2xl p-5 text-white shadow-lg overflow-hidden">
@@ -145,7 +142,10 @@ export function PaymentModal({
 
               <div className="space-y-1.5 text-[12px] text-[#574634] dark:text-[#c9bba7] font-medium">
                 <p>
-                  2. {t("pay.cardStep2")} <b className="tabular-nums text-[#b25e14]">{formatSom(amount, lang)}</b>
+                  1. {t("pay.cardStep1")}
+                </p>
+                <p className="text-[13px] font-medium text-[#574634] dark:text-[#c9bba7]">
+                  2. {t("pay.instruction2")} <b className="text-[#d97b29]">{formatSom(uniqueAmount, lang)}</b>
                 </p>
                 <p>3. {t("pay.cardStep3")}</p>
               </div>
@@ -156,24 +156,26 @@ export function PaymentModal({
                 <p className="text-[11px] text-[#8a6a3a] font-bold leading-snug">{t("pay.awaitingNote")}</p>
               </div>
 
-              {/* Xayriya */}
-              <div className="flex items-center gap-2 bg-[#fff5f0] border border-[#ffd9c9] rounded-xl px-3.5 py-2.5">
-                <Heart className="w-3.5 h-3.5 text-[#d94f29] fill-[#d94f29] shrink-0" />
+              {/* Charity */}
+              <div className="flex items-start gap-2 bg-[#fff5f0] dark:bg-[#3d2516] border border-[#ffd9c9] dark:border-[#523019] rounded-xl p-3">
+                <Heart className="w-4 h-4 text-[#b4522d] mt-0.5 shrink-0" />
                 <p className="text-[11px] text-[#b4522d] font-bold leading-snug">
-                  {t("charity.paymentNote")}: {formatSom(Math.floor((amount * 0.1) / 500) * 500, lang)}.{" "}
+                  {t("charity.paymentNote")}: {formatSom(Math.floor((uniqueAmount * 0.1) / 500) * 500, lang)}.{" "}
                   {t("charity.note")}.
                 </p>
               </div>
+            </div>
 
+            <div className="p-4 pt-0 border-t border-[#f0e6da] dark:border-[#362c20] mt-auto">
               <Button
                 onClick={confirmTransfer}
-                className="w-full h-12 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-xl text-sm"
+                className="w-full h-12 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-xl shadow-md shadow-[#d97b29]/25 text-[15px]"
               >
-                {formatSom(amount, lang)} — {t("pay.transferred")}
+                {formatSom(uniqueAmount, lang)} — {t("pay.transferred")}
               </Button>
 
               {error && (
-                <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-2">
                   {error}
                 </p>
               )}

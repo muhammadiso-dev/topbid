@@ -111,4 +111,5 @@ export interface CreateProfilePayload {
   imageUrl?: string;
   targetPosition: number;
   sessionId: string;
+  paidAmount?: number;
 }

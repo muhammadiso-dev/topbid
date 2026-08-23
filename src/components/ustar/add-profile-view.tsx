@@ -254,13 +254,14 @@ export function AddProfileView() {
   };
 
   // To'lov
-  const handlePaid = async () => {
+  const handlePaid = async (paidAmount: number) => {
     setSubmitting(true);
     try {
       const res = await fetch("/api/profiles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          paidAmount, // <--- yuboramiz
           subType: selectedCategory?.pool === "it" ? "it" : "individual",
           categoryId,
           name,

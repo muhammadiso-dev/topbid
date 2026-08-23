@@ -74,7 +74,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as CreateProfilePayload;
-    const { subType, categoryId, name, city, description, contactUrl, imageUrl, targetPosition } =
+    const { subType, categoryId, name, city, description, contactUrl, imageUrl, targetPosition, paidAmount } =
       body;
 
     // --- 1: kontakt formati + mavjudlik ---
@@ -123,40 +123,78 @@ export async function POST(req: NextRequest) {
       const requiredFull = fullPriceForPosition(ranked, pos);
       let credit = requiredFull - existing.totalBid;
       if (credit <= 0) credit = PRICE.step;
-      const paid = payableAmount(credit, promo.active, promo.percent);
+      const calculatedPaid = payableAmount(credit, promo.active, promo.percent);
+      const finalPaid = (paidAmount && Math.abs(paidAmount - calculatedPaid) <= 100) ? paidAmount : calculatedPaid;
 
-      await db.bid.create({ 
+      const bid = await db.bid.create({ 
         data: { 
           profileId: existing.id, 
-          amount: paid, 
+          amount: finalPaid, 
           credit, 
           status: "awaiting" 
         } 
       });
 
-      const updated = ranked.find(p => p.id === existing.id);
+      let updated = ranked.find(p => p.id === existing.id);
+      let instantlyMatched = false;
 
-      await notifyAdmin(
-        "topup",
-        `⏳ To'lov kutilmoqda (Top-up): ${existing.name} — ${formatSom(paid)}${promo.active ? ` (aksiya -${Math.round(promo.percent*100)}%)` : ""}\nTasdiqlangach reyting summasi: +${formatSom(credit)}`,
-        existing.id
-      );
+      // O'tmishga qarash: tugma bosilmasdan oldin pul tushgan bo'lsa
+      const pastPayment = await db.paymentLog.findFirst({
+        where: { matched: false, amount: finalPaid, createdAt: { gte: new Date(Date.now() - 30 * 60 * 1000) } },
+        orderBy: { createdAt: "desc" }
+      });
+
+      if (pastPayment) {
+        await db.$transaction([
+          db.bid.update({ where: { id: bid.id }, data: { status: "paid" } }),
+          db.profile.update({
+            where: { id: existing.id },
+            data: { status: "active", lastBidAt: new Date(), totalBid: { increment: credit } },
+          }),
+          db.paymentLog.update({
+            where: { id: pastPayment.id },
+            data: { matched: true, matchedProfileId: existing.id, matchedBidId: bid.id }
+          })
+        ]);
+        instantlyMatched = true;
+        
+        // Yangi reytingni olamiz
+        const { getRankedProfiles: refreshRanked } = await import("@/lib/ustar/server");
+        const freshRanked = await refreshRanked();
+        updated = freshRanked.find((p) => p.id === existing.id);
+      }
+
+      if (instantlyMatched) {
+        await notifyAdmin(
+          "payment_auto",
+          `✅ PUL TUSHDI (Oldindan tushgan) — O'RIN YANGILANDI\n\n💳 ${formatSom(finalPaid)}\n👤 ${existing.name}\n📍 Yangi o'rin: ${updated?.position ?? pos}\n➕ Reyting summasi: +${formatSom(credit)}\n\n(Tugma kechikib bosildi, lekin avtomatik topildi)`
+        );
+      } else {
+        await notifyAdmin(
+          "topup",
+          `⏳ To'lov kutilmoqda (Top-up): ${existing.name} — ${formatSom(finalPaid)}${promo.active ? ` (aksiya -${Math.round(promo.percent*100)}%)` : ""}\nTasdiqlangach reyting summasi: +${formatSom(credit)}`,
+          existing.id
+        );
+      }
 
       const result: CreateProfileResult = {
         ok: true,
         mode: "topup",
         profile: updated || serializeProfileExisting(existing as any),
         position: updated?.position ?? pos,
-        amount: paid,
+        amount: finalPaid,
         editToken: existing.editToken ?? undefined,
-        message: `Bu kontakt allaqachon ro'yxatda edi. Sizning o'rningiz pul tushgach avtomatik yangilanadi! Hozircha ${updated?.position ?? pos}-o'rindasiz.`,
+        message: instantlyMatched 
+          ? `Sizning to'lovingiz zudlik bilan tasdiqlandi! Siz ${updated?.position ?? pos}-o'ringa ko'tarildingiz!`
+          : `Bu kontakt allaqachon ro'yxatda edi. Sizning o'rningiz pul tushgach avtomatik yangilanadi! Hozircha ${updated?.position ?? pos}-o'rindasiz.`,
       };
       return NextResponse.json(result);
     }
 
     // --- Yangi profil — PENDING (pul tushmaguncha reytingda ko'rinmaydi) ---
     const full = fullPriceForPosition(ranked, pos);
-    const paid = payableAmount(full, promo.active, promo.percent);
+    const calculatedPaid = payableAmount(full, promo.active, promo.percent);
+    const finalPaid = (paidAmount && Math.abs(paidAmount - calculatedPaid) <= 100) ? paidAmount : calculatedPaid;
     const editToken = crypto.randomUUID();
 
     const profile = await db.profile.create({
@@ -175,24 +213,58 @@ export async function POST(req: NextRequest) {
         status: "pending",
       },
     });
-    await db.bid.create({
-      data: { profileId: profile.id, amount: paid, credit: full, status: "awaiting" },
+    const bid = await db.bid.create({
+      data: { profileId: profile.id, amount: finalPaid, credit: full, status: "awaiting" },
+    });
+    
+    let instantlyMatched = false;
+    let actualPos = pos;
+    const pastPayment = await db.paymentLog.findFirst({
+      where: { matched: false, amount: finalPaid, createdAt: { gte: new Date(Date.now() - 30 * 60 * 1000) } },
+      orderBy: { createdAt: "desc" }
     });
 
-    await notifyAdmin(
-      "new_profile_awaiting",
-      `⏳ YANGI PROFIL (pul kutilmoqda): ${name.trim()}\n${category!.groupName ? category!.groupName + " • " : ""}${category!.name} • ${city}\nKutilmoqda: ${formatSom(paid)}${promo.active ? ` (aksiya -${Math.round(promo.percent*100)}%, reytingga ${formatSom(full)})` : ""}\nKontakt: ${normalized}\nPul tushishi bilan avtomatik reytingga chiqadi.`,
-      profile.id
-    );
+    if (pastPayment) {
+      await db.$transaction([
+        db.bid.update({ where: { id: bid.id }, data: { status: "paid" } }),
+        db.profile.update({
+          where: { id: profile.id },
+          data: { status: "active", lastBidAt: new Date() }, // pendingdan active ga
+        }),
+        db.paymentLog.update({
+          where: { id: pastPayment.id },
+          data: { matched: true, matchedProfileId: profile.id, matchedBidId: bid.id }
+        })
+      ]);
+      instantlyMatched = true;
+      const { getRankedProfiles: refreshRanked } = await import("@/lib/ustar/server");
+      const freshRanked = await refreshRanked();
+      actualPos = freshRanked.find((p) => p.id === profile.id)?.position ?? pos;
+    }
+
+    if (instantlyMatched) {
+      await notifyAdmin(
+        "payment_auto",
+        `✅ PUL TUSHDI (Oldindan tushgan) — PROFIL REYTINGGA CHIQDI\n\n💳 ${formatSom(finalPaid)}\n👤 ${profile.name}\n📍 ${actualPos}-o'rin\n🔗 ${profile.contactUrl}\n\n(Tugma kechikib bosildi, lekin avtomatik topildi)`
+      );
+    } else {
+      await notifyAdmin(
+        "new_profile_awaiting",
+        `⏳ YANGI PROFIL (pul kutilmoqda): ${name.trim()}\n${category!.groupName ? category!.groupName + " • " : ""}${category!.name} • ${city}\nKutilmoqda: ${formatSom(finalPaid)}${promo.active ? ` (aksiya -${Math.round(promo.percent*100)}%, reytingga ${formatSom(full)})` : ""}\nKontakt: ${normalized}\nPul tushishi bilan avtomatik reytingga chiqadi.`,
+        profile.id
+      );
+    }
 
     const result: CreateProfileResult = {
       ok: true,
       mode: "created",
-      profile: serializeProfileExisting(profile),
-      position: pos,
-      amount: paid,
+      profile: serializeProfileExisting({ ...profile, status: instantlyMatched ? "active" : "pending" } as any),
+      position: actualPos,
+      amount: finalPaid,
       editToken,
-      message: `To'lov qabul qilindi! Kartaga ${formatSom(paid)} o'tkazing — pul tushishi bilan profilingiz ${pos}-o'rinda reytingda ko'rinadi.`,
+      message: instantlyMatched
+        ? `To'lovingiz zudlik bilan tasdiqlandi! Profilingiz reytingga chiqdi.`
+        : `To'lov qabul qilindi! Kartaga ${formatSom(finalPaid)} o'tkazing — pul tushishi bilan profilingiz ${pos}-o'rinda reytingda ko'rinadi.`,
     };
     return NextResponse.json(result);
   } catch (e) {

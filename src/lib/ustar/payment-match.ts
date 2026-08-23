@@ -47,6 +47,10 @@ export async function matchPayment(payment: IncomingPayment): Promise<MatchResul
   let bestDiff = Infinity;
   for (const b of awaitingBids) {
     const diff = Math.abs(b.amount - amount);
+    if (diff === 0) {
+      bestBid = b;
+      break; // Exact match topildi, qidirishni to'xtatamiz
+    }
     if (diff <= 500 && diff < bestDiff) {
       bestBid = b;
       bestDiff = diff;
@@ -110,6 +114,10 @@ export async function matchPayment(payment: IncomingPayment): Promise<MatchResul
   bestDiff = Infinity;
   for (const v of awaitingVerify) {
     const diff = Math.abs(v.fee - amount);
+    if (diff === 0) {
+      bestVerify = v;
+      break;
+    }
     if (diff <= 500 && diff < bestDiff) {
       bestVerify = v;
       bestDiff = diff;

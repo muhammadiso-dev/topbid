@@ -33,10 +33,9 @@ import {
   CITIES,
   formatSom,
   isValidContactUrl,
-  promoInfo,
   CATEGORY_GROUP_ORDER,
 } from "@/lib/ustar/constants";
-import { fullPriceForPosition, payableAmount, PRICE } from "@/lib/ustar/pricing";
+import { fullPriceForPosition, payableAmount, PRICE, type PromoConfig, PROMO_FALLBACK } from "@/lib/ustar/pricing";
 import type { CategoryDTO, CreateProfileResult, ProfileDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 
@@ -84,7 +83,7 @@ export function AddProfileView() {
   const [editLinkCopied, setEditLinkCopied] = useState(false);
   const [editLink, setEditLink] = useState<string | null>(null);
 
-  const promo = promoInfo();
+  const [promo, setPromo] = useState<PromoConfig>(PROMO_FALLBACK);
 
   useEffect(() => {
     fetch("/api/categories")
@@ -93,7 +92,10 @@ export function AddProfileView() {
       .catch(() => null);
     fetch("/api/profiles")
       .then((r) => r.json())
-      .then((d: { profiles: ProfileDTO[] }) => setRanked(d.profiles))
+      .then((d: { profiles: ProfileDTO[]; promo: PromoConfig }) => {
+        setRanked(d.profiles);
+        setPromo(d.promo ?? PROMO_FALLBACK);
+      })
       .catch(() => setRanked([]));
   }, []);
 
@@ -162,9 +164,9 @@ export function AddProfileView() {
       const full = fullPriceForPosition(ranked, position);
       if (topupMode && existingProfile) {
         const credit = Math.max(full - existingProfile.totalBid, PRICE.step);
-        return payableAmount(credit, promo.active);
+        return payableAmount(credit, promo.active, promo.percent);
       }
-      return payableAmount(full, promo.active);
+      return payableAmount(full, promo.active, promo.percent);
     },
     [ranked, topupMode, existingProfile, promo.active]
   );

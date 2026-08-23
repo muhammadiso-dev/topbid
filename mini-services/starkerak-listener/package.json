@@ -1,9 +1,0 @@
-{
-  "name": "starkerak-listener",
-  "version": "1.0.0",
-  "description": "TopBid — HumoCardBot to'lovlarini StarKerak orqali tinglovchi mini-service",
-  "scripts": {
-    "dev": "python3 listener.py",
-    "start": "python3 listener.py"
-  }
-}

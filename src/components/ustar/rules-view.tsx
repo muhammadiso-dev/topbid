@@ -6,6 +6,7 @@ import { useUstarStore } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
 import { formatSom } from "@/lib/ustar/constants";
 import { PRICE } from "@/lib/ustar/pricing";
+import { CHARITY_FUND } from "@/lib/ustar/payment-config";
 
 /** "Qoidalar" sahifasi */
 export function RulesView() {

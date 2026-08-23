@@ -4,8 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { formatSom } from "@/lib/ustar/constants";
-import { VERIFICATION_FEE } from "@/lib/ustar/pricing";
-import { payableAmount } from "@/lib/ustar/pricing";
+import { VERIFICATION_FEE, payableAmount } from "@/lib/ustar/pricing";
 import { CheckCircle2, Loader2, ShieldCheck, BadgeCheck, TrendingUp, Star, Clock3, Copy, Send, PartyPopper } from "lucide-react";
 import { useI18n } from "@/lib/ustar/i18n";
 import { ADMIN_CARD } from "@/lib/ustar/payment-config";
@@ -14,6 +13,7 @@ interface VerifyModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   promoActive: boolean;
+  promoPercent?: number;
   editToken?: string;
   onPaid: () => Promise<void> | void;
 }
@@ -21,12 +21,12 @@ interface VerifyModalProps {
 type Step = "benefits" | "card" | "processing" | "done";
 
 /** Verifikatsiya to'lov oqimi — "Tekshirilgan" belgisi uchun */
-export function VerifyModal({ open, onOpenChange, promoActive, editToken, onPaid }: VerifyModalProps) {
+export function VerifyModal({ open, onOpenChange, promoActive, promoPercent = 0.5, editToken, onPaid }: VerifyModalProps) {
   const { t, lang } = useI18n();
   const [step, setStep] = useState<Step>("benefits");
   const [error, setError] = useState<string | null>(null);
 
-  const fee = payableAmount(VERIFICATION_FEE, promoActive);
+  const fee = payableAmount(VERIFICATION_FEE, promoActive, promoPercent);
   const promo = promoActive && fee < VERIFICATION_FEE;
 
   const handleClose = () => {

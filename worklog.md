@@ -157,3 +157,33 @@ Stage Summary:
 - To'lov endi 100% haqiqiy: "O'tkazdim" faqat e'lon, PUL TUSHISHI (StarKerak) tasdiqlaydi — reyting, topup, verifikatsiya hammasi
 - Test: profil pending→pul→15-o'rin; topup→pul→4-o'rin; admin #bids/TOPBID!2026 ishlaydi; demo yozuv yo'q
 - Sariq oltin belgi izchil (badge, section, matnlar); analytics faqat egasiga
+
+---
+Task ID: 8
+Agent: Main agent (Super Z)
+Task: TopBid 8-bosqich — StarKerak olib tashlandi (o'z botimiz), admin'da aksiya boshqaruvi, TO'LIQ AUDIT
+
+Work Log:
+- STARKERAK OLIB TASHLANDI: mini-service, .env kaliti, eski kod — hammasi o'chirildi
+- O'Z BOT TO'LOV MONITORINGI: /api/telegram/webhook guruh xabarlarini o'qiydi — HumoCardBot (yoki boshqa karta boti) xabaridagi summani moslashuvchan parser bilan ajratadi ("15 000 so'm", "15000 сум", "Summa: 15 000"); shared matchPayment logikasi (src/lib/ustar/payment-match.ts) — bot webhook va ichki API bir xil kodni ishlatadi; admin shaxsiy chatida to'lov xabarini yozsa ham match qilinadi; SETUP: guruhga HumoCardBot + @TopBiduzbot qo'shish, BotFather'da /setprivacy → Disable
+- TEST: guruh xabari "Summa: 15 000 so'm Karta: 9860****3608" → webhook → parser → match → TestX profili AVTOMATIK 15-o'ringa chiqdi ✅
+- ADMIN AKSIYA BOSHQARUVI: AppSettings modeli (promoActive/promoEndsAt/promoPercent); /api/settings GET(public)+PUT(admin); admin panel UI — toggle switch, foiz slider (0-90%), tugash sanasi date input; TEST: toggle off → banner yo'qoldi + narx to'liq (30 000); toggle on → qaytdi; payableAmount endi dinamik foiz bilan
+- AUDITDA TOPILGAN VA TUZATILGAN XATOLAR:
+  1. ❌ profile-detail: PROMO_FALLBACK import yo'q → barcha profil sahifalari buzilgan (client error) — tuzatildi
+  2. ❌ rules-view: CHARITY_FUND import yo'q → Qoidalar sahifasi buzilgan — tuzatildi
+  3. ❌ verify-modal: duplicate import (payableAmount 2 marta) — tuzatildi
+  4. ❌ Home hero matnlari qotib qolgan (til almashmasdi) — 4 tilga tarjima qilindi
+  5. ❌ Promo banner matni qotib qolgan — i18n qilindi (foiz dinamik)
+  6. ❌ "1. 1. Karta raqamini" — ikki marta raqamlash — tuzatildi
+  7. ❌ Footer "To'lovlar Telegram bot orqali" — eskirgan (bot olib tashlangan) → "Humo karta orqali"
+  8. ❌ Title "O'rganish va Yollash" — olib tashlangan tablar nomi → "O'zbekiston reyting platformasi"
+  9. ❌ "o'rinngiz" typo → "o'riningiz"
+  10. ❌ admin { } empty JSX bug + ko'k rang qoldiqlari → sariq
+- AUDIT NATIJALARI (hammasi ishlayapti): bosh sahifa (17 karta, stats 5 ta, aksiya banneri countdown), kategoriya tartibi (Chet tillari→...→Bolalar), karta→tashqi havola, sharh tugmasi→detail, analytics faqat egasiga, topup modal alohida, About (narxlar+Ezgu Amal havolasi), Rules (5 bo'lim+xayriya), admin (#bids, TOPBID!2026, aksiya boshqaruvi+pending+to'lovlar+verifikatsiya+profil boshqaruvi), 4 til to'liq ishlaydi, 360/390/1440px 0 overflow
+- Real foydalanuvchi ma'lumotlari bor: Sindr.uz (365k, 1-o'rin), Z.ai (265k) — preview orqali qo'shilgan
+
+Stage Summary:
+- StarKerak o'rniga o'z @TopBiduzbot — guruhga karta botini qo'shish kifoya, hech qanday tashqi xizmat kerak emas
+- Aksiya to'liq admin nazoratida: yoqish/o'chirish, foiz (0-90%), sana — darhol saytga ta'sir qiladi
+- 10 ta xato topildi va tuzatildi (2 ta kritik — butun sahifalar buzilgan edi)
+- Lint toza, 0 console error, 0 overflow

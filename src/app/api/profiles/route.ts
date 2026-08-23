@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 import crypto from "crypto";
 import { notifyAdmin } from "@/lib/ustar/telegram";
 import { getRankedProfiles } from "@/lib/ustar/server";
-import { fullPriceForPosition, payableAmount, PRICE, promoInfo } from "@/lib/ustar/pricing";
+import { fullPriceForPosition, payableAmount, PRICE } from "@/lib/ustar/pricing";
+import { getPromoConfig } from "@/lib/ustar/promo-server";
 import {
   isValidContactUrl,
   normalizeContactUrl,
@@ -59,10 +60,10 @@ function serializeProfileExisting(p: {
  * GET /api/profiles — YAGONA reyting (ta'lim + IT birga) + aksiya holati.
  */
 export async function GET() {
-  const ranked = await getRankedProfiles();
+  const [ranked, promo] = await Promise.all([getRankedProfiles(), getPromoConfig()]);
   return NextResponse.json({
     profiles: ranked,
-    promo: promoInfo(),
+    promo,
   });
 }
 
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const promo = promoInfo();
+    const promo = await getPromoConfig();
     const normalized = normalizeContactUrl(contactUrl);
     const existing = await db.profile.findFirst({
       where: { contactUrl: normalized },
@@ -122,7 +123,7 @@ export async function POST(req: NextRequest) {
       const requiredFull = fullPriceForPosition(ranked, pos, tier);
       let credit = requiredFull - existing.totalBid;
       if (credit <= 0) credit = t.step;
-      const paid = payableAmount(credit, promo.active);
+      const paid = payableAmount(credit, promo.active, promo.percent);
 
       await db.$transaction([
         db.bid.create({ data: { profileId: existing.id, amount: paid, status: "paid" } }),
@@ -137,7 +138,7 @@ export async function POST(req: NextRequest) {
 
       await notifyAdmin(
         "topup",
-        `💰 Summa qo'shildi: ${existing.name} — to'langan ${formatSom(paid)}${promo.active ? " (aksiya -50%)" : ""}\nReyting summasi: +${formatSom(credit)} • ${updated ? updated.position : "?"}-o'rin`,
+        `💰 Summa qo'shildi: ${existing.name} — to'langan ${formatSom(paid)}${promo.active ? ` (aksiya -${Math.round(promo.percent*100)}%)` : ""}\nReyting summasi: +${formatSom(credit)} • ${updated ? updated.position : "?"}-o'rin`,
         existing.id
       );
 
@@ -155,7 +156,7 @@ export async function POST(req: NextRequest) {
 
     // --- Yangi profil — PENDING (pul tushmaguncha reytingda ko'rinmaydi) ---
     const full = fullPriceForPosition(ranked, pos);
-    const paid = payableAmount(full, promo.active);
+    const paid = payableAmount(full, promo.active, promo.percent);
     const editToken = crypto.randomUUID();
 
     const profile = await db.profile.create({
@@ -180,7 +181,7 @@ export async function POST(req: NextRequest) {
 
     await notifyAdmin(
       "new_profile_awaiting",
-      `⏳ YANGI PROFIL (pul kutilmoqda): ${name.trim()}\n${category!.groupName ? category!.groupName + " • " : ""}${category!.name} • ${city}\nKutilmoqda: ${formatSom(paid)}${promo.active ? ` (aksiya -50%, reytingga ${formatSom(full)})` : ""}\nKontakt: ${normalized}\nPul tushishi bilan avtomatik reytingga chiqadi.`,
+      `⏳ YANGI PROFIL (pul kutilmoqda): ${name.trim()}\n${category!.groupName ? category!.groupName + " • " : ""}${category!.name} • ${city}\nKutilmoqda: ${formatSom(paid)}${promo.active ? ` (aksiya -${Math.round(promo.percent*100)}%, reytingga ${formatSom(full)})` : ""}\nKontakt: ${normalized}\nPul tushishi bilan avtomatik reytingga chiqadi.`,
       profile.id
     );
 

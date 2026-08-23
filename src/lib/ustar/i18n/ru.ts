@@ -411,7 +411,7 @@ export const ru: Record<string, string> = {
   "footer.rankings": "Рейтинги",
   "footer.platform": "Платформа",
   "footer.copyright": "© 2026 TopBid.uz. Все права защищены.",
-  "footer.payments": "Оплаты через Telegram-бота",
+  "footer.payments": "Оплата через карту Humo",
 
   // Toasts
   "toast.paidTitle": "🎉 Оплата принята!",
@@ -493,7 +493,7 @@ export const ru: Record<string, string> = {
   "pay.viaCardDesc": "Humo/Uzcard — мгновенно, без комиссии",
   "pay.fast": "Быстрее всего",
   "pay.cardDesc": "Перевод на карту — 3 шага, 1 минута",
-  "pay.cardStep1": "1. Скопируйте номер карты и переведите из приложения (Payme/Click/банк):",
+  "pay.cardStep1": "Скопируйте номер карты и переведите из приложения (Payme/Click/банк):",
   "pay.cardStep2": "В комментарии к платежу укажите название профиля:",
   "pay.cardStep3": "Подтвердите перевод — место засчитывается сразу.",
   "pay.copyCard": "Копировать",
@@ -515,4 +515,10 @@ export const ru: Record<string, string> = {
   "topup.title": "Улучшить место",
   "topup.desc": "Выберите новое место — после поступления денег место обновится автоматически",
   "topup.currentRank": "Текущее место",
+  "home.heroBadge": "Репетиторы, центры, курсы и IT-специалисты — всё в одном месте",
+  "home.heroTitleA": "Рейтинговая",
+  "home.heroTitleB": "платформа",
+  "home.heroTitleC": "Узбекистана",
+  "home.heroDesc": "Выбирайте на основе реальных отзывов и рейтинга. Добавьте и свою услугу в рейтинг.",
+  "promo.bannerTitle": "Акция — скидка {p}% на все цены",
 };

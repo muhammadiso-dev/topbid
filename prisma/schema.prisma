@@ -133,3 +133,11 @@ model PaymentLog {
   @@index([createdAt])
   @@index([matched])
 }
+
+// Sayt sozlamalari (aksiya boshqaruvi) — singleton
+model AppSettings {
+  id           String   @id @default("main")
+  promoActive  Boolean  @default(true)
+  promoEndsAt  DateTime
+  promoPercent Float    @default(0.5) // 0.5 = 50% chegirma
+}

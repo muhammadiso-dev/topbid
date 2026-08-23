@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { notifyAdmin } from "@/lib/ustar/telegram";
 import { formatSom } from "@/lib/ustar/constants";
 import { VERIFICATION_FEE, payableAmount } from "@/lib/ustar/pricing";
+import { getPromoConfig } from "@/lib/ustar/promo-server";
 
 export const dynamic = "force-dynamic";
 
@@ -41,8 +42,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       );
     }
 
-    const promo = promoInfo();
-    const fee = payableAmount(VERIFICATION_FEE, promo.active);
+    const promo = await getPromoConfig();
+    const fee = payableAmount(VERIFICATION_FEE, promo.active, promo.percent);
 
     // AWAITING: pul tushishi bilan (StarKerak) "pending" (hujjat kutilmoqda) ga o'tadi
     const request = await db.verificationRequest.create({
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
 
     await notifyAdmin(
       "verification",
-      `⏳ Verifikatsiya to'lovi KUTILMOQDA: ${profile.name}\nSumma: ${formatSom(fee)}${promo.active ? " (aksiya -50%)" : ""}\nKontakt: ${profile.contactUrl}\nPul tushishi bilan hujjatlar so'raladi.`,
+      `⏳ Verifikatsiya to'lovi KUTILMOQDA: ${profile.name}\nSumma: ${formatSom(fee)}${promo.active ? ` (aksiya -${Math.round(promo.percent*100)}%)` : ""}\nKontakt: ${profile.contactUrl}\nPul tushishi bilan hujjatlar so'raladi.`,
       id
     );
 

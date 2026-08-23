@@ -410,7 +410,7 @@ export const kk: Record<string, string> = {
   "footer.rankings": "Рейтингтер",
   "footer.platform": "Платформа",
   "footer.copyright": "© 2026 TopBid.uz. Барлық құқықтар қорғалған.",
-  "footer.payments": "Төлемдер Telegram-бот арқылы",
+  "footer.payments": "Humo картасы арқылы төлем",
 
   // Toasts
   "toast.paidTitle": "🎉 Төлем қабылданды!",
@@ -492,7 +492,7 @@ export const kk: Record<string, string> = {
   "pay.viaCardDesc": "Humo/Uzcard — бірден, комиссиясыз",
   "pay.fast": "Ең жылдам",
   "pay.cardDesc": "Картаға аудару — 3 қадам, 1 минут",
-  "pay.cardStep1": "1. Карта нөмірін көшіріп, қолданыңыздан (Payme/Click/банк) аударыңыз:",
+  "pay.cardStep1": "Карта нөмірін көшіріп, қолданыңыздан (Payme/Click/банк) аударыңыз:",
   "pay.cardStep2": "Төлем түсініктемесіне профиль атауын жазыңыз:",
   "pay.cardStep3": "Аударымды растаңыз — орын бірден есептеледі.",
   "pay.copyCard": "Көшіру",
@@ -516,4 +516,10 @@ export const kk: Record<string, string> = {
   "topup.currentRank": "Ағымдағы орын",
   "verify.title": "«Тексерілген» алтын белгі",
   "verify.benefit1": "Алтын «Тексерілген» белгісі профильде тұрақты көрінеді",
+  "home.heroBadge": "Репетиторлар, орталықтар, курстар мен IT-мамандар — барлығы бір жерде",
+  "home.heroTitleA": "Өзбекстанның",
+  "home.heroTitleB": "рейтингтік",
+  "home.heroTitleC": "платформасы",
+  "home.heroDesc": "Шынайы пікірлер мен рейтингке сүйеніп таңдаңыз. Өз қызметіңізді де рейтингке қосыңыз.",
+  "promo.bannerTitle": "Акция — барлық бағаға {p}% жеңілдік",
 };

@@ -2,29 +2,36 @@
 
 import { useEffect, useState } from "react";
 import { Rocket } from "lucide-react";
-import { promoInfo } from "@/lib/ustar/pricing";
 import { useUstarStore } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
+import type { PromoConfig } from "@/lib/ustar/pricing";
+import { promoMsLeft } from "@/lib/ustar/pricing";
 
-/** Ochilish aksiyasi banneri — 50% chegirma, jonli countdown bilan */
+/** Ochilish aksiyasi banneri — admin panelda boshqariladi, jonli countdown bilan */
 export function PromoBanner() {
   const openAddForm = useUstarStore((s) => s.openAddForm);
   const { t } = useI18n();
+  const [promo, setPromo] = useState<PromoConfig | null>(null);
   const [msLeft, setMsLeft] = useState<number | null>(null);
-  const promo = promoInfo();
 
   useEffect(() => {
-    if (!promo.active) return;
-    const endsAt = new Date(promo.endsAt).getTime();
-    const tick = () => setMsLeft(Math.max(0, endsAt - Date.now()));
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => clearInterval(t);
-     
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d: { promo: PromoConfig }) => setPromo(d.promo))
+      .catch(() => setPromo(null));
   }, []);
 
-  if (!promo.active || msLeft === null) return null;
+  useEffect(() => {
+    if (!promo?.active) return;
+    const tick = () => setMsLeft(promoMsLeft(promo.endsAt));
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [promo]);
 
+  if (!promo?.active || msLeft === null) return null;
+
+  const percent = Math.round(promo.percent * 100);
   const days = Math.floor(msLeft / 86_400_000);
   const hours = Math.floor((msLeft % 86_400_000) / 3_600_000);
   const minutes = Math.floor((msLeft % 3_600_000) / 60_000);
@@ -43,7 +50,7 @@ export function PromoBanner() {
           </div>
           <div className="min-w-0">
             <p className="font-extrabold text-sm md:text-base leading-tight">
-              {t("promo.title")}
+              {t("promo.bannerTitle").replace("{p}", String(percent))}
             </p>
             <p className="text-[12px] md:text-[13px] text-white/95 font-medium mt-0.5">
               {t("promo.desc")}

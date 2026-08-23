@@ -40,10 +40,10 @@ import {
   contactInfo,
   formatCompactNumber,
   formatSom,
-  promoInfo,
   timeAgo,
 } from "@/lib/ustar/constants";
 import type { ProfileDTO, ReviewDTO } from "@/lib/ustar/types";
+import { PROMO_FALLBACK, type PromoConfig } from "@/lib/ustar/pricing";
 import { cn } from "@/lib/utils";
 
 /** Profil batafsil sahifasi — ma'lumotlar + bepul sharhlar + verifikatsiya */
@@ -63,7 +63,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
   const savedToken = getEditTokens()[profileId] || null;
   const [editToken, setEditToken] = useState<string | null>(savedToken);
 
-  const promo = promoInfo();
+  const [promo, setPromo] = useState<PromoConfig>(PROMO_FALLBACK);
 
   const load = useCallback(
     (countView: boolean) => {
@@ -89,6 +89,10 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
 
   useEffect(() => {
     load(true);
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d: { promo: PromoConfig }) => setPromo(d.promo ?? PROMO_FALLBACK))
+      .catch(() => null);
   }, [load]);
 
   const handleContactClick = () => {
@@ -379,6 +383,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
         open={verifyOpen}
         onOpenChange={setVerifyOpen}
         promoActive={promo.active}
+        promoPercent={promo.percent}
         editToken={editToken || undefined}
         onPaid={handleVerifyPaid}
       />

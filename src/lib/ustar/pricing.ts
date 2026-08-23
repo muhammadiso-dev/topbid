@@ -1,8 +1,6 @@
-// YAGONA NARX tizimi — hammasiga bitta narx (raqobatchi sindr.uz modeli):
+// YAGONA NARX tizimi — hammasiga bitta narx:
 //   Min. taklif: 30 000 · Qadam: 5 000 · TOP-1 egallash: +50 000 · Boshqa o'rinlar: +10 000
-// Aksiya davrida HAQIQIY to'lov 50% kam, reytingga TO'LIQ summa yoziladi.
-
-import { PROMO_MULTIPLIER, promoInfo } from "./constants";
+// Aksiya admin panelda boshqariladi (AppSettings: promoActive / promoEndsAt / promoPercent).
 
 export const PRICE = {
   /** Yangi profil uchun eng kam taklif */
@@ -15,8 +13,21 @@ export const PRICE = {
   takeoverStep: 10_000,
 };
 
-/** Verifikatsiya ("Tekshirilgan" belgisi) — bir martalik; to'lovining 50% ehsona ketadi */
+/** Verifikatsiya ("Tekshirilgan" belgi) — bir martalik; to'lovining 50% ehsona ketadi */
 export const VERIFICATION_FEE = 50_000;
+
+export interface PromoConfig {
+  active: boolean;
+  endsAt: string; // ISO
+  percent: number; // 0.5 = 50% chegirma
+}
+
+/** Standart aksiya konfigi (fallback — server ishlamasa) */
+export const PROMO_FALLBACK: PromoConfig = {
+  active: false,
+  endsAt: new Date().toISOString(),
+  percent: 0.5,
+};
 
 /**
  * Maqsadli o'rin uchun TO'LIQ narx (reytingga yoziladigan summa).
@@ -36,24 +47,27 @@ export function fullPriceForPosition(
 }
 
 /** Aksiya davrida haqiqiy to'lanadigan summa (500 so'mga yaxlitlash) */
-export function payableAmount(full: number, promoActive: boolean): number {
+export function payableAmount(full: number, promoActive: boolean, percent = 0.5): number {
   if (!promoActive) return full;
-  return Math.max(500, Math.round((full * PROMO_MULTIPLIER) / 500) * 500);
+  return Math.max(500, Math.round((full * (1 - percent)) / 500) * 500);
 }
 
 /** Qulay kombain */
 export function priceForPosition(
   ranked: { totalBid: number }[],
   position: number,
-  promoActive: boolean
+  promoActive: boolean,
+  percent = 0.5
 ): number {
-  return payableAmount(fullPriceForPosition(ranked, position), promoActive);
+  return payableAmount(fullPriceForPosition(ranked, position), promoActive, percent);
 }
 
 /** Kirish narxi — CTA matnlari uchun */
-export function entryPrice(promoActive: boolean): number {
-  return payableAmount(PRICE.min, promoActive);
+export function entryPrice(promoActive: boolean, percent = 0.5): number {
+  return payableAmount(PRICE.min, promoActive, percent);
 }
 
-/** Aksiya holati */
-export { promoInfo };
+/** Aksiya qolgan vaqt (ms) */
+export function promoMsLeft(endsAt: string): number {
+  return Math.max(0, new Date(endsAt).getTime() - Date.now());
+}

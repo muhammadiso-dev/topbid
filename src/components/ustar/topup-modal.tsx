@@ -10,7 +10,7 @@ import { useUstarStore, getSessionId, saveEditToken } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
 import { formatSom } from "@/lib/ustar/constants";
 import { PRICE } from "@/lib/ustar/pricing";
-import { fullPriceForPosition, payableAmount, promoInfo } from "@/lib/ustar/pricing";
+import { fullPriceForPosition, payableAmount, type PromoConfig, PROMO_FALLBACK } from "@/lib/ustar/pricing";
 import type { ProfileDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 import { TrendingUp, Crown, Trophy } from "lucide-react";
@@ -31,7 +31,7 @@ export function TopupModal({ open, onOpenChange, profile, onDone }: TopupModalPr
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const promo = promoInfo();
+  const [promo, setPromo] = useState<PromoConfig>(PROMO_FALLBACK);
 
   useEffect(() => {
     if (!open) return;
@@ -39,7 +39,10 @@ export function TopupModal({ open, onOpenChange, profile, onDone }: TopupModalPr
     setTargetPosition(null);
     fetch("/api/profiles")
       .then((r) => r.json())
-      .then((d: { profiles: ProfileDTO[] }) => setRanked(d.profiles))
+      .then((d: { profiles: ProfileDTO[]; promo: PromoConfig }) => {
+        setRanked(d.profiles);
+        setPromo(d.promo ?? PROMO_FALLBACK);
+      })
       .catch(() => setRanked([]));
   }, [open]);
 
@@ -49,7 +52,7 @@ export function TopupModal({ open, onOpenChange, profile, onDone }: TopupModalPr
       const full = fullPriceForPosition(ranked, position);
       // Hozirgi summadan qancha qo'shish kerak
       const credit = Math.max(full - profile.totalBid, PRICE.step);
-      return payableAmount(credit, promo.active);
+      return payableAmount(credit, promo.active, promo.percent);
     },
     [ranked, profile.totalBid, promo.active]
   );

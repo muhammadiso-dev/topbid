@@ -260,7 +260,7 @@ export const uz: Record<string, string> = {
     "To'lovlar Telegram to'lov boti orqali qabul qilinadi (karta, Payme, Click). Bir xil kontakt bilan qayta to'lov qilsangiz, yangi profil ochilmaydi — summa mavjud profilingizga qo'shiladi.",
   "about.step3": "Raqobat qiling",
   "about.step3Desc":
-    "Boshqalar sizning o'rinngizni o'tib ketishi mumkin. «O'rinni egallash» tugmasi kerakli summani avtomatik hisoblab beradi — siz faqat tasdiqlaysiz.",
+    "Boshqalar sizning o'riningizni o'tib ketishi mumkin. «O'rinni egallash» tugmasi kerakli summani avtomatik hisoblab beradi — siz faqat tasdiqlaysiz.",
   "about.step4": "Mijozlar bilan tanishing",
   "about.step4Desc":
     "Foydalanuvchilar profilingizni ko'radi, sharhlarni o'qiydi va bog'lanadi. Har bir ko'rish va klik statistikada aks etadi.",
@@ -407,11 +407,11 @@ export const uz: Record<string, string> = {
 
   // Footer
   "footer.desc":
-    "O'zbekistondagi ta'lim va IT mutaxassislar reytingi. O'z o'rinngizni egallang yoki eng yaxshi mutaxassisni toping.",
+    "O'zbekistondagi ta'lim va IT mutaxassislar reytingi. O'z o'riningizni egallang yoki eng yaxshi mutaxassisni toping.",
   "footer.rankings": "Reytinglar",
   "footer.platform": "Platforma",
   "footer.copyright": "© 2026 TopBid.uz. Barcha huquqlar himoyalangan.",
-  "footer.payments": "To'lovlar Telegram bot orqali",
+  "footer.payments": "To'lovlar Humo karta orqali",
 
   // Toasts
   "toast.paidTitle": "🎉 To'lov qabul qilindi!",
@@ -494,7 +494,7 @@ export const uz: Record<string, string> = {
   "pay.viaCardDesc": "Humo/Uzcard — darhol, komissiyasiz",
   "pay.fast": "Eng tez",
   "pay.cardDesc": "Kartaga o'tkazish — 3 qadam, 1 daqiqa",
-  "pay.cardStep1": "1. Karta raqamini nusxalang va ilovangizdan (Payme/Click/bank) o'tkazing:",
+  "pay.cardStep1": "Karta raqamini nusxalang va ilovangizdan (Payme/Click/bank) o'tkazing:",
   "pay.cardStep2": "To'lov izohiga profilingiz nomini yozing:",
   "pay.cardStep3": "O'tkazishni tasdiqlang — o'rin darhol hisoblanadi.",
   "pay.copyCard": "Nusxalash",
@@ -517,4 +517,10 @@ export const uz: Record<string, string> = {
   "topup.desc": "Yangi o'rin tanlang — pul tushishi bilan o'rningiz avtomatik yangilanadi",
   "topup.currentRank": "Hozirgi o'rin",
   "verify.title": "«Tekshirilgan» oltin belgi",
+  "home.heroBadge": "Repetitor, markaz, kurs va IT mutaxassislar — barchasi bir joyda",
+  "home.heroTitleA": "O'zbekistonning",
+  "home.heroTitleB": "reyting",
+  "home.heroTitleC": "platformasi",
+  "home.heroDesc": "Haqiqiy sharhlar va reyting asosida tanlang. Siz ham o'z xizmatingizni reytingga qo'shing.",
+  "promo.bannerTitle": "Aksiya — barcha narxlarga {p}% chegirma",
 };

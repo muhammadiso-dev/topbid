@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getRankedProfiles, serializeProfile } from "@/lib/ustar/server";
 import { formatSom } from "@/lib/ustar/constants";
-import { fullPriceForPosition, payableAmount, PRICE, promoInfo } from "@/lib/ustar/pricing";
+import { fullPriceForPosition, payableAmount, PRICE } from "@/lib/ustar/pricing";
+import { getPromoConfig } from "@/lib/ustar/promo-server";
 import { notifyAdmin } from "@/lib/ustar/telegram";
 import type { CreateProfileResult } from "@/lib/ustar/types";
 
@@ -55,13 +56,13 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       return NextResponse.json({ error: "Profil topilmadi" }, { status: 404 });
     }
 
-    const promo = promoInfo();
+    const promo = await getPromoConfig();
 
     const ranked = await getRankedProfiles();
     const requiredFull = fullPriceForPosition(ranked, targetPosition);
     let credit = requiredFull - profile.totalBid;
     if (credit <= 0) credit = PRICE.step; // minimal top-up
-    const paid = payableAmount(credit, promo.active);
+    const paid = payableAmount(credit, promo.active, promo.percent);
 
     // AWAITING: pul tushishi bilan totalBid increment qilinadi (StarKerak)
     await db.bid.create({

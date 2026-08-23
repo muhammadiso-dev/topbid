@@ -15,6 +15,7 @@ import {
   Heart,
   CreditCard,
   Clock3,
+  Rocket,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +61,12 @@ export function AdminView() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
 
+  // Aksiya boshqaruvi
+  const [promoSettings, setPromoSettings] = useState({ promoActive: true, promoPercent: 0.5, promoEndsAt: "" });
+  const [promoEndInput, setPromoEndInput] = useState("");
+  const [savingPromo, setSavingPromo] = useState(false);
+  const [promoMsg, setPromoMsg] = useState<string | null>(null);
+
   const load = useCallback(
     (pw: string) => {
       setLoading(true);
@@ -85,6 +92,51 @@ export function AdminView() {
     const saved = sessionStorage.getItem("topbid_admin_pw");
     if (saved) load(saved);
   }, [load]);
+
+  // Aksiya sozlamalarini yuklash
+  const loadPromoSettings = useCallback(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d: { promo: { active: boolean; percent: number; endsAt: string | null } }) => {
+        setPromoSettings({
+          promoActive: d.promo.active,
+          promoPercent: d.promo.percent,
+          promoEndsAt: d.promo.endsAt || "",
+        });
+        if (d.promo.endsAt) {
+          setPromoEndInput(d.promo.endsAt.slice(0, 10));
+        }
+      })
+      .catch(() => null);
+  }, []);
+
+  useEffect(() => {
+    if (authed) loadPromoSettings();
+  }, [authed, loadPromoSettings]);
+
+  const savePromo = async (changes: Record<string, unknown>) => {
+    setSavingPromo(true);
+    setPromoMsg(null);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          adminPassword: sessionStorage.getItem("topbid_admin_pw") || password,
+          ...changes,
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Xatolik");
+      setPromoMsg("✅ Saqlandi");
+      loadPromoSettings();
+      setTimeout(() => setPromoMsg(null), 2500);
+    } catch (e) {
+      setPromoMsg(e instanceof Error ? e.message : "Xatolik");
+    } finally {
+      setSavingPromo(false);
+    }
+  };
 
   const handleDelete = async (profile: ProfileDTO) => {
     if (!confirm(`"${profile.name}" ${t("admin.deleteConfirm")}`)) return;
@@ -255,14 +307,182 @@ export function AdminView() {
         <span className="text-[10px] font-bold text-[#e9a05c] bg-white/10 px-2.5 py-1 rounded-full shrink-0">.env: ADMIN_CARD_NUMBER</span>
       </div>
 
+      {/* ===== AKSIYA BOSHQARUVI ===== */}
+      <section className="mt-6" aria-label="Aksiya boshqaruvi">
+        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
+          <Rocket className="w-4 h-4 text-[#d97b29]" />
+          Aksiya boshqaruvi
+        </h2>
+        <div className="mt-3 bg-white border border-border rounded-2xl p-4 space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[13px] font-extrabold text-[#241c14]">Aksiya faol</p>
+              <p className="text-[11px] text-[#94836f] font-medium mt-0.5">
+                O'chirilsa, narxlar to'liq (chegirmasiz) bo'ladi
+              </p>
+            </div>
+            <button
+              onClick={() => savePromo({ promoActive: !promoSettings.promoActive })}
+              disabled={savingPromo}
+              className={cn(
+                "relative w-14 h-8 rounded-full transition-colors cursor-pointer shrink-0",
+                promoSettings.promoActive ? "bg-[#d97b29]" : "bg-[#e0d3c2]"
+              )}
+              role="switch"
+              aria-checked={promoSettings.promoActive}
+              aria-label="Aksiya"
+            >
+              <span
+                className={cn(
+                  "absolute top-1 w-6 h-6 rounded-full bg-white shadow transition-all",
+                  promoSettings.promoActive ? "left-7" : "left-1"
+                )}
+              />
+            </button>
+          </div>
+
+          <div>
+            <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+              Chegirma foizi: <span className="text-[#d97b29]">{Math.round(promoSettings.promoPercent * 100)}%</span>
+            </Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                min="0"
+                max="90"
+                step="5"
+                value={Math.round(promoSettings.promoPercent * 100)}
+                onChange={(e) => setPromoSettings({ ...promoSettings, promoPercent: Number(e.target.value) / 100 })}
+                className="flex-1 accent-[#d97b29] cursor-pointer"
+                aria-label="Chegirma foizi"
+              />
+              <span className="text-[11px] text-[#94836f] font-bold tabular-nums w-8">
+                {Math.round(promoSettings.promoPercent * 100)}%
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="promo-end" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+              Tugash sanasi
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="promo-end"
+                type="date"
+                value={promoEndInput}
+                onChange={(e) => setPromoEndInput(e.target.value)}
+                className="h-10 bg-white text-sm font-semibold rounded-lg border-[#e8ddd0] flex-1"
+              />
+              <Button
+                size="sm"
+                onClick={() => savePromo({ promoEndsAt: new Date(promoEndInput + "T23:59:59+05:00").toISOString() })}
+                disabled={savingPromo || !promoEndInput}
+                className="h-10 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-lg text-xs shrink-0"
+              >
+                Saqlash
+              </Button>
+            </div>
+            {promoSettings.promoEndsAt && (
+              <p className="text-[11px] text-[#94836f] font-medium mt-1.5">
+                Hozir: {new Date(promoSettings.promoEndsAt).toLocaleDateString("ru-RU")} gacha
+              </p>
+            )}
+          </div>
+
+          <Button
+            onClick={() => savePromo({ promoPercent: promoSettings.promoPercent })}
+            disabled={savingPromo}
+            className="w-full h-10 bg-[#241c14] hover:bg-[#3a2e22] text-white font-extrabold rounded-lg text-xs"
+          >
+            {savingPromo ? "Saqlanmoqda..." : "Foizni saqlash"}
+          </Button>
+
+          {promoMsg && (
+            <p className={cn("text-xs font-bold text-center", promoMsg.includes("✅") ? "text-green-600" : "text-red-600")}>
+              {promoMsg}
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* ===== PENDING PROFILLAR (pul kutilmoqda) ===== */}
+      {(data?.pendingProfiles?.length ?? 0) > 0 && (
+        <section className="mt-6" aria-label="Pending profillar">
+          <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
+            <Clock3 className="w-4 h-4 text-[#a86a00]" />
+            Pul kutilmoqda ({data?.pendingProfiles?.length})
+          </h2>
+          <div className="mt-3 bg-[#fff8ec] border border-[#f0d5b8] rounded-2xl divide-y divide-[#f5e8d0] overflow-hidden">
+            {data!.pendingProfiles!.map((p) => (
+              <div key={p.id} className="flex items-center gap-3 p-3.5">
+                <ProfileAvatar name={p.name} imageUrl={p.imageUrl} size={36} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-[13px] text-[#241c14] truncate">{p.name}</p>
+                  <p className="text-[11px] text-[#94836f] font-medium truncate">
+                    {p.city} · {formatSom(p.totalBid, lang)} reytingga
+                  </p>
+                </div>
+                <span className="text-[10px] font-extrabold bg-[#fff4d6] text-[#a86a00] px-2 py-1 rounded-full shrink-0">
+                  pul kutilmoqda
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ===== TO'LUVLAR (bot avtomatik) ===== */}
+      <section className="mt-6" aria-label="To'lovlar">
+        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
+          <CreditCard className="w-4 h-4 text-[#d97b29]" />
+          To'lovlar (avtomatik)
+          {(data?.paymentLogs?.length ?? 0) > 0 && (
+            <span className="text-[10px] font-extrabold bg-[#d97b29] text-white px-2 py-0.5 rounded-full">
+              {data?.paymentLogs?.length}
+            </span>
+          )}
+        </h2>
+        {(data?.paymentLogs?.length ?? 0) === 0 ? (
+          <p className="mt-3 text-center text-xs text-[#94836f] font-medium bg-white border border-border rounded-xl py-4">
+            Karta hisobiga tushgan to'lovlar shu yerda ko'rinadi — guruhga HumoCardBot va @TopBiduzbot'ni qo'shing
+          </p>
+        ) : (
+          <div className="mt-3 bg-white border border-border rounded-2xl divide-y divide-[#f0e6da] overflow-hidden">
+            {data!.paymentLogs!.map((p) => (
+              <div key={p.id} className="flex items-center gap-3 p-3.5">
+                <span className={p.matched ? "text-green-600" : "text-[#a86a00]"}>
+                  {p.matched ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-extrabold text-[13px] text-[#241c14] tabular-nums">
+                    {formatSom(p.amount, lang)}
+                  </p>
+                  <p className="text-[11px] text-[#94836f] font-medium">
+                    {p.cardLast4 ? `****${p.cardLast4} · ` : ""}{timeAgo(p.createdAt, lang)}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    "text-[10px] font-extrabold px-2 py-1 rounded-full shrink-0",
+                    p.matched ? "bg-green-50 text-green-700" : "bg-[#fff4d6] text-[#a86a00]"
+                  )}
+                >
+                  {p.matched ? "Match" : "Kutilmoqda"}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* VERIFIKATSIYA */}
       <section className="mt-6" aria-label={t("admin.verifySection")}>
         <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
-          { }
           <img src="/verify-badge-48.png" alt="verify" className="w-4 h-4" />
           {t("admin.verifySection")}
           {pendingVerifications.length > 0 && (
-            <span className="text-[10px] font-extrabold bg-[#1d7ed8] text-white px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-extrabold bg-[#d97b29] text-white px-2 py-0.5 rounded-full">
               {pendingVerifications.length} {t("admin.verifyNew")}
             </span>
           )}
@@ -285,13 +505,13 @@ export function AdminView() {
                 key={v.id}
                 className={cn(
                   "bg-white border rounded-xl p-3.5 flex items-center gap-3",
-                  v.status === "pending" ? "border-[#cbe9f8] bg-[#f8fcff]" : "border-border"
+                  v.status === "pending" ? "border-[#f0d5b8] bg-[#fffaf2]" : "border-border"
                 )}
               >
                 <div
                   className={cn(
                     "w-9 h-9 rounded-lg flex items-center justify-center shrink-0",
-                    v.status === "pending" ? "bg-[#e8f2fc]" : v.status === "approved" ? "bg-green-50" : "bg-[#f6efe6]"
+                    v.status === "pending" ? "bg-[#fff3df]" : v.status === "approved" ? "bg-green-50" : "bg-[#f6efe6]"
                   )}
                 >
                   {v.status === "approved" ? (
@@ -309,7 +529,7 @@ export function AdminView() {
                     {v.profileContact} • {formatSom(v.fee, lang)} • {timeAgo(v.createdAt, lang)}
                   </p>
                   {v.status === "pending" && (
-                    <p className="text-[10px] text-[#1d7ed8] font-bold mt-0.5">{t("admin.docsNote")}</p>
+                    <p className="text-[10px] text-[#b45f14] font-bold mt-0.5">{t("admin.docsNote")}</p>
                   )}
                 </div>
                 {v.status === "pending" ? (
@@ -318,7 +538,7 @@ export function AdminView() {
                       size="sm"
                       onClick={() => handleVerifyDecision(v, "approve")}
                       disabled={verifyingId === v.id}
-                      className="h-9 bg-[#1d7ed8] hover:bg-[#1769b8] text-white font-extrabold text-xs rounded-lg px-2.5"
+                      className="h-9 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold text-xs rounded-lg px-2.5"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       {t("admin.approve")}
@@ -416,7 +636,7 @@ export function AdminView() {
                   className={cn(
                     "text-[10px] font-bold px-2 py-1 rounded-full hidden sm:inline",
                     p.verifyStatus === "verified"
-                      ? "bg-[#e8f2fc] text-[#1d7ed8]"
+                      ? "bg-[#fff3df] text-[#b45f14]"
                       : p.verifyStatus === "pending"
                         ? "bg-[#fff4d6] text-[#a86a00]"
                         : "bg-[#f6efe6] text-[#94836f]"

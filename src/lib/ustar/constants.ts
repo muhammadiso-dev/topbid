@@ -14,31 +14,6 @@ export type Pool = "education" | "it";
 export type EducationSubType = "center" | "individual";
 
 
-/* ==================== OCHILISH AKSIYASI ==================== */
-
-/** Platforma ishga tushgan sana (Toshkent vaqti bilan) */
-export const LAUNCH_DATE = new Date("2026-08-23T00:00:00+05:00");
-/** Aksiya davomiyligi — kunlarda */
-export const PROMO_DAYS = 14;
-/** Chegirma miqdori (50%) */
-export const PROMO_MULTIPLIER = 0.5;
-
-export interface PromoInfo {
-  active: boolean;
-  endsAt: string; // ISO
-  msLeft: number;
-}
-
-/** Aksiya holatini hisoblash — 2 hafta davomida barcha narxlarga 50% */
-export function promoInfo(now: Date = new Date()): PromoInfo {
-  const endsAtMs = LAUNCH_DATE.getTime() + PROMO_DAYS * 86_400_000;
-  const msLeft = endsAtMs - now.getTime();
-  return {
-    active: msLeft > 0,
-    endsAt: new Date(endsAtMs).toISOString(),
-    msLeft: Math.max(0, msLeft),
-  };
-}
 
 /* ==================== TAB NOMLARI ==================== */
 

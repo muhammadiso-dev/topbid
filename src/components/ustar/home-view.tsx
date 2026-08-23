@@ -15,7 +15,7 @@ import {
   formatCompactSom,
   CATEGORY_GROUP_ORDER,
 } from "@/lib/ustar/constants";
-import { entryPrice, fullPriceForPosition, payableAmount } from "@/lib/ustar/pricing";
+import { entryPrice, fullPriceForPosition, payableAmount, type PromoConfig, PROMO_FALLBACK } from "@/lib/ustar/pricing";
 import type { CategoryDTO, ProfileDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 
@@ -27,18 +27,18 @@ export function HomeView() {
 
   const [data, setData] = useState<{
     profiles: ProfileDTO[];
-    promoActive: boolean;
+    promo: PromoConfig;
   } | null>(null);
   const [categories, setCategories] = useState<CategoryDTO[]>([]);
 
   useEffect(() => {
     fetch("/api/profiles")
       .then((r) => r.json())
-      .then((d: { profiles: ProfileDTO[]; promo: { active: boolean } }) => {
-        setData({ profiles: d.profiles, promoActive: d.promo.active });
+      .then((d: { profiles: ProfileDTO[]; promo: PromoConfig }) => {
+        setData({ profiles: d.profiles, promo: d.promo ?? PROMO_FALLBACK });
       })
       .catch(() => {
-        setData({ profiles: [], promoActive: false });
+        setData({ profiles: [], promo: PROMO_FALLBACK });
       });
   }, []);
 
@@ -51,7 +51,7 @@ export function HomeView() {
 
   const loading = data === null;
   const profiles = data?.profiles ?? null;
-  const promoActive = data?.promoActive ?? false;
+  const promo = data?.promo ?? PROMO_FALLBACK;
 
   const filtersActive = categoryFilter !== "all" || cityFilter !== "all";
 
@@ -69,11 +69,11 @@ export function HomeView() {
     (globalPosition: number): string => {
       if (!profiles) return "";
       return formatCompactSom(
-        payableAmount(fullPriceForPosition(profiles, globalPosition), promoActive),
+        payableAmount(fullPriceForPosition(profiles, globalPosition), promo.active, promo.percent),
         lang
       );
     },
-    [profiles, promoActive, lang]
+    [profiles, promo, lang]
   );
 
   const categoryGroups = useMemo(() => {
@@ -92,7 +92,7 @@ export function HomeView() {
   }, [categories]);
 
   const selectedCategory = categories.find((c) => c.id === categoryFilter);
-  const entryLabel = formatCompactSom(entryPrice(promoActive), lang);
+  const entryLabel = formatCompactSom(entryPrice(promo.active, promo.percent), lang);
 
   const openProfile = (id: string) => setView({ name: "profile-detail", profileId: id });
   const clearAllFilters = () => {
@@ -106,20 +106,20 @@ export function HomeView() {
       <section className="pt-6 md:pt-10 pb-6 text-center">
         <div className="inline-flex items-center gap-1.5 bg-[#fdeedd] text-[#b25e14] text-[11px] md:text-xs font-extrabold px-3 py-1 rounded-full mb-3">
           <Sparkles className="w-3.5 h-3.5" />
-          Repetitor, markaz, kurs va IT mutaxassislar — barchasi bir joyda
+          {t("home.heroBadge")}
         </div>
         <h1 className="text-[26px] leading-[1.15] md:text-[40px] md:leading-[1.1] font-extrabold tracking-tight text-[#241c14]">
-          O'zbekistonning <span className="text-[#d97b29]">reyting</span> platformasi
+          {t("home.heroTitleA")} <span className="text-[#d97b29]">{t("home.heroTitleB")}</span>{" "}
+          {t("home.heroTitleC")}
         </h1>
         <p className="mt-2.5 text-sm md:text-base text-[#6b5d4d] max-w-xl mx-auto leading-relaxed">
-          Haqiqiy sharhlar va reyting asosida tanlang. Siz ham o'z xizmatingizni reytingga
-          qo'shing.
+          {t("home.heroDesc")}
         </p>
         <Button
           onClick={() => openAddForm()}
           className="mt-4 h-11 md:h-12 px-6 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-xl text-sm md:text-base shadow-md shadow-[#d97b29]/25 active:scale-[0.98] transition-transform"
         >
-          Reytingga qo'shilish — {entryLabel}
+          {t("home.eduCta")} — {entryLabel}
           {t("home.from")}
         </Button>
       </section>
@@ -212,7 +212,7 @@ export function HomeView() {
                 globalPosition={p.position}
                 filtersActive={filtersActive}
                 priceLabel={ctaPriceLabel(p.position)}
-                promoActive={promoActive}
+                promoActive={promo.active}
                 highlighted={highlightId === p.id}
                 onOpenDetail={openProfile}
                 onTakeSpot={openAddForm}
@@ -226,7 +226,7 @@ export function HomeView() {
               </p>
               <p className="text-xs md:text-sm text-[#6b5d4d] mt-1 leading-relaxed">
                 {t("cta.desc")}
-                {promoActive && <span className="text-[#b25e14] font-bold"> {t("cta.promoNote")}</span>}
+                {promo.active && <span className="text-[#b25e14] font-bold"> {t("cta.promoNote")}</span>}
               </p>
               <Button
                 onClick={() => openAddForm()}

@@ -10,7 +10,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "TopBid — O'rganish va Yollash reytingi",
+  title: "TopBid — O'zbekiston reyting platformasi",
   description:
     "O'zbekistondagi eng yaxshi ta'lim markazlari, repetitorlar va IT mutaxassislari reytingi. O'z o'rinngizni egallang yoki mutaxassis toping.",
   keywords: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/favicon-180.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
-    title: "TopBid — O'rganish va Yollash reytingi",
+    title: "TopBid — O'zbekiston reyting platformasi",
     description:
       "O'zbekistondagi eng yaxshi ta'lim markazlari, repetitorlar va IT mutaxassislari reytingi.",
     siteName: "TopBid.uz",

@@ -409,7 +409,7 @@ export const en: Record<string, string> = {
   "footer.rankings": "Ratings",
   "footer.platform": "Platform",
   "footer.copyright": "© 2026 TopBid.uz. All rights reserved.",
-  "footer.payments": "Payments via Telegram bot",
+  "footer.payments": "Payments via Humo card",
 
   // Toasts
   "toast.paidTitle": "🎉 Payment accepted!",
@@ -491,7 +491,7 @@ export const en: Record<string, string> = {
   "pay.viaCardDesc": "Humo/Uzcard — instant, no fee",
   "pay.fast": "Fastest",
   "pay.cardDesc": "Card transfer — 3 steps, 1 minute",
-  "pay.cardStep1": "1. Copy the card number and transfer from your app (Payme/Click/bank):",
+  "pay.cardStep1": "Copy the card number and transfer from your app (Payme/Click/bank):",
   "pay.cardStep2": "Add your profile name to the payment note:",
   "pay.cardStep3": "Confirm the transfer — the spot is credited instantly.",
   "pay.copyCard": "Copy",
@@ -515,4 +515,10 @@ export const en: Record<string, string> = {
   "topup.currentRank": "Current rank",
   "verify.title": "«Verified» gold badge",
   "verify.benefit1": "The gold «Verified» badge is permanently shown on your profile",
+  "home.heroBadge": "Tutors, centers, courses and IT specialists — all in one place",
+  "home.heroTitleA": "Uzbekistan's",
+  "home.heroTitleB": "rating",
+  "home.heroTitleC": "platform",
+  "home.heroDesc": "Choose based on real reviews and rating. Add your own service to the rating too.",
+  "promo.bannerTitle": "Promo — {p}% off all prices",
 };

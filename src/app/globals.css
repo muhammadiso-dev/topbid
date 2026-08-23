@@ -1,0 +1,151 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-manrope);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.875rem;
+  /* Ustar dizayn tizimi — sindr.uz uslubidagi iliq palitra */
+  --background: #fffdfa; /* kremsimon, deyarli oq fon */
+  --foreground: #241c14; /* iliq qora */
+  --card: #ffffff;
+  --card-foreground: #241c14;
+  --popover: #ffffff;
+  --popover-foreground: #241c14;
+  --primary: #d97b29; /* apelsin aksent */
+  --primary-foreground: #ffffff;
+  --secondary: #f6efe6; /* iliq bej */
+  --secondary-foreground: #574634;
+  --muted: #f6efe6;
+  --muted-foreground: #94836f; /* iliq kulrang */
+  --accent: #fdeedd; /* och apelsin fon */
+  --accent-foreground: #b25e14;
+  --destructive: #dc2626;
+  --border: #efe6da; /* iliq chiziq */
+  --input: #e8ddd0;
+  --ring: #d97b29;
+  --chart-1: #d97b29;
+  --chart-2: #e9a05c;
+  --chart-3: #c9b8a3;
+  --chart-4: #8a7361;
+  --chart-5: #f3e3d3;
+  --sidebar: #fffdfa;
+  --sidebar-foreground: #241c14;
+  --sidebar-primary: #d97b29;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fdeedd;
+  --sidebar-accent-foreground: #b25e14;
+  --sidebar-border: #efe6da;
+  --sidebar-ring: #d97b29;
+}
+
+.dark {
+  --background: #17120d;
+  --foreground: #f5efe7;
+  --card: #211a13;
+  --card-foreground: #f5efe7;
+  --popover: #211a13;
+  --popover-foreground: #f5efe7;
+  --primary: #e08b3a;
+  --primary-foreground: #ffffff;
+  --secondary: #2b2219;
+  --secondary-foreground: #e8ddd0;
+  --muted: #2b2219;
+  --muted-foreground: #a89682;
+  --accent: #3a2a18;
+  --accent-foreground: #f0b078;
+  --destructive: #ef4444;
+  --border: #33291e;
+  --input: #33291e;
+  --ring: #e08b3a;
+  --sidebar: #17120d;
+  --sidebar-foreground: #f5efe7;
+  --sidebar-primary: #e08b3a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #3a2a18;
+  --sidebar-accent-foreground: #f0b078;
+  --sidebar-border: #33291e;
+  --sidebar-ring: #e08b3a;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Ingichka, zamonaviy scrollbar */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #e0d3c2 transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #e0d3c2;
+    border-radius: 999px;
+  }
+  /* TOP-1 kartochka uchun apelsin gradient ramka */
+  .top-glow {
+    box-shadow:
+      0 0 0 2px #d97b29,
+      0 8px 28px -8px rgba(217, 123, 41, 0.35);
+  }
+  .top-soft {
+    box-shadow:
+      0 0 0 1.5px #e9b98a,
+      0 4px 16px -6px rgba(217, 123, 41, 0.2);
+  }
+}

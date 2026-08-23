@@ -122,7 +122,7 @@ export function AddProfileView() {
         return;
       }
       fetch(`/api/profiles/check?contact=${encodeURIComponent(u)}`)
-        .then((r) => r.json())
+        .then((r) => r.ok ? r.json() : { exists: false })
         .then((d: { exists: boolean; profile?: { id: string; name: string; totalBid: number } }) => {
           setExistingProfile(d.exists && d.profile ? d.profile : null);
           if (!d.exists) {

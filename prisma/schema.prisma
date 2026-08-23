@@ -114,3 +114,20 @@ model ProfileView {
 
   @@index([profileId, type, createdAt])
 }
+
+// StarKerak (HumoCardBot) dan kelgan to'lov xabarlari jurnali
+model PaymentLog {
+  id             String    @id @default(cuid())
+  externalId     String? // StarKerak payment id
+  amount         Int // so'mda
+  cardLast4      String    @default("")
+  rawMessage     String    @default("")
+  matched        Boolean   @default(false)
+  matchedProfileId String?
+  matchedBidId   String?
+  processedAt    DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([matched])
+}

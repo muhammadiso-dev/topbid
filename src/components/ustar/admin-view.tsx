@@ -13,6 +13,7 @@ import {
   XCircle,
   Wallet,
   Heart,
+  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,11 +28,20 @@ import { ADMIN_CARD } from "@/lib/ustar/payment-config";
 import type { AdminLogDTO, ProfileDTO, VerificationRequestDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 
+interface PaymentLogDTO {
+  id: string;
+  amount: number;
+  cardLast4: string;
+  matched: boolean;
+  createdAt: string;
+}
+
 interface AdminData {
   logs: AdminLogDTO[];
   profiles: ProfileDTO[];
   verifications: VerificationRequestDTO[];
   revenue: { bids: number; verification: number; total: number; charity: number };
+  paymentLogs?: PaymentLogDTO[];
 }
 
 /** Admin panel: bildirishnomalar + profil boshqaruvi + verifikatsiya */

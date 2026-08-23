@@ -34,6 +34,7 @@ import {
   formatSom,
   isValidContactUrl,
   promoInfo,
+  CATEGORY_GROUP_ORDER,
 } from "@/lib/ustar/constants";
 import { fullPriceForPosition, payableAmount, PRICE } from "@/lib/ustar/pricing";
 import type { CategoryDTO, CreateProfileResult, ProfileDTO } from "@/lib/ustar/types";
@@ -198,7 +199,11 @@ export function AddProfileView() {
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(c);
     }
-    return Array.from(groups.entries());
+    const orderMap = new Map(CATEGORY_GROUP_ORDER.map((g, i) => [g, i]));
+    return Array.from(groups.entries()).sort(
+      (a, b) =>
+        (orderMap.get(a[0]) ?? 99) - (orderMap.get(b[0]) ?? 99) || a[0].localeCompare(b[0])
+    );
   }, [categories]);
 
   // Logo yuklash

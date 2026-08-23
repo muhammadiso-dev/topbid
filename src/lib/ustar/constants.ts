@@ -66,8 +66,21 @@ export interface CategoryGroupDef {
 }
 
 /** Kategoriya daraxti — guruhlar bilan */
+// Guruhlar tartibi: ASOSIY (til, sertifikat) birinchi → maktab → IT → qo'shimcha kurslar → bolalar (eng pastda)
+export const CATEGORY_GROUP_ORDER = [
+  "Chet tillari",
+  "Test tayyorlov",
+  "Maktab fanlari",
+  "Dasturlash",
+  "Dizayn",
+  "Marketing",
+  "Boshqa",
+  "IT kurslar",
+  "Bolalar rivojlantirish",
+];
+
 export const CATEGORY_GROUPS: CategoryGroupDef[] = [
-  // ===== O'RGANISH (Ta'lim) =====
+  // ===== 1. ASOSIY: Chet tillari =====
   {
     pool: "education",
     group: "Chet tillari",
@@ -83,6 +96,17 @@ export const CATEGORY_GROUPS: CategoryGroupDef[] = [
       "Nemis/Fransuz tili",
     ],
   },
+  // ===== 2. ASOSIY: Sertifikat/test tayyorlov =====
+  {
+    pool: "education",
+    group: "Test tayyorlov",
+    items: [
+      "Milliy sertifikat / DTM",
+      "IELTS/TOEFL intensiv",
+      "Chet el universitetlariga tayyorlov",
+    ],
+  },
+  // ===== 3. Maktab fanlari =====
   {
     pool: "education",
     group: "Maktab fanlari",
@@ -96,31 +120,7 @@ export const CATEGORY_GROUPS: CategoryGroupDef[] = [
       "Iqtisodiyot/Huquq",
     ],
   },
-  {
-    pool: "education",
-    group: "Test tayyorlov",
-    items: [
-      "Milliy sertifikat / DTM",
-      "IELTS/TOEFL intensiv",
-      "Chet el universitetlariga tayyorlov",
-    ],
-  },
-  {
-    pool: "education",
-    group: "IT kurslar",
-    items: [
-      "Python/dasturlash kursi",
-      "Frontend kursi",
-      "Dizayn kursi",
-      "SMM/marketing kursi",
-    ],
-  },
-  {
-    pool: "education",
-    group: "Bolalar rivojlantirish",
-    items: ["Robototexnika", "Shaxmat", "Rasm/San'at", "Musiqa"],
-  },
-  // ===== YOLLASH (IT mutaxassislar) =====
+  // ===== 4-7. IT mutaxassislar =====
   {
     pool: "it",
     group: "Dasturlash",
@@ -146,6 +146,23 @@ export const CATEGORY_GROUPS: CategoryGroupDef[] = [
       "Kiberxavfsizlik",
       "Copywriting/Kontent",
     ],
+  },
+  // ===== 8. Qo'shimcha: IT kurslar =====
+  {
+    pool: "education",
+    group: "IT kurslar",
+    items: [
+      "Python/dasturlash kursi",
+      "Frontend kursi",
+      "Dizayn kursi",
+      "SMM/marketing kursi",
+    ],
+  },
+  // ===== 9. Eng pastda: Bolalar rivojlantirish =====
+  {
+    pool: "education",
+    group: "Bolalar rivojlantirish",
+    items: ["Robototexnika", "Shaxmat", "Rasm/San'at", "Musiqa"],
   },
 ];
 

@@ -13,6 +13,7 @@ import { useI18n } from "@/lib/ustar/i18n";
 import {
   CITIES,
   formatCompactSom,
+  CATEGORY_GROUP_ORDER,
 } from "@/lib/ustar/constants";
 import { entryPrice, fullPriceForPosition, payableAmount } from "@/lib/ustar/pricing";
 import type { CategoryDTO, ProfileDTO } from "@/lib/ustar/types";
@@ -82,7 +83,12 @@ export function HomeView() {
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(c);
     }
-    return Array.from(groups.entries());
+    // Guruhlar tartibi: ASOSIY (til/sertifikat) → maktab → IT → kurslar → bolalar
+    const orderMap = new Map(CATEGORY_GROUP_ORDER.map((g, i) => [g, i]));
+    return Array.from(groups.entries()).sort(
+      (a, b) =>
+        (orderMap.get(a[0]) ?? 99) - (orderMap.get(b[0]) ?? 99) || a[0].localeCompare(b[0])
+    );
   }, [categories]);
 
   const selectedCategory = categories.find((c) => c.id === categoryFilter);

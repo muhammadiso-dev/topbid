@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   if (password !== expected) {
     return NextResponse.json({ error: "Admin paroli noto'g'ri" }, { status: 401 });
   }
-  const [logs, profiles, verifications, revenue] = await Promise.all([
+  const [logs, profiles, verifications, revenue, paymentLogs] = await Promise.all([
     db.adminLog.findMany({ orderBy: { createdAt: "desc" }, take: 100 }),
     getRankedProfiles(),
     db.verificationRequest.findMany({
@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
       include: { profile: { select: { name: true, contactUrl: true, pool: true } } },
     }),
     computeRevenue(),
+    db.paymentLog.findMany({ orderBy: { createdAt: "desc" }, take: 50 }),
   ]);
   const logsDto: AdminLogDTO[] = logs.map((l) => ({
     id: l.id,
@@ -43,5 +44,12 @@ export async function GET(req: NextRequest) {
     createdAt: v.createdAt.toISOString(),
     reviewedAt: v.reviewedAt?.toISOString() ?? null,
   }));
-  return NextResponse.json({ logs: logsDto, profiles, verifications: verDto, revenue });
+  const payDto = paymentLogs.map((p) => ({
+    id: p.id,
+    amount: p.amount,
+    cardLast4: p.cardLast4,
+    matched: p.matched,
+    createdAt: p.createdAt.toISOString(),
+  }));
+  return NextResponse.json({ logs: logsDto, profiles, verifications: verDto, revenue, paymentLogs: payDto });
 }

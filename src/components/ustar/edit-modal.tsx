@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/ustar/i18n";
-import { CITIES } from "@/lib/ustar/constants";
+import { CITIES, CATEGORY_GROUP_ORDER } from "@/lib/ustar/constants";
 import type { CategoryDTO, ProfileDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 
@@ -81,7 +81,11 @@ export function EditModal({ open, onOpenChange, profile, editToken, onSaved }: E
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(c);
     }
-    return Array.from(map.entries());
+    const orderMap = new Map(CATEGORY_GROUP_ORDER.map((g, i) => [g, i]));
+    return Array.from(map.entries()).sort(
+      (a, b) =>
+        (orderMap.get(a[0]) ?? 99) - (orderMap.get(b[0]) ?? 99) || a[0].localeCompare(b[0])
+    );
   })();
 
   return (

@@ -96,11 +96,15 @@ export function AddProfileView() {
       .catch(() => setRanked([]));
   }, []);
 
-  // Intent pozitsiya
+  // Intent pozitsiya + skroll
   useEffect(() => {
     if (ranked && addIntentPosition && addIntentPosition <= ranked.length + 1) {
       setTargetPosition(addIntentPosition);
       setAddIntentPosition(null);
+      // O'rin tanlash bo'limiga scroll
+      setTimeout(() => {
+        document.getElementById("step-3")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 150);
     }
   }, [ranked, addIntentPosition, setAddIntentPosition]);
 
@@ -586,7 +590,7 @@ export function AddProfileView() {
         </section>
 
         {/* ====== 3-QADAM: O'RIN ====== */}
-        <section className="bg-white border border-border rounded-2xl p-4 md:p-5">
+        <section id="step-3" className="bg-white border border-border rounded-2xl p-4 md:p-5 scroll-mt-20">
           <div className="flex items-start gap-3 mb-4">
             <span className="w-7 h-7 rounded-lg bg-[#fdeedd] text-[#b25e14] font-extrabold text-sm flex items-center justify-center shrink-0">
               3

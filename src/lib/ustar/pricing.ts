@@ -15,6 +15,9 @@ export const PRICE = {
   takeoverStep: 10_000,
 };
 
+/** Verifikatsiya ("Tekshirilgan" belgisi) — bir martalik; to'lovining 50% ehsona ketadi */
+export const VERIFICATION_FEE = 50_000;
+
 /**
  * Maqsadli o'rin uchun TO'LIQ narx (reytingga yoziladigan summa).
  * - O'rin bo'sh: min (30 000)

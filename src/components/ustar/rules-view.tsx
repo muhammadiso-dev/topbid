@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Check, X, ScrollText, Heart } from "lucide-react";
+import { ArrowLeft, Check, X, ScrollText, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUstarStore } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
@@ -178,12 +178,33 @@ export function RulesView() {
       </section>
 
       {/* Xayriya fondi */}
-      <section className="mt-4 bg-gradient-to-r from-[#fff5f0] to-[#fffaf7] border border-[#ffd9c9] rounded-2xl p-5 md:p-6">
+      <section className="mt-4 bg-gradient-to-br from-[#fff5f0] to-[#fffaf7] border border-[#ffd9c9] rounded-2xl p-5 md:p-6">
         <h2 className="font-extrabold text-[#b4522d] flex items-center gap-2">
           <Heart className="w-5 h-5 text-[#d94f29] fill-[#d94f29]" />
           {t("charity.section")}
         </h2>
-        <p className="mt-2.5 text-[13px] md:text-sm text-[#574634] leading-relaxed">{t("charity.desc")}</p>
+        <ul className="mt-3 space-y-2 text-[13px] md:text-sm text-[#574634] leading-relaxed">
+          <li className="flex gap-2.5">
+            <span className="text-[#d94f29] font-extrabold">•</span>
+            O'rin to'lovlarining <b>10%</b> va verifikatsiya to'lovlarining <b>50%</b> xayriya fondiga yo'naltiriladi.
+          </li>
+          <li className="flex gap-2.5">
+            <span className="text-[#d94f29] font-extrabold">•</span>
+            Har oyning boshida o'tgan oyda yig'ilgan mablag'lar <b>{CHARITY_FUND.name}</b> jamg'armasining rasmiy hisob raqamiga o'tkaziladi.
+          </li>
+          <li className="flex gap-2.5">
+            <span className="text-[#d94f29] font-extrabold">•</span>
+            Har bir o'tkazmaning kvitansiyasi Telegram kanalimizda oshkor e'lon qilinadi — to'liq shaffoflik.
+          </li>
+        </ul>
+        <a
+          href={CHARITY_FUND.website}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3.5 inline-flex items-center gap-2 text-[13px] font-extrabold text-[#b4522d] hover:underline"
+        >
+          {CHARITY_FUND.site} <ExternalLink className="w-3.5 h-3.5" />
+        </a>
       </section>
 
       {/* Admin huquqi */}

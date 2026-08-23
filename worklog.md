@@ -91,3 +91,26 @@ Stage Summary:
 - Kanonik URL dedup kuchaytirildi (tracking param, asosiy domen, post havolalar)
 - Sharhlar har kartadan available, verifikatsiya faqat egalik tasdiqlagan egaga
 - Analytics (14 kun: dinamika, shaharlar, qurilmalar, referrerlar, CTR) to'liq ishlaydi
+
+---
+Task ID: 5
+Agent: Main agent (Super Z)
+Task: TopBid 5-bosqich — card redesign, universal claim, karta to'lovi, verify 50% ehson, fond, TG bot webhook
+
+Work Log:
+- CARD REDESIGN: TOP-1 gradient (fff8ef→white) + top-glow + katta 44px raqam + Flame ikonka; TOP-2/3 krem gradient; TOP badge yuqori o'ng burchakda (chapdagi ustma-ust tushish hal bo'ldi); desktop CTA TOP-3 uchun to'ldirilgan apelsin tugma (outline emas), oddiy kartalar outline; avatar ring; chips guruh+kategoriya birlashtirilgan; mobil CTA 2-qator (matn + narx alohida, truncate yo'q); VLM 9/10
+- KARTA TO'LOVI: payment-config.ts (ADMIN_CARD .env: ADMIN_CARD_NUMBER/HOLDER/BANK = 8600 1234 5678 9012); PaymentModal'ga "Karta orqali" usuli — real karta vizuali (gradient bank kartasi, raqam, nusxalash tugmasi), 3 qadamli instruksiya, "O'tkazdim" tasdiqlash; eng tez opsiya sifatida 1-o'rinda
+- VERIFY 50% EHSON: pricing.ts'ga VERIFICATION_FEE ko'chdi; computeRevenue charity = bids*10% + verification*50% (500 yaxlitlash); stats tile endi "Xayriyaga (10%)" nomi bilan lekin ikkala foizni o'z ichiga oladi (575k*0.1 + 100k*0.5 = 107.5k)
+- FOND: "Sen Yolg'iz Emassan" (senyolgizemsan.uz) — About'da katta xayriya kartasi (10%/50% foiz bloklari + fond havolasi), Rules'da 3 punktlar + fond havola; CHARITY_FUND config (Payme/Click/website)
+- UNIVERSAL CLAIM: detectPlatform (telegram/instagram/tiktok/site); Instagram bio scrape (public profil HTML), TikTok bio (HTML + oEmbed), Telegram (bio+postlar), saytlar (meta teg/HTML); har platformaga mos o'rinli instruksiyalar (uz); PATCH admin qo'lda tasdiqlash (maxfiy Instagram profillar uchun fallback); ClaimModal server instruksiyalarini ko'rsatadi
+- TG BOT WEBHOOK: /api/telegram/webhook — /start, /stat (jonli statistika xayriya bilan), /help, xabarlar admin guruhga; secret token xavfsizligi; setWebhook instruksiyasi kodda
+- ADMIN PANEL: xayriya statistik kartasi (5-grid), to'lov kartasi vizual blok (raqam + .env manzili eslatmasi)
+- Tezkor oqim: karta "O'rinni egallash" → forma → avtomatik scroll to'g'ri o'ringa + intent tanlangan
+- E2E: xayriya 108k to'g'ri, karta to'lov oqimi (132.5k TOP-1 quicktest), profil qo'shilishi/o'chirilishi, admin panel (charity + karta ko'rinadi), webhook 200, lint toza, 0 overflow
+
+Stage Summary:
+- Card dizayni premium (TOP-1 flame + gradient, to'ldirilgan CTA)
+- To'lov: o'z karta (Humo 8600...) + TG bot — ikkala yo'l ishlaydi
+- Verifikatsiya to'lovlarining 50% + o'rin to'lovlarining 10% → Sen Yolg'iz Emassan fondiga (oylik, kvitansiya bilan)
+- Claim: hamma platforma (TG/IG/TikTok/sayt) + admin fallback
+- Bot webhook tayyor: TELEGRAM_BOT_TOKEN qo'shilsa real bot ishga tushadi

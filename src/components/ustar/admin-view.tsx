@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   XCircle,
   Wallet,
+  Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ import { ProfileAvatar } from "./profile-avatar";
 import { useUstarStore } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
 import { formatCompactSom, formatSom, timeAgo } from "@/lib/ustar/constants";
+import { ADMIN_CARD } from "@/lib/ustar/payment-config";
 import type { AdminLogDTO, ProfileDTO, VerificationRequestDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +31,7 @@ interface AdminData {
   logs: AdminLogDTO[];
   profiles: ProfileDTO[];
   verifications: VerificationRequestDTO[];
-  revenue: { bids: number; verification: number; total: number };
+  revenue: { bids: number; verification: number; total: number; charity: number };
 }
 
 /** Admin panel: bildirishnomalar + profil boshqaruvi + verifikatsiya */
@@ -219,7 +221,7 @@ export function AdminView() {
       </div>
 
       {/* Umumiy statistika */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-6">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-6">
         <MiniStat label={t("admin.statProfiles")} value={`${data?.profiles.length ?? 0}`} />
         <MiniStat
           label={t("admin.statRevenue")}
@@ -228,6 +230,17 @@ export function AdminView() {
         />
         <MiniStat label={t("admin.statBids")} value={data ? formatCompactSom(data.revenue.bids, lang) : "—"} />
         <MiniStat label={t("admin.statVerify")} value={data ? formatCompactSom(data.revenue.verification, lang) : "—"} />
+        <MiniStat label={t("stats.charity")} value={data ? formatCompactSom(data.revenue.charity, lang) : "—"} icon={<Heart className="w-3 h-3" />} />
+      </div>
+
+      {/* To'lov kartasi — admin ko'rinishi */}
+      <div className="mt-3 bg-gradient-to-br from-[#241c14] via-[#3a2e22] to-[#241c14] rounded-2xl p-4 flex items-center justify-between gap-3 text-white">
+        <div className="min-w-0">
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#e9a05c]">To'lov kartasi</p>
+          <p className="font-mono text-base md:text-lg font-extrabold tracking-[0.1em] tabular-nums mt-1">{ADMIN_CARD.number}</p>
+          <p className="text-[11px] text-white/70 font-bold mt-0.5">{ADMIN_CARD.holder} · {ADMIN_CARD.bank}</p>
+        </div>
+        <span className="text-[10px] font-bold text-[#e9a05c] bg-white/10 px-2.5 py-1 rounded-full shrink-0">.env: ADMIN_CARD_NUMBER</span>
       </div>
 
       {/* VERIFIKATSIYA */}

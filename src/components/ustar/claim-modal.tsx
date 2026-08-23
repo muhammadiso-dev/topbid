@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Loader2, Copy, CheckCircle2, Send, Globe } from "lucide-react";
+import { ShieldCheck, Loader2, Copy, CheckCircle2 } from "lucide-react";
 import { useI18n } from "@/lib/ustar/i18n";
 import { saveEditToken } from "@/lib/ustar/store";
 import type { ProfileDTO } from "@/lib/ustar/types";
@@ -19,7 +19,7 @@ interface ClaimModalProps {
 interface ClaimResponse {
   ok: boolean;
   code?: string;
-  method?: "telegram" | "site";
+  method?: string;
   instructions?: string;
   editToken?: string;
   error?: string;
@@ -32,7 +32,8 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
 
   const [phase, setPhase] = useState<"intro" | "code" | "checking" | "done">("intro");
   const [code, setCode] = useState("");
-  const [method, setMethod] = useState<"telegram" | "site">("telegram");
+  const [method, setMethod] = useState<string>("telegram");
+  const [instructions, setInstructions] = useState<string>("");
   const [copied, setCopied] = useState(false);
 
   const start = async () => {
@@ -42,6 +43,7 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
       if (!res.ok || !data.ok) throw new Error(data.error || "Xatolik");
       setCode(data.code || "");
       setMethod(data.method || "telegram");
+      setInstructions(data.instructions || "");
       setPhase("code");
     } catch (e) {
       toast({
@@ -107,17 +109,11 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
 
         {phase === "intro" && (
           <div className="p-5 space-y-4">
-            <div className="bg-[#f0f9ff] border border-[#cbe9f8] rounded-xl p-4 space-y-2.5">
-              <div className="flex items-start gap-2.5">
-                <Send className="w-4 h-4 text-[#229ed9] shrink-0 mt-0.5" />
-                <p className="text-[13px] text-[#1a6da8] font-semibold leading-snug">
-                  Telegram: {t("claim.telegramHint")} <b>{profile.contactUrl}</b>
-                </p>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Globe className="w-4 h-4 text-[#229ed9] shrink-0 mt-0.5" />
-                <p className="text-[13px] text-[#1a6da8] font-semibold leading-snug">{t("claim.siteHint")}</p>
-              </div>
+            <div className="bg-[#f0f9ff] border border-[#cbe9f8] rounded-xl p-4">
+              <p className="text-[13px] text-[#1a6da8] font-semibold leading-relaxed">
+                Telegram, Instagram, TikTok yoki sayt — profil turi avtomatik aniqlanadi va sizga
+                mos ko'rsatma beriladi. Kod 48 soat amal qiladi.
+              </p>
             </div>
             <Button
               onClick={start}
@@ -130,10 +126,8 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
 
         {phase === "code" && (
           <div className="p-5 space-y-4">
-            <p className="text-[13px] text-[#6b5d4d] font-medium leading-relaxed whitespace-pre-line">
-              {method === "telegram"
-                ? `${t("claim.telegramHint")} ${profile.contactUrl.replace("@", "")}:`
-                : t("claim.siteHint")}
+            <p className="text-[13px] text-[#574634] font-semibold leading-relaxed whitespace-pre-line bg-[#fffdfa] border border-[#f0e6da] rounded-xl p-3.5">
+              {instructions}
             </p>
             <div className="bg-[#241c14] rounded-xl p-4 flex items-center justify-between gap-3">
               <code className="text-2xl font-extrabold text-[#e9a05c] tracking-widest">{code}</code>
@@ -145,11 +139,16 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
                 {copied ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
-            <p className="text-[11px] text-[#94836f] font-medium">
-              {method === "telegram"
-                ? `${t("claim.telegramHint")} @${profile.contactUrl.replace("@", "")}`
-                : `<meta name="topbid" content="${code}">`}
-            </p>
+            {method === "site" && (
+              <p className="text-[11px] text-[#94836f] font-mono bg-[#f6efe6] rounded-lg px-3 py-2 overflow-x-auto">
+                {`<meta name="topbid" content="${code}">`}
+              </p>
+            )}
+            {method === "instagram" && (
+              <p className="text-[11px] text-[#94836f] font-medium">
+                Shaxsiy profil bo'lsa: bio'ga kod qo'yib, @TopBidSupport'ga yozing.
+              </p>
+            )}
             <Button
               onClick={check}
               className="w-full h-12 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-xl text-sm"

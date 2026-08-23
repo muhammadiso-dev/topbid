@@ -14,9 +14,6 @@ export type Pool = "education" | "it";
 export type EducationSubType = "center" | "individual";
 
 
-/** Verifikatsiya ("Tekshirilgan" belgisi) to'lovi — bir martalik */
-export const VERIFICATION_FEE = 50_000;
-
 /* ==================== OCHILISH AKSIYASI ==================== */
 
 /** Platforma ishga tushgan sana (Toshkent vaqti bilan) */

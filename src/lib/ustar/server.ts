@@ -48,10 +48,16 @@ export function serializeProfile(p: ProfileWithRelations, position: number): Pro
  * Jami haqiqiy daromad: to'langan bidlar + tasdiqlangan verifikatsiya to'lovlari.
  * (Aksiya davrida bidlar real to'langan summada yoziladi)
  */
+/**
+ * Jami haqiqiy daromad + xayriya hisobi:
+ * - Bidlar (o'rin to'lovlari) → 10% xayriyaga
+ * - Verifikatsiya to'lovlari → 50% xayriyaga
+ */
 export async function computeRevenue(): Promise<{
   bids: number;
   verification: number;
   total: number;
+  charity: number;
 }> {
   const [bidAgg, verAgg] = await Promise.all([
     db.bid.aggregate({ where: { status: "paid" }, _sum: { amount: true } }),
@@ -62,5 +68,7 @@ export async function computeRevenue(): Promise<{
   ]);
   const bids = bidAgg._sum.amount ?? 0;
   const verification = verAgg._sum.fee ?? 0;
-  return { bids, verification, total: bids + verification };
+  // Xayriya: bidlarning 10% + verifikatsiyaning 50% (500 ga yaxlitlash)
+  const charity = Math.floor((bids * 0.1 + verification * 0.5) / 500) * 500;
+  return { bids, verification, total: bids + verification, charity };
 }

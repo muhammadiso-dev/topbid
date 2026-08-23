@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { notifyAdmin } from "@/lib/ustar/telegram";
-import { payableAmount, promoInfo } from "@/lib/ustar/pricing";
-import { VERIFICATION_FEE, formatSom } from "@/lib/ustar/constants";
+import { formatSom } from "@/lib/ustar/constants";
+import { VERIFICATION_FEE, payableAmount } from "@/lib/ustar/pricing";
 
 export const dynamic = "force-dynamic";
 

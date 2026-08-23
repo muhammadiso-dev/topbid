@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowLeft, Trophy, Wallet, Bot, ShieldCheck, Star, TrendingUp, Users, Heart } from "lucide-react";
+import { ArrowLeft, Trophy, Wallet, Bot, ShieldCheck, Star, TrendingUp, Users, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUstarStore } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
 import { formatCompactSom, formatSom } from "@/lib/ustar/constants";
 import { PRICE } from "@/lib/ustar/pricing";
+import { CHARITY_FUND } from "@/lib/ustar/payment-config";
 
 /** "Haqida" sahifasi */
 export function AboutView() {
@@ -44,16 +45,38 @@ export function AboutView() {
       </section>
 
       {/* Xayriya fondi */}
-      <section className="mt-8 bg-gradient-to-r from-[#fff5f0] to-[#fffaf7] border border-[#ffd9c9] rounded-2xl p-5 md:p-6">
+      <section className="mt-8 bg-gradient-to-br from-[#fff5f0] to-[#fffaf7] border border-[#ffd9c9] rounded-2xl p-5 md:p-6">
         <div className="flex items-start gap-3">
-          <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
-            <Heart className="w-5 h-5 text-[#d94f29] fill-[#d94f29]" />
+          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+            <Heart className="w-6 h-6 text-[#d94f29] fill-[#d94f29]" />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h3 className="font-extrabold text-lg text-[#b4522d]">{t("charity.section")}</h3>
             <p className="text-[13px] md:text-sm text-[#574634] leading-relaxed mt-1.5">{t("charity.desc")}</p>
           </div>
         </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="bg-white/80 border border-[#ffd9c9] rounded-xl px-3.5 py-2.5">
+            <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#b4522d]">O'rin to'lovlari</p>
+            <p className="text-lg font-extrabold text-[#d94f29] tabular-nums mt-0.5">10%</p>
+          </div>
+          <div className="bg-white/80 border border-[#ffd9c9] rounded-xl px-3.5 py-2.5">
+            <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#b4522d]">Verifikatsiya</p>
+            <p className="text-lg font-extrabold text-[#d94f29] tabular-nums mt-0.5">50%</p>
+          </div>
+        </div>
+        <a
+          href={CHARITY_FUND.website}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 flex items-center justify-between gap-3 bg-white border border-[#ffd9c9] rounded-xl px-4 py-3 hover:bg-[#fff5f0] transition-colors"
+        >
+          <div>
+            <p className="text-[13px] font-extrabold text-[#b4522d]">{t("charity.fundName")}</p>
+            <p className="text-[11px] text-[#94836f] font-semibold">{CHARITY_FUND.site} · {t("charity.donate")}</p>
+          </div>
+          <ExternalLink className="w-4 h-4 text-[#d94f29] shrink-0" />
+        </a>
       </section>
 
       {/* Narxlar */}

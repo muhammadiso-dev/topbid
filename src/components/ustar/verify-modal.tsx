@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { formatSom, VERIFICATION_FEE } from "@/lib/ustar/constants";
+import { formatSom } from "@/lib/ustar/constants";
+import { VERIFICATION_FEE } from "@/lib/ustar/pricing";
 import { payableAmount } from "@/lib/ustar/pricing";
 import { CheckCircle2, Loader2, Send, ShieldCheck, PartyPopper, BadgeCheck, TrendingUp, Star } from "lucide-react";
 import { useI18n } from "@/lib/ustar/i18n";

@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     .filter((p) => p.status === "pending")
     .map((p) => serializeProfile(p, 0));
 
-  const [logs, verifications, revenue, paymentLogs] = await Promise.all([
+  const [logs, verifications, revenue, paymentLogs, awaitingBids, awaitingVerify] = await Promise.all([
     db.adminLog.findMany({ orderBy: { createdAt: "desc" }, take: 100 }),
     db.verificationRequest.findMany({
       orderBy: { createdAt: "desc" },
@@ -38,6 +38,18 @@ export async function GET(req: NextRequest) {
     }),
     computeRevenue(),
     db.paymentLog.findMany({ orderBy: { createdAt: "desc" }, take: 50 }),
+    db.bid.findMany({
+      where: { status: "awaiting" },
+      include: { profile: { select: { id: true, name: true, contactUrl: true, city: true, status: true } } },
+      orderBy: { createdAt: "asc" },
+      take: 50,
+    }),
+    db.verificationRequest.findMany({
+      where: { status: "awaiting" },
+      include: { profile: { select: { id: true, name: true, contactUrl: true } } },
+      orderBy: { createdAt: "asc" },
+      take: 50,
+    }),
   ]);
   const logsDto: AdminLogDTO[] = logs.map((l) => ({
     id: l.id,
@@ -64,5 +76,24 @@ export async function GET(req: NextRequest) {
     matched: p.matched,
     createdAt: p.createdAt.toISOString(),
   }));
-  return NextResponse.json({ logs: logsDto, profiles, pendingProfiles, verifications: verDto, revenue, paymentLogs: payDto });
+  const awaitingBidsDto = awaitingBids.map((b) => ({
+    id: b.id,
+    amount: b.amount,
+    credit: b.credit,
+    createdAt: b.createdAt.toISOString(),
+    profileId: b.profileId,
+    profileName: b.profile.name,
+    profileContact: b.profile.contactUrl,
+    profileCity: b.profile.city,
+    profileStatus: b.profile.status,
+  }));
+  const awaitingVerifyDto = awaitingVerify.map((v) => ({
+    id: v.id,
+    fee: v.fee,
+    createdAt: v.createdAt.toISOString(),
+    profileId: v.profileId,
+    profileName: v.profile.name,
+    profileContact: v.profile.contactUrl,
+  }));
+  return NextResponse.json({ logs: logsDto, profiles, pendingProfiles, verifications: verDto, revenue, paymentLogs: payDto, awaitingBids: awaitingBidsDto, awaitingVerifications: awaitingVerifyDto });
 }

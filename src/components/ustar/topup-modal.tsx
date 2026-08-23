@@ -100,21 +100,21 @@ export function TopupModal({ open, onOpenChange, profile, onDone }: TopupModalPr
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="bg-white border-[#e8ddd0] rounded-2xl max-w-md p-0 overflow-hidden gap-0 block max-h-[92vh] overflow-y-auto scrollbar-thin">
+        <DialogContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] rounded-2xl max-w-md p-0 overflow-hidden gap-0 block max-h-[92vh] overflow-y-auto scrollbar-thin">
           <DialogHeader className="p-5 pb-3 border-b border-[#f0e6da] sticky top-0 bg-white z-10">
-            <DialogTitle className="text-lg font-extrabold text-[#241c14] flex items-center gap-2">
+            <DialogTitle className="text-lg font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-[#d97b29]" />
               {t("topup.title")}
             </DialogTitle>
-            <DialogDescription className="text-[#6b5d4d] text-sm">
+            <DialogDescription className="text-[#6b5d4d] dark:text-[#a3937f] text-sm">
               {t("topup.desc")}
             </DialogDescription>
             {/* Hozirgi holat */}
             <div className="mt-2 flex items-center gap-2 text-[12px] font-bold">
-              <span className="text-[#94836f]">{t("topup.currentRank")}:</span>
+              <span className="text-[#94836f] dark:text-[#8a7a68]">{t("topup.currentRank")}:</span>
               <span className="text-[#d97b29]">{profile.position}-o'rin</span>
               <span className="text-[#c4b5a1]">·</span>
-              <span className="text-[#241c14] truncate">{profile.name}</span>
+              <span className="text-[#241c14] dark:text-[#f2ebe2] truncate">{profile.name}</span>
             </div>
           </DialogHeader>
 
@@ -163,7 +163,7 @@ export function TopupModal({ open, onOpenChange, profile, onDone }: TopupModalPr
                           <span
                             className={cn(
                               "flex items-center gap-1.5 text-[13px] font-extrabold",
-                              active ? "text-[#b25e14]" : "text-[#241c14]"
+                              active ? "text-[#b25e14]" : "text-[#241c14] dark:text-[#f2ebe2]"
                             )}
                           >
                             {pos}
@@ -174,22 +174,22 @@ export function TopupModal({ open, onOpenChange, profile, onDone }: TopupModalPr
                               </span>
                             )}
                             {isTop && !isTop1 && (
-                              <span className="text-[9px] font-extrabold uppercase bg-[#fdeedd] text-[#b25e14] px-1.5 py-0.5 rounded-full shrink-0">
+                              <span className="text-[9px] font-extrabold uppercase bg-[#fdeedd] dark:bg-[#3a2c1c] text-[#b25e14] px-1.5 py-0.5 rounded-full shrink-0">
                                 TOP
                               </span>
                             )}
                             {isSelf && (
-                              <span className="text-[9px] font-extrabold uppercase bg-[#f6efe6] text-[#94836f] px-1.5 py-0.5 rounded-full shrink-0">
+                              <span className="text-[9px] font-extrabold uppercase bg-[#f6efe6] dark:bg-[#2b241b] text-[#94836f] dark:text-[#8a7a68] px-1.5 py-0.5 rounded-full shrink-0">
                                 siz
                               </span>
                             )}
                           </span>
                           {holder ? (
-                            <span className="block text-[10px] text-[#94836f] font-semibold truncate mt-0.5">
+                            <span className="block text-[10px] text-[#94836f] dark:text-[#8a7a68] font-semibold truncate mt-0.5">
                               {t("form.holderNow")} {holder.name}
                             </span>
                           ) : (
-                            <span className="block text-[10px] text-[#94836f] font-semibold mt-0.5">
+                            <span className="block text-[10px] text-[#94836f] dark:text-[#8a7a68] font-semibold mt-0.5">
                               {t("form.emptySpot")}
                             </span>
                           )}
@@ -210,7 +210,7 @@ export function TopupModal({ open, onOpenChange, profile, onDone }: TopupModalPr
             {targetPosition && (
               <div className="mt-4 bg-[#241c14] rounded-xl p-4 flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#94836f]">
+                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#94836f] dark:text-[#8a7a68]">
                     {targetPosition}
                     {t("form.targetPosition")}
                   </p>

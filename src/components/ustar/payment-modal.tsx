@@ -79,24 +79,24 @@ export function PaymentModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent className="bg-white border-[#e8ddd0] rounded-2xl max-w-md p-0 overflow-hidden gap-0 block max-h-[92vh] overflow-y-auto scrollbar-thin">
+      <DialogContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] dark:border-[#362c20] rounded-2xl max-w-md p-0 overflow-hidden gap-0 block max-h-[92vh] overflow-y-auto scrollbar-thin">
         {step === "card" && (
           <div>
-            <DialogHeader className="p-5 pb-3 border-b border-[#f0e6da]">
-              <DialogTitle className="text-lg font-extrabold text-[#241c14] flex items-center gap-2">
+            <DialogHeader className="p-5 pb-3 border-b border-[#f0e6da] dark:border-[#362c20]">
+              <DialogTitle className="text-lg font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-[#d97b29]" />
                 {t("pay.title")}
               </DialogTitle>
-              <DialogDescription className="text-[#6b5d4d] text-sm">{t("pay.cardDesc")}</DialogDescription>
+              <DialogDescription className="text-[#6b5d4d] dark:text-[#a3937f] text-sm">{t("pay.cardDesc")}</DialogDescription>
             </DialogHeader>
 
             <div className="p-5 space-y-4">
               {/* Xulosa */}
-              <div className="bg-[#fffdfa] border border-[#f0e6da] rounded-xl p-4 space-y-2">
+              <div className="bg-[#fffdfa] dark:bg-[#2b241b] border border-[#f0e6da] dark:border-[#362c20] rounded-xl p-4 space-y-2">
                 <Row label={t("pay.profile")} value={summary.name} />
                 <Row label={t("pay.target")} value={summary.targetLabel} />
                 <div className="pt-2 border-t border-dashed border-[#e8ddd0] flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold text-[#574634]">{t("pay.amount")}</span>
+                  <span className="text-sm font-bold text-[#574634] dark:text-[#c9bba7]">{t("pay.amount")}</span>
                   <span className="text-right">
                     {promo && (
                       <span className="block text-xs font-bold text-[#c4b5a1] line-through tabular-nums">
@@ -115,7 +115,7 @@ export function PaymentModal({
                 </div>
               </div>
 
-              <p className="text-[12px] text-[#574634] font-semibold leading-relaxed">
+              <p className="text-[12px] text-[#574634] dark:text-[#c9bba7] font-semibold leading-relaxed">
                 1. {t("pay.cardStep1")}
               </p>
 
@@ -143,7 +143,7 @@ export function PaymentModal({
                 </div>
               </div>
 
-              <div className="space-y-1.5 text-[12px] text-[#574634] font-medium">
+              <div className="space-y-1.5 text-[12px] text-[#574634] dark:text-[#c9bba7] font-medium">
                 <p>
                   2. {t("pay.cardStep2")} <b className="tabular-nums text-[#b25e14]">{formatSom(amount, lang)}</b>
                 </p>
@@ -184,7 +184,7 @@ export function PaymentModal({
         {step === "processing" && (
           <div className="p-12 flex flex-col items-center justify-center gap-4">
             <div className="w-10 h-10 border-4 border-[#f0d5b8] border-t-[#d97b29] rounded-full animate-spin" />
-            <p className="font-bold text-[#241c14]">{t("pay.processing")}</p>
+            <p className="font-bold text-[#241c14] dark:text-[#f2ebe2]">{t("pay.processing")}</p>
           </div>
         )}
 
@@ -194,8 +194,8 @@ export function PaymentModal({
             <div className="w-16 h-16 rounded-full bg-[#fff8ec] border border-[#f0d5b8] flex items-center justify-center">
               <Clock3 className="w-8 h-8 text-[#b25e14]" />
             </div>
-            <h3 className="text-xl font-extrabold text-[#241c14]">{t("pay.awaitingTitle")}</h3>
-            <p className="text-sm text-[#6b5d4d] max-w-[320px] leading-relaxed">{t("pay.awaitingDesc")}</p>
+            <h3 className="text-xl font-extrabold text-[#241c14] dark:text-[#f2ebe2]">{t("pay.awaitingTitle")}</h3>
+            <p className="text-sm text-[#6b5d4d] dark:text-[#a3937f] max-w-[320px] leading-relaxed">{t("pay.awaitingDesc")}</p>
             <div className="flex items-center gap-1.5 text-xs font-bold text-[#b25e14] bg-[#fff8ec] border border-[#f0d5b8] rounded-full px-3 py-1.5 mt-1">
               <Clock3 className="w-3.5 h-3.5" />
               {formatSom(amount, lang)} — {t("pay.awaitingBadge")}
@@ -217,7 +217,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="text-xs font-semibold text-[#94836f]">{label}</span>
-      <span className="text-[13px] font-bold text-[#241c14] truncate max-w-[200px]">{value}</span>
+      <span className="text-[13px] font-bold text-[#241c14] dark:text-[#f2ebe2] truncate max-w-[200px]">{value}</span>
     </div>
   );
 }

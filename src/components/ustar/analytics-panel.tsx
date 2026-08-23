@@ -37,12 +37,12 @@ export function AnalyticsPanel({ profileId }: { profileId: string }) {
 
   if (!data) {
     return (
-      <div className="bg-white border border-border rounded-2xl p-5 md:p-6">
-        <h2 className="font-extrabold text-lg text-[#241c14] flex items-center gap-2">
+      <div className="bg-white dark:bg-[#201a14] border border-border rounded-2xl p-5 md:p-6">
+        <h2 className="font-extrabold text-lg text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-[#d97b29]" />
           {t("analytics.title")}
         </h2>
-        <p className="text-sm text-[#94836f] font-medium mt-4">{t("analytics.empty")}</p>
+        <p className="text-sm text-[#94836f] dark:text-[#8a7a68] font-medium mt-4">{t("analytics.empty")}</p>
       </div>
     );
   }
@@ -53,13 +53,13 @@ export function AnalyticsPanel({ profileId }: { profileId: string }) {
   const maxDaily = Math.max(...data.daily.map((d) => d.views), 1);
 
   return (
-    <div className="bg-white border border-border rounded-2xl p-5 md:p-6 space-y-6">
+    <div className="bg-white dark:bg-[#201a14] border border-border rounded-2xl p-5 md:p-6 space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="font-extrabold text-lg text-[#241c14] flex items-center gap-2">
+        <h2 className="font-extrabold text-lg text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-[#d97b29]" />
           {t("analytics.title")}
         </h2>
-        <span className="text-[11px] font-bold text-[#94836f] bg-[#f6efe6] px-2.5 py-1 rounded-full">
+        <span className="text-[11px] font-bold text-[#94836f] dark:text-[#8a7a68] bg-[#f6efe6] dark:bg-[#2b241b] px-2.5 py-1 rounded-full">
           {t("analytics.last14")}
         </span>
       </div>
@@ -74,7 +74,7 @@ export function AnalyticsPanel({ profileId }: { profileId: string }) {
 
       {/* Kunlik dinamika */}
       <div>
-        <h3 className="text-[13px] font-extrabold text-[#574634] mb-3 flex items-center gap-1.5">
+        <h3 className="text-[13px] font-extrabold text-[#574634] dark:text-[#c9bba7] mb-3 flex items-center gap-1.5">
           <TrendingUp className="w-3.5 h-3.5 text-[#d97b29]" />
           {t("analytics.daily")}
         </h3>
@@ -127,7 +127,7 @@ export function AnalyticsPanel({ profileId }: { profileId: string }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Shaharlar */}
         <div>
-          <h3 className="text-[13px] font-extrabold text-[#574634] mb-3 flex items-center gap-1.5">
+          <h3 className="text-[13px] font-extrabold text-[#574634] dark:text-[#c9bba7] mb-3 flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-[#d97b29]" />
             {t("analytics.cities")}
           </h3>
@@ -167,7 +167,7 @@ export function AnalyticsPanel({ profileId }: { profileId: string }) {
         {/* Qurilmalar + referrerlar */}
         <div className="space-y-5">
           <div>
-            <h3 className="text-[13px] font-extrabold text-[#574634] mb-2 flex items-center gap-1.5">
+            <h3 className="text-[13px] font-extrabold text-[#574634] dark:text-[#c9bba7] mb-2 flex items-center gap-1.5">
               <Smartphone className="w-3.5 h-3.5 text-[#d97b29]" />
               {t("analytics.devices")}
             </h3>
@@ -186,11 +186,11 @@ export function AnalyticsPanel({ profileId }: { profileId: string }) {
               <div className="flex-1 space-y-1.5 min-w-0">
                 {data.devices.map((d, i) => (
                   <div key={d.name} className="flex items-center justify-between gap-2 text-[12px]">
-                    <span className="flex items-center gap-1.5 font-bold text-[#574634] min-w-0">
+                    <span className="flex items-center gap-1.5 font-bold text-[#574634] dark:text-[#c9bba7] min-w-0">
                       <span className="w-2 h-2 rounded-full shrink-0" style={{ background: PALETTE[i % PALETTE.length] }} />
                       <span className="truncate">{deviceLabel(d.name)}</span>
                     </span>
-                    <span className="font-extrabold text-[#241c14] tabular-nums">
+                    <span className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] tabular-nums">
                       {Math.round((d.count / Math.max(data.totals.views + data.totals.clicks, 1)) * 100)}%
                     </span>
                   </div>
@@ -201,7 +201,7 @@ export function AnalyticsPanel({ profileId }: { profileId: string }) {
 
           {/* Referrerlar */}
           <div>
-            <h3 className="text-[13px] font-extrabold text-[#574634] mb-2 flex items-center gap-1.5">
+            <h3 className="text-[13px] font-extrabold text-[#574634] dark:text-[#c9bba7] mb-2 flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-[#d97b29]" />
               {t("analytics.referrers")}
             </h3>
@@ -210,14 +210,14 @@ export function AnalyticsPanel({ profileId }: { profileId: string }) {
                 const maxRef = data.referrers[0]?.count || 1;
                 return (
                   <div key={r.name} className="flex items-center gap-2 text-[12px]">
-                    <span className="w-20 truncate font-bold text-[#574634] shrink-0">{refLabel(r.name)}</span>
-                    <div className="flex-1 h-2 bg-[#f6efe6] rounded-full overflow-hidden">
+                    <span className="w-20 truncate font-bold text-[#574634] dark:text-[#c9bba7] shrink-0">{refLabel(r.name)}</span>
+                    <div className="flex-1 h-2 bg-[#f6efe6] dark:bg-[#2b241b] rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-[#d97b29] to-[#e9a05c]"
                         style={{ width: `${Math.round((r.count / maxRef) * 100)}%` }}
                       />
                     </div>
-                    <span className="font-extrabold text-[#241c14] tabular-nums w-8 text-right">{r.count}</span>
+                    <span className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] tabular-nums w-8 text-right">{r.count}</span>
                   </div>
                 );
               })}
@@ -245,16 +245,16 @@ function StatCard({
     <div
       className={
         "rounded-xl px-3 py-2.5 border " +
-        (accent ? "bg-[#fff9f2] border-[#f0d5b8]" : "bg-[#fffdfa] border-[#f0e6da]")
+        (accent ? "bg-[#fff9f2] border-[#f0d5b8]" : "bg-[#fffdfa] dark:bg-[#171310] border-[#f0e6da]")
       }
     >
-      <p className="text-[10px] font-bold uppercase tracking-wide text-[#94836f] leading-none flex items-center gap-1">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-[#94836f] dark:text-[#8a7a68] leading-none flex items-center gap-1">
         {icon}
         {label}
       </p>
       <p
         className={
-          "text-lg font-extrabold mt-1.5 tabular-nums " + (accent ? "text-[#b25e14]" : "text-[#241c14]")
+          "text-lg font-extrabold mt-1.5 tabular-nums " + (accent ? "text-[#b25e14]" : "text-[#241c14] dark:text-[#f2ebe2]")
         }
       >
         {value}

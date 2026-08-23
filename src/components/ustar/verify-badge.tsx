@@ -20,7 +20,7 @@ export function VerifyBadge({ status, size = 16, withLabel = true, className }: 
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1 font-bold text-[#b45f14] bg-[#fff3df] rounded-full",
+          "inline-flex items-center gap-1 font-bold text-[#b45f14] dark:text-[#f0b078] bg-[#fff3df] dark:bg-[#3a2c1c] rounded-full",
           withLabel ? "px-1.5 py-0.5" : "p-0.5",
           className
         )}

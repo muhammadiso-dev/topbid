@@ -22,7 +22,7 @@ export function RulesView() {
         <Button
           variant="ghost"
           onClick={() => setView({ name: "home" })}
-          className="rounded-lg hover:bg-[#f6efe6] text-[#574634] font-bold gap-1.5 -ml-2"
+          className="rounded-lg hover:bg-[#f6efe6] dark:bg-[#2b241b] text-[#574634] dark:text-[#c9bba7] font-bold gap-1.5 -ml-2"
         >
           <ArrowLeft className="w-4 h-4" />
           {t("detail.back")}
@@ -30,24 +30,24 @@ export function RulesView() {
       </div>
 
       <header className="mt-6 flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-[#fdeedd] flex items-center justify-center shrink-0">
+        <div className="w-12 h-12 rounded-2xl bg-[#fdeedd] dark:bg-[#3a2c1c] flex items-center justify-center shrink-0">
           <ScrollText className="w-6 h-6 text-[#d97b29]" />
         </div>
         <div>
-          <h1 className="text-2xl font-extrabold text-[#241c14]">{t("rules.title")}</h1>
-          <p className="text-xs md:text-sm text-[#6b5d4d] mt-0.5">{t("rules.updated")}</p>
+          <h1 className="text-2xl font-extrabold text-[#241c14] dark:text-[#f2ebe2]">{t("rules.title")}</h1>
+          <p className="text-xs md:text-sm text-[#6b5d4d] dark:text-[#a3937f] mt-0.5">{t("rules.updated")}</p>
         </div>
       </header>
 
       {/* Auksion va narxlar */}
-      <section className="mt-7 bg-white border border-border rounded-2xl p-5 md:p-6">
-        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2">
+      <section className="mt-7 bg-white dark:bg-[#201a14] border border-border rounded-2xl p-5 md:p-6">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
           <span className="w-6 h-6 rounded-md bg-[#d97b29] text-white text-xs font-extrabold flex items-center justify-center">1</span>
           {t("rules.s1")}
         </h2>
 
         <div className="mt-4 overflow-hidden rounded-xl border border-[#f0e6da]">
-          <div className="grid grid-cols-2 px-3 py-2.5 bg-[#f6efe6] text-[10px] font-extrabold uppercase tracking-wide text-[#574634]">
+          <div className="grid grid-cols-2 px-3 py-2.5 bg-[#f6efe6] dark:bg-[#2b241b] text-[10px] font-extrabold uppercase tracking-wide text-[#574634] dark:text-[#c9bba7]">
             <span>{t("about.tableTier")}</span>
             <span className="text-right">{t("about.tableMin")}</span>
           </div>
@@ -61,13 +61,13 @@ export function RulesView() {
               key={row.label}
               className="grid grid-cols-2 px-3 py-2.5 border-t border-[#f0e6da] text-[12px] md:text-[13px]"
             >
-              <span className="font-extrabold text-[#241c14]">{row.label}</span>
-              <span className="text-right font-bold text-[#574634] tabular-nums">{row.value}</span>
+              <span className="font-extrabold text-[#241c14] dark:text-[#f2ebe2]">{row.label}</span>
+              <span className="text-right font-bold text-[#574634] dark:text-[#c9bba7] tabular-nums">{row.value}</span>
             </div>
           ))}
         </div>
 
-        <ul className="mt-4 space-y-2.5 text-[13px] md:text-sm text-[#574634] leading-relaxed">
+        <ul className="mt-4 space-y-2.5 text-[13px] md:text-sm text-[#574634] dark:text-[#c9bba7] leading-relaxed">
           {[t("rules.s1li1"), t("rules.s1li2"), t("rules.s1li3"), t("rules.s1li4")].map((li) => (
             <li key={li} className="flex gap-2.5">
               <span className="text-[#d97b29] font-extrabold">•</span>
@@ -83,7 +83,7 @@ export function RulesView() {
           <span className="w-6 h-6 rounded-md bg-[#d97b29] text-white text-xs font-extrabold flex items-center justify-center">2</span>
           {t("rules.s2")}
         </h2>
-        <ul className="mt-3.5 space-y-2.5 text-[13px] md:text-sm text-[#574634] leading-relaxed">
+        <ul className="mt-3.5 space-y-2.5 text-[13px] md:text-sm text-[#574634] dark:text-[#c9bba7] leading-relaxed">
           {[t("rules.s2li1"), t("rules.s2li2"), t("rules.s2li3")].map((li) => (
             <li key={li} className="flex gap-2.5">
               <span className="text-[#d97b29] font-extrabold">•</span>
@@ -95,8 +95,8 @@ export function RulesView() {
 
       {/* Ruxsat / taqiq */}
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <section className="bg-white border border-border rounded-2xl p-5">
-          <h2 className="font-extrabold text-[#241c14] flex items-center gap-2">
+        <section className="bg-white dark:bg-[#201a14] border border-border rounded-2xl p-5">
+          <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
             <span className="w-6 h-6 rounded-md bg-green-100 text-green-700 flex items-center justify-center">
               <Check className="w-3.5 h-3.5" />
             </span>
@@ -104,7 +104,7 @@ export function RulesView() {
           </h2>
           <ul className="mt-3.5 space-y-2">
             {allowed.map((a) => (
-              <li key={a} className="flex gap-2 text-[13px] text-[#574634] leading-relaxed">
+              <li key={a} className="flex gap-2 text-[13px] text-[#574634] dark:text-[#c9bba7] leading-relaxed">
                 <Check className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                 {a}
               </li>
@@ -112,8 +112,8 @@ export function RulesView() {
           </ul>
         </section>
 
-        <section className="bg-white border border-border rounded-2xl p-5">
-          <h2 className="font-extrabold text-[#241c14] flex items-center gap-2">
+        <section className="bg-white dark:bg-[#201a14] border border-border rounded-2xl p-5">
+          <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
             <span className="w-6 h-6 rounded-md bg-red-100 text-red-600 flex items-center justify-center">
               <X className="w-3.5 h-3.5" />
             </span>
@@ -121,7 +121,7 @@ export function RulesView() {
           </h2>
           <ul className="mt-3.5 space-y-2">
             {forbidden.map((f) => (
-              <li key={f} className="flex gap-2 text-[13px] text-[#574634] leading-relaxed">
+              <li key={f} className="flex gap-2 text-[13px] text-[#574634] dark:text-[#c9bba7] leading-relaxed">
                 <X className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                 {f}
               </li>
@@ -131,12 +131,12 @@ export function RulesView() {
       </div>
 
       {/* To'lov va qaytarish */}
-      <section className="mt-4 bg-white border border-border rounded-2xl p-5 md:p-6">
-        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2">
+      <section className="mt-4 bg-white dark:bg-[#201a14] border border-border rounded-2xl p-5 md:p-6">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
           <span className="w-6 h-6 rounded-md bg-[#d97b29] text-white text-xs font-extrabold flex items-center justify-center">3</span>
           {t("rules.s3")}
         </h2>
-        <ul className="mt-4 space-y-2.5 text-[13px] md:text-sm text-[#574634] leading-relaxed">
+        <ul className="mt-4 space-y-2.5 text-[13px] md:text-sm text-[#574634] dark:text-[#c9bba7] leading-relaxed">
           {[t("rules.s3li1"), t("rules.s3li2"), t("rules.s3li3"), t("rules.s3li4")].map((li) => (
             <li key={li} className="flex gap-2.5">
               <span className="text-[#d97b29] font-extrabold">•</span>
@@ -147,12 +147,12 @@ export function RulesView() {
       </section>
 
       {/* Sharh qoidalari */}
-      <section className="mt-4 bg-white border border-border rounded-2xl p-5 md:p-6">
-        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2">
+      <section className="mt-4 bg-white dark:bg-[#201a14] border border-border rounded-2xl p-5 md:p-6">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
           <span className="w-6 h-6 rounded-md bg-[#d97b29] text-white text-xs font-extrabold flex items-center justify-center">4</span>
           {t("rules.s4")}
         </h2>
-        <ul className="mt-4 space-y-2.5 text-[13px] md:text-sm text-[#574634] leading-relaxed">
+        <ul className="mt-4 space-y-2.5 text-[13px] md:text-sm text-[#574634] dark:text-[#c9bba7] leading-relaxed">
           {[t("rules.s4li1"), t("rules.s4li2"), t("rules.s4li3")].map((li) => (
             <li key={li} className="flex gap-2.5">
               <span className="text-[#d97b29] font-extrabold">•</span>
@@ -163,12 +163,12 @@ export function RulesView() {
       </section>
 
       {/* Verifikatsiya */}
-      <section className="mt-4 bg-white border border-border rounded-2xl p-5 md:p-6">
-        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2">
+      <section className="mt-4 bg-white dark:bg-[#201a14] border border-border rounded-2xl p-5 md:p-6">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
           <span className="w-6 h-6 rounded-md bg-[#d97b29] text-white text-xs font-extrabold flex items-center justify-center">5</span>
           {t("rules.s5")}
         </h2>
-        <ul className="mt-4 space-y-2.5 text-[13px] md:text-sm text-[#574634] leading-relaxed">
+        <ul className="mt-4 space-y-2.5 text-[13px] md:text-sm text-[#574634] dark:text-[#c9bba7] leading-relaxed">
           {[t("rules.s5li1"), t("rules.s5li2"), t("rules.s5li3"), t("rules.s5li4")].map((li) => (
             <li key={li} className="flex gap-2.5">
               <span className="text-[#d97b29] font-extrabold">•</span>
@@ -184,7 +184,7 @@ export function RulesView() {
           <Heart className="w-5 h-5 text-[#d94f29] fill-[#d94f29]" />
           {t("charity.section")}
         </h2>
-        <ul className="mt-3 space-y-2 text-[13px] md:text-sm text-[#574634] leading-relaxed">
+        <ul className="mt-3 space-y-2 text-[13px] md:text-sm text-[#574634] dark:text-[#c9bba7] leading-relaxed">
           <li className="flex gap-2.5">
             <span className="text-[#d94f29] font-extrabold">•</span>
             O'rin to'lovlarining <b>10%</b> va verifikatsiya to'lovlarining <b>50%</b> xayriya fondiga yo'naltiriladi.
@@ -211,7 +211,7 @@ export function RulesView() {
       {/* Admin huquqi */}
       <section className="mt-4 bg-[#fff9f2] border border-[#f0d5b8] rounded-2xl p-5 md:p-6">
         <h2 className="font-extrabold text-[#b25e14]">{t("rules.adminTitle")}</h2>
-        <p className="mt-2.5 text-[13px] md:text-sm text-[#574634] leading-relaxed">{t("rules.adminDesc")}</p>
+        <p className="mt-2.5 text-[13px] md:text-sm text-[#574634] dark:text-[#c9bba7] leading-relaxed">{t("rules.adminDesc")}</p>
       </section>
     </div>
   );

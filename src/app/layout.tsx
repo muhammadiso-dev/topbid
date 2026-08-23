@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "next-themes";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -51,8 +52,10 @@ export default function RootLayout({
   return (
     <html lang="uz" suppressHydrationWarning>
       <body className={`${manrope.variable} font-sans antialiased bg-background text-foreground`}>
-        {children}
-        <Toaster />
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

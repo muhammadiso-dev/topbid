@@ -137,7 +137,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
   if (!profile) {
     return (
       <div className="max-w-2xl mx-auto px-4 pb-16 pt-16 text-center">
-        <p className="font-extrabold text-lg text-[#241c14]">{t("detail.notFound")}</p>
+        <p className="font-extrabold text-lg text-[#241c14] dark:text-[#f2ebe2]">{t("detail.notFound")}</p>
         <Button
           onClick={() => setView({ name: "home" })}
           className="mt-4 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-lg"
@@ -162,7 +162,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
         <Button
           variant="ghost"
           onClick={() => setView({ name: "home" })}
-          className="rounded-lg hover:bg-[#f6efe6] text-[#574634] font-bold gap-1.5 -ml-2"
+          className="rounded-lg hover:bg-[#f6efe6] dark:bg-[#2b241b] text-[#574634] dark:text-[#c9bba7] font-bold gap-1.5 -ml-2"
         >
           <ArrowLeft className="w-4 h-4" />
           {t("detail.back")}
@@ -172,7 +172,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
       {/* Profil kartochkasi */}
       <article
         className={cn(
-          "mt-4 bg-white rounded-2xl border p-5 md:p-6 relative",
+          "mt-4 bg-white dark:bg-[#201a14] rounded-2xl border p-5 md:p-6 relative",
           isTop3 && profile.position === 1 && "top-glow border-transparent",
           isTop3 && profile.position !== 1 && "border-2 border-[#e9b98a]",
           !isTop3 && "border-border"
@@ -184,7 +184,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
               "absolute -top-3 left-6 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wide shadow-sm",
               profile.position === 1
                 ? "bg-[#d97b29] text-white"
-                : "bg-[#fdeedd] text-[#b25e14] border border-[#f0d5b8]"
+                : "bg-[#fdeedd] dark:bg-[#3a2c1c] text-[#b25e14] border border-[#f0d5b8]"
             )}
           >
             TOP {profile.position}
@@ -195,26 +195,26 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
           <ProfileAvatar name={profile.name} imageUrl={profile.imageUrl} size={72} className="rounded-2xl" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14] leading-tight">
+              <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14] dark:text-[#f2ebe2] leading-tight">
                 {profile.name}
               </h1>
               {verifyBadge}
             </div>
             <div className="flex items-center gap-1.5 flex-wrap mt-2">
-              <span className="text-xs font-bold text-[#b25e14] bg-[#fdeedd] px-2.5 py-1 rounded-full">
+              <span className="text-xs font-bold text-[#b25e14] bg-[#fdeedd] dark:bg-[#3a2c1c] px-2.5 py-1 rounded-full">
                 {profile.categoryGroup ? `${profile.categoryGroup} · ${profile.categoryName}` : profile.categoryName}
               </span>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#574634] bg-[#f6efe6] px-2.5 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#574634] dark:text-[#c9bba7] bg-[#f6efe6] dark:bg-[#2b241b] px-2.5 py-1 rounded-full">
                 <MapPin className="w-3 h-3" />
                 {profile.city}
               </span>
               {profile.pool === "education" && (
-                <span className="text-xs font-semibold text-[#574634] bg-[#f6efe6] px-2.5 py-1 rounded-full">
+                <span className="text-xs font-semibold text-[#574634] dark:text-[#c9bba7] bg-[#f6efe6] dark:bg-[#2b241b] px-2.5 py-1 rounded-full">
                   {profile.subType === "center" ? t("detail.center") : t("detail.individual")}
                 </span>
               )}
             </div>
-            <p className="text-sm md:text-[15px] text-[#6b5d4d] leading-relaxed mt-3">
+            <p className="text-sm md:text-[15px] text-[#6b5d4d] dark:text-[#a3937f] leading-relaxed mt-3">
               {profile.description}
             </p>
           </div>
@@ -248,7 +248,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
             <Button
               variant="outline"
               onClick={() => setTopupOpen(true)}
-              className="h-11 border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold rounded-lg text-sm"
+              className="h-11 border-[#e8ddd0] text-[#574634] dark:text-[#c9bba7] hover:bg-[#fdeedd] dark:bg-[#3a2c1c] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold rounded-lg text-sm"
             >
               <TrendingUp className="w-4 h-4" />
               {t("detail.improve")}
@@ -257,7 +257,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
               <Button
                 variant="outline"
                 onClick={() => setEditOpen(true)}
-                className="h-11 border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold rounded-lg text-sm"
+                className="h-11 border-[#e8ddd0] text-[#574634] dark:text-[#c9bba7] hover:bg-[#fdeedd] dark:bg-[#3a2c1c] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold rounded-lg text-sm"
               >
                 <Pencil className="w-4 h-4" />
                 {t("edit.button")}
@@ -266,7 +266,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
               <Button
                 variant="ghost"
                 onClick={() => setClaimOpen(true)}
-                className="h-11 text-[#94836f] hover:bg-[#f6efe6] hover:text-[#574634] font-bold rounded-lg text-xs"
+                className="h-11 text-[#94836f] dark:text-[#8a7a68] hover:bg-[#f6efe6] dark:bg-[#2b241b] hover:text-[#574634] dark:text-[#c9bba7] font-bold rounded-lg text-xs"
               >
                 <ShieldCheck className="w-4 h-4" />
                 {t("claim.button")}
@@ -285,8 +285,8 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
                 <Clock3 className="w-5 h-5 text-[#b25e14]" />
               </div>
               <div className="min-w-0">
-                <h3 className="font-extrabold text-sm text-[#241c14]">{t("verify.awaitingTitle")}</h3>
-                <p className="text-[13px] text-[#6b5d4d] leading-relaxed mt-1">{t("verify.awaitingDesc")}</p>
+                <h3 className="font-extrabold text-sm text-[#241c14] dark:text-[#f2ebe2]">{t("verify.awaitingTitle")}</h3>
+                <p className="text-[13px] text-[#6b5d4d] dark:text-[#a3937f] leading-relaxed mt-1">{t("verify.awaitingDesc")}</p>
               </div>
             </div>
           ) : profile.verifyStatus === "pending" ? (
@@ -295,10 +295,10 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
                 <Clock3 className="w-5 h-5 text-[#a86a00]" />
               </div>
               <div className="min-w-0">
-                <h3 className="font-extrabold text-sm text-[#241c14]">
+                <h3 className="font-extrabold text-sm text-[#241c14] dark:text-[#f2ebe2]">
                   {t("detail.pendingTitle")}
                 </h3>
-                <p className="text-[13px] text-[#6b5d4d] leading-relaxed mt-1">
+                <p className="text-[13px] text-[#6b5d4d] dark:text-[#a3937f] leading-relaxed mt-1">
                   {t("detail.pendingDesc")}
                 </p>
               </div>
@@ -311,10 +311,10 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
                   <img src="/verify-badge-48.png" alt="verify" className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-extrabold text-sm text-[#241c14]">
+                  <h3 className="font-extrabold text-sm text-[#241c14] dark:text-[#f2ebe2]">
                     {t("detail.getCta")}
                   </h3>
-                  <p className="text-[13px] text-[#574634] leading-relaxed mt-1">
+                  <p className="text-[13px] text-[#574634] dark:text-[#c9bba7] leading-relaxed mt-1">
                     {t("detail.getDesc")}
                   </p>
                   <Button
@@ -406,17 +406,17 @@ function Stat({
     <div
       className={cn(
         "rounded-xl px-3 py-2.5 border",
-        accent ? "bg-[#fff9f2] border-[#f0d5b8]" : "bg-[#fffdfa] border-[#f0e6da]"
+        accent ? "bg-[#fff9f2] border-[#f0d5b8]" : "bg-[#fffdfa] dark:bg-[#171310] border-[#f0e6da]"
       )}
     >
-      <p className="text-[10px] font-bold uppercase tracking-wide text-[#94836f] leading-none flex items-center gap-1">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-[#94836f] dark:text-[#8a7a68] leading-none flex items-center gap-1">
         {icon}
         {label}
       </p>
       <p
         className={cn(
           "text-sm font-extrabold mt-1.5 tabular-nums truncate",
-          accent ? "text-[#b25e14]" : "text-[#241c14]"
+          accent ? "text-[#b25e14]" : "text-[#241c14] dark:text-[#f2ebe2]"
         )}
       >
         {value}
@@ -496,24 +496,24 @@ function ReviewsSection({
   };
 
   return (
-    <div className="bg-white border border-border rounded-2xl p-5 md:p-6">
+    <div className="bg-white dark:bg-[#201a14] border border-border rounded-2xl p-5 md:p-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="font-extrabold text-lg text-[#241c14] flex items-center gap-2">
+        <h2 className="font-extrabold text-lg text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
           <MessageSquare className="w-5 h-5 text-[#d97b29]" />
           {t("reviews.title")}
         </h2>
         <div className="flex items-center gap-2.5">
-          <span className="text-3xl font-extrabold text-[#241c14] tabular-nums leading-none">
+          <span className="text-3xl font-extrabold text-[#241c14] dark:text-[#f2ebe2] tabular-nums leading-none">
             {avg > 0 ? avg.toFixed(1) : "—"}
           </span>
           <div>
             <StarRating value={avg} size={16} />
-            <p className="text-[11px] text-[#94836f] font-semibold mt-1">{reviews.length} {t("reviews.count")}</p>
+            <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-semibold mt-1">{reviews.length} {t("reviews.count")}</p>
           </div>
         </div>
       </div>
 
-      <p className="text-xs text-[#94836f] font-medium mt-2 flex items-center gap-1.5">
+      <p className="text-xs text-[#94836f] dark:text-[#8a7a68] font-medium mt-2 flex items-center gap-1.5">
         <Star className="w-3.5 h-3.5 text-[#d97b29]" />
         {t("reviews.free")}
       </p>
@@ -521,30 +521,30 @@ function ReviewsSection({
       {reviews.length > 0 ? (
         <div className="mt-5 space-y-3 max-h-96 overflow-y-auto scrollbar-thin pr-1 -mr-1">
           {reviews.map((r) => (
-            <div key={r.id} className="bg-[#fffdfa] border border-[#f0e6da] rounded-xl p-3.5">
+            <div key={r.id} className="bg-[#fffdfa] dark:bg-[#171310] border border-[#f0e6da] rounded-xl p-3.5">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-bold text-sm text-[#241c14]">{r.authorName}</span>
-                <span className="text-[11px] text-[#94836f] font-medium">{timeAgo(r.createdAt, lang)}</span>
+                <span className="font-bold text-sm text-[#241c14] dark:text-[#f2ebe2]">{r.authorName}</span>
+                <span className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium">{timeAgo(r.createdAt, lang)}</span>
               </div>
               <StarRating value={r.rating} size={13} className="mt-1.5" />
               {r.comment && (
-                <p className="text-[13px] text-[#574634] leading-relaxed mt-2">{r.comment}</p>
+                <p className="text-[13px] text-[#574634] dark:text-[#c9bba7] leading-relaxed mt-2">{r.comment}</p>
               )}
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-[#94836f] font-medium mt-4 bg-[#fffdfa] border border-dashed border-[#e0d3c2] rounded-xl px-4 py-3.5 text-center">
+        <p className="text-sm text-[#94836f] dark:text-[#8a7a68] font-medium mt-4 bg-[#fffdfa] dark:bg-[#171310] border border-dashed border-[#e0d3c2] rounded-xl px-4 py-3.5 text-center">
           {t("reviews.empty")}
         </p>
       )}
 
       <div className="mt-6 pt-5 border-t border-[#f0e6da]">
-        <h3 className="font-extrabold text-sm text-[#241c14]">{t("reviews.leave")}</h3>
+        <h3 className="font-extrabold text-sm text-[#241c14] dark:text-[#f2ebe2]">{t("reviews.leave")}</h3>
         {alreadyReviewed ? (
-          <div className="mt-3 flex items-center gap-2.5 bg-[#f6efe6] border border-[#e8ddd0] rounded-xl px-4 py-3.5">
-            <Lock className="w-4 h-4 text-[#94836f] shrink-0" />
-            <p className="text-[13px] font-semibold text-[#574634]">
+          <div className="mt-3 flex items-center gap-2.5 bg-[#f6efe6] dark:bg-[#2b241b] border border-[#e8ddd0] rounded-xl px-4 py-3.5">
+            <Lock className="w-4 h-4 text-[#94836f] dark:text-[#8a7a68] shrink-0" />
+            <p className="text-[13px] font-semibold text-[#574634] dark:text-[#c9bba7]">
               {t("reviews.already")}
             </p>
           </div>
@@ -552,7 +552,7 @@ function ReviewsSection({
           <form onSubmit={submit} className="mt-3 space-y-3">
             <div className="grid sm:grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="reviewer" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+                <Label htmlFor="reviewer" className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
                   {t("reviews.name")}
                 </Label>
                 <Input
@@ -566,12 +566,12 @@ function ReviewsSection({
                 />
               </div>
               <div>
-                <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">Baho</Label>
+                <Label className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">Baho</Label>
                 <StarRating value={rating} onChange={setRating} size={26} interactive />
               </div>
             </div>
             <div>
-              <Label htmlFor="comment" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+              <Label htmlFor="comment" className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
                 {t("reviews.comment")}
                 </Label>
               <Textarea

@@ -319,14 +319,14 @@ export function AddProfileView() {
           variant="ghost"
           size="icon"
           onClick={() => setView({ name: "home" })}
-          className="rounded-lg hover:bg-[#f6efe6] text-[#574634]"
+          className="rounded-lg hover:bg-[#f6efe6] dark:bg-[#2b241b] text-[#574634] dark:text-[#c9bba7]"
           aria-label={t("form.back")}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14]">{t("form.title")}</h1>
-          <p className="text-xs md:text-sm text-[#6b5d4d] mt-0.5">{t("form.subtitle")}</p>
+          <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14] dark:text-[#f2ebe2]">{t("form.title")}</h1>
+          <p className="text-xs md:text-sm text-[#6b5d4d] dark:text-[#a3937f] mt-0.5">{t("form.subtitle")}</p>
         </div>
       </div>
 
@@ -338,14 +338,14 @@ export function AddProfileView() {
         }}
       >
         {/* ====== 1-QADAM: HAVOLA (avto-to'ldirish bilan) ====== */}
-        <section className="bg-white border border-border rounded-2xl p-4 md:p-5">
+        <section className="bg-white dark:bg-[#201a14] border border-border rounded-2xl p-4 md:p-5">
           <div className="flex items-start gap-3 mb-4">
-            <span className="w-7 h-7 rounded-lg bg-[#fdeedd] text-[#b25e14] font-extrabold text-sm flex items-center justify-center shrink-0">
+            <span className="w-7 h-7 rounded-lg bg-[#fdeedd] dark:bg-[#3a2c1c] text-[#b25e14] font-extrabold text-sm flex items-center justify-center shrink-0">
               1
             </span>
             <div className="min-w-0">
-              <h2 className="font-extrabold text-[#241c14] leading-none">{t("form.step1New")}</h2>
-              <p className="text-xs text-[#94836f] font-medium mt-1">{t("form.step1HintNew")}</p>
+              <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] leading-none">{t("form.step1New")}</h2>
+              <p className="text-xs text-[#94836f] dark:text-[#8a7a68] font-medium mt-1">{t("form.step1HintNew")}</p>
             </div>
           </div>
 
@@ -386,7 +386,7 @@ export function AddProfileView() {
                 {t("fetch.fetched")}
               </p>
               {fetchedMeta && (
-                <div className="flex items-center gap-2.5 mt-2 bg-white rounded-lg p-2.5 border border-[#dcefe3]">
+                <div className="flex items-center gap-2.5 mt-2 bg-white dark:bg-[#201a14] rounded-lg p-2.5 border border-[#dcefe3]">
                   {fetchedMeta.imageUrl ? (
                      
                     <img
@@ -395,19 +395,19 @@ export function AddProfileView() {
                       className="w-11 h-11 rounded-xl object-cover shrink-0"
                     />
                   ) : (
-                    <div className="w-11 h-11 rounded-xl bg-[#f6efe6] shrink-0 flex items-center justify-center">
+                    <div className="w-11 h-11 rounded-xl bg-[#f6efe6] dark:bg-[#2b241b] shrink-0 flex items-center justify-center">
                       <ImagePlus className="w-4 h-4 text-[#c4b5a1]" />
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-extrabold text-[#241c14] truncate">{fetchedMeta.name}</p>
-                    <p className="text-[11px] text-[#94836f] truncate">{fetchedMeta.description || contactUrl}</p>
+                    <p className="text-[13px] font-extrabold text-[#241c14] dark:text-[#f2ebe2] truncate">{fetchedMeta.name}</p>
+                    <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] truncate">{fetchedMeta.description || contactUrl}</p>
                   </div>
                 </div>
               )}
             </div>
           ) : fetchState === "failed" && !topupMode ? (
-            <p className="text-[11px] text-[#94836f] font-medium mt-2 flex items-start gap-1">
+            <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium mt-2 flex items-start gap-1">
               <Info className="w-3 h-3 mt-px shrink-0" />
               {t("fetch.failed")}
             </p>
@@ -420,7 +420,7 @@ export function AddProfileView() {
               </p>
             </div>
           ) : (
-            <p className="text-[11px] text-[#94836f] font-medium mt-2 flex items-start gap-1">
+            <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium mt-2 flex items-start gap-1">
               <Info className="w-3 h-3 mt-px shrink-0" />
               {t("form.contactHint")}
             </p>
@@ -437,9 +437,9 @@ export function AddProfileView() {
                 {showDetails ? "▾" : "▸"} {t("form.step2")}
               </button>
               {showDetails && (
-                <div className="mt-2.5 space-y-3 p-3 bg-[#fffdfa] border border-[#f0e6da] rounded-xl">
+                <div className="mt-2.5 space-y-3 p-3 bg-[#fffdfa] dark:bg-[#171310] border border-[#f0e6da] rounded-xl">
                   <div>
-                    <Label className="text-[12px] font-bold text-[#574634] mb-1 block">
+                    <Label className="text-[12px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1 block">
                       {t("form.name")} <span className="text-green-600 text-[10px]">✓ auto</span>
                     </Label>
                     <Input
@@ -454,9 +454,9 @@ export function AddProfileView() {
                     {errors.name && <p className="text-xs font-semibold text-red-600 mt-1">{errors.name}</p>}
                   </div>
                   <div>
-                    <Label className="text-[12px] font-bold text-[#574634] mb-1 block">
+                    <Label className="text-[12px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1 block">
                       {t("form.description")}{" "}
-                      <span className="text-[#94836f] font-medium">({t("form.optional")})</span>
+                      <span className="text-[#94836f] dark:text-[#8a7a68] font-medium">({t("form.optional")})</span>
                     </Label>
                     <Textarea
                       value={description}
@@ -468,8 +468,8 @@ export function AddProfileView() {
                   </div>
                   {/* Logo yuklash */}
                   <div>
-                    <Label className="text-[12px] font-bold text-[#574634] mb-1.5 block">
-                      {t("form.logo")} <span className="text-[#94836f] font-medium">({t("form.optional")})</span>
+                    <Label className="text-[12px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
+                      {t("form.logo")} <span className="text-[#94836f] dark:text-[#8a7a68] font-medium">({t("form.optional")})</span>
                     </Label>
                     {imageUrl ? (
                       <div className="flex items-center gap-3 bg-white border border-[#f0e6da] rounded-xl p-2.5">
@@ -491,14 +491,14 @@ export function AddProfileView() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploading}
-                        className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#e0cdb4] hover:border-[#d97b29] bg-[#fffdfa] rounded-xl py-3 cursor-pointer transition-colors disabled:opacity-60"
+                        className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#e0cdb4] hover:border-[#d97b29] bg-[#fffdfa] dark:bg-[#171310] rounded-xl py-3 cursor-pointer transition-colors disabled:opacity-60"
                       >
                         {uploading ? (
                           <Loader2 className="w-4 h-4 text-[#d97b29] animate-spin" />
                         ) : (
                           <>
                             <ImagePlus className="w-4 h-4 text-[#d97b29]" />
-                            <span className="text-[12px] font-extrabold text-[#241c14]">
+                            <span className="text-[12px] font-extrabold text-[#241c14] dark:text-[#f2ebe2]">
                               {t("form.logoUpload")}
                             </span>
                           </>
@@ -521,26 +521,26 @@ export function AddProfileView() {
 
           {/* Top-up rejimida nom ko'rsatish */}
           {topupMode && existingProfile && (
-            <p className="text-[11px] text-[#94836f] font-medium mt-2">
-              {t("form.name")}: <b className="text-[#241c14]">{existingProfile.name}</b>
+            <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium mt-2">
+              {t("form.name")}: <b className="text-[#241c14] dark:text-[#f2ebe2]">{existingProfile.name}</b>
             </p>
           )}
         </section>
 
         {/* ====== 2-QADAM: KATEGORIYA + SHAHAR ====== */}
-        <section className="bg-white border border-border rounded-2xl p-4 md:p-5">
+        <section className="bg-white dark:bg-[#201a14] border border-border rounded-2xl p-4 md:p-5">
           <div className="flex items-start gap-3 mb-4">
-            <span className="w-7 h-7 rounded-lg bg-[#fdeedd] text-[#b25e14] font-extrabold text-sm flex items-center justify-center shrink-0">
+            <span className="w-7 h-7 rounded-lg bg-[#fdeedd] dark:bg-[#3a2c1c] text-[#b25e14] font-extrabold text-sm flex items-center justify-center shrink-0">
               2
             </span>
             <div className="min-w-0">
-              <h2 className="font-extrabold text-[#241c14] leading-none">{t("form.step2New")}</h2>
+              <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] leading-none">{t("form.step2New")}</h2>
             </div>
           </div>
 
           <div className="space-y-3">
             <div>
-              <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+              <Label className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
                 {t("form.categoryLabel")} <span className="text-[#d97b29]">*</span>
               </Label>
               <Select value={categoryId} onValueChange={(v) => setCategoryId(v)}>
@@ -552,7 +552,7 @@ export function AddProfileView() {
                 >
                   <SelectValue placeholder={t("form.categoryPlaceholder")} />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-[#e8ddd0] max-h-80">
+                <SelectContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] max-h-80">
                   {categoryGroups.map(([group, items]) => (
                     <SelectGroup key={group}>
                       <SelectLabel className="text-[11px] font-extrabold uppercase tracking-wide text-[#b25e14]">
@@ -571,7 +571,7 @@ export function AddProfileView() {
             </div>
 
             <div>
-              <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+              <Label className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
                 {t("form.city")} <span className="text-[#d97b29]">*</span>
               </Label>
               <Select value={city} onValueChange={setCity}>
@@ -583,7 +583,7 @@ export function AddProfileView() {
                 >
                   <SelectValue placeholder={t("form.cityPlaceholder")} />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-[#e8ddd0] max-h-72">
+                <SelectContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] max-h-72">
                   {CITIES.map((c) => (
                     <SelectItem key={c} value={c}>
                       {c}
@@ -597,14 +597,14 @@ export function AddProfileView() {
         </section>
 
         {/* ====== 3-QADAM: O'RIN ====== */}
-        <section id="step-3" className="bg-white border border-border rounded-2xl p-4 md:p-5 scroll-mt-20">
+        <section id="step-3" className="bg-white dark:bg-[#201a14] border border-border rounded-2xl p-4 md:p-5 scroll-mt-20">
           <div className="flex items-start gap-3 mb-4">
-            <span className="w-7 h-7 rounded-lg bg-[#fdeedd] text-[#b25e14] font-extrabold text-sm flex items-center justify-center shrink-0">
+            <span className="w-7 h-7 rounded-lg bg-[#fdeedd] dark:bg-[#3a2c1c] text-[#b25e14] font-extrabold text-sm flex items-center justify-center shrink-0">
               3
             </span>
             <div className="min-w-0">
-              <h2 className="font-extrabold text-[#241c14] leading-none">{t("form.step3")}</h2>
-              <p className="text-xs text-[#94836f] font-medium mt-1">
+              <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] leading-none">{t("form.step3")}</h2>
+              <p className="text-xs text-[#94836f] dark:text-[#8a7a68] font-medium mt-1">
                 {selectedCategory ? `${selectedCategory.group} · ${selectedCategory.name}` : t("err.category")}
               </p>
             </div>
@@ -647,7 +647,7 @@ export function AddProfileView() {
                         <span
                           className={cn(
                             "flex items-center gap-1.5 text-[13px] sm:text-sm font-extrabold truncate",
-                            active ? "text-[#b25e14]" : "text-[#241c14]"
+                            active ? "text-[#b25e14]" : "text-[#241c14] dark:text-[#f2ebe2]"
                           )}
                         >
                           {pos}
@@ -658,17 +658,17 @@ export function AddProfileView() {
                             </span>
                           )}
                           {isTop && !isTop1 && (
-                            <span className="text-[9px] font-extrabold uppercase bg-[#fdeedd] text-[#b25e14] px-1.5 py-0.5 rounded-full shrink-0">
+                            <span className="text-[9px] font-extrabold uppercase bg-[#fdeedd] dark:bg-[#3a2c1c] text-[#b25e14] px-1.5 py-0.5 rounded-full shrink-0">
                               TOP
                             </span>
                           )}
                         </span>
                         {holder ? (
-                          <span className="block text-[10px] sm:text-[11px] text-[#94836f] font-semibold truncate mt-0.5">
+                          <span className="block text-[10px] sm:text-[11px] text-[#94836f] dark:text-[#8a7a68] font-semibold truncate mt-0.5">
                             {t("form.holderNow")} {holder.name}
                           </span>
                         ) : (
-                          <span className="block text-[10px] sm:text-[11px] text-[#94836f] font-semibold mt-0.5">
+                          <span className="block text-[10px] sm:text-[11px] text-[#94836f] dark:text-[#8a7a68] font-semibold mt-0.5">
                             {t("form.emptySpot")}
                           </span>
                         )}
@@ -684,7 +684,7 @@ export function AddProfileView() {
                         <span
                           className={cn(
                             "text-[13px] sm:text-sm font-extrabold tabular-nums",
-                            discounted ? "text-[#d97b29]" : active ? "text-[#d97b29]" : "text-[#241c14]"
+                            discounted ? "text-[#d97b29]" : active ? "text-[#d97b29]" : "text-[#241c14] dark:text-[#f2ebe2]"
                           )}
                         >
                           {formatSom(pay, lang)}
@@ -720,7 +720,7 @@ export function AddProfileView() {
               <div className="flex items-center gap-2.5 min-w-0">
                 <CircleDollarSign className="w-5 h-5 text-[#e9a05c] shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-[#94836f] leading-none">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-[#94836f] dark:text-[#8a7a68] leading-none">
                     {topupMode ? t("form.payTopup") : t("form.payTotal")}
                   </p>
                   <p className="text-xs text-[#c4b5a1] font-medium mt-1 truncate">{targetLabel}</p>
@@ -728,7 +728,7 @@ export function AddProfileView() {
               </div>
               <p className="text-right shrink-0">
                 {hasPromoDiscount && (
-                  <span className="block text-[11px] font-bold text-[#94836f] line-through tabular-nums leading-none mb-0.5">
+                  <span className="block text-[11px] font-bold text-[#94836f] dark:text-[#8a7a68] line-through tabular-nums leading-none mb-0.5">
                     {formatSom(fullAmount, lang)}
                   </span>
                 )}
@@ -762,9 +762,9 @@ export function AddProfileView() {
       {editLink && (
         <div className="mt-4 bg-[#f0faf4] border border-[#c8ecd5] rounded-xl p-4">
           <p className="text-[13px] font-extrabold text-[#1a7a3c]">{t("editlink.title")}</p>
-          <p className="text-[11px] text-[#574634] font-medium mt-1">{t("editlink.desc")}</p>
+          <p className="text-[11px] text-[#574634] dark:text-[#c9bba7] font-medium mt-1">{t("editlink.desc")}</p>
           <div className="mt-2 flex items-center gap-2">
-            <code className="flex-1 min-w-0 text-[11px] font-bold text-[#241c14] bg-white border border-[#dcefe3] rounded-lg px-2.5 py-2 truncate">
+            <code className="flex-1 min-w-0 text-[11px] font-bold text-[#241c14] dark:text-[#f2ebe2] bg-white border border-[#dcefe3] rounded-lg px-2.5 py-2 truncate">
               {editLink}
             </code>
             <Button

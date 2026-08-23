@@ -187,3 +187,20 @@ Stage Summary:
 - Aksiya to'liq admin nazoratida: yoqish/o'chirish, foiz (0-90%), sana — darhol saytga ta'sir qiladi
 - 10 ta xato topildi va tuzatildi (2 ta kritik — butun sahifalar buzilgan edi)
 - Lint toza, 0 console error, 0 overflow
+
+---
+Task ID: 9
+Agent: Main agent (Super Z)
+Task: TopBid 9-bosqich — admin qo'lda to'lov, dark mode, demo tozalash, deploy tayyor
+
+Work Log:
+- ADMIN QO'LDA TO'LV TASDIQLASH: /api/admin/confirm-payment (bid/verification); admin API'ga awaitingBids + awaitingVerifications; admin panelda "Pul kutilmoqda" bo'limi — har kutilayotgan to'lov uchun avatar/profil/summa + "Pul tushdi ✓" tugmasi; TEST: pending profil → admin bosdi → profil TOP-1'da reytingga chiqdi; to'lovlar tarixi bo'limi alohida
+- DARK MODE: next-themes (class strategy, default light); ThemeToggle (Moon/Sun) navbar'da; globals.css dark o'zgaruvchilari yaxshilandi (chuqur qora-krem palitra); 16 komponentga dark: klasslari (bg-white→dark:bg-[#201a14], textlar, borders); TEST: html.dark, bodyBg rgb(23,19,16), hero matn oq-krem, orqaga light — hammasi ishlaydi
+- DEMO TOZALASH: scripts/reset.ts — 17 profil, 19 bid, 17 sharh, 5160 view, 5 verifikatsiya o'chirildi; kategoriyalar (43) saqlandi; statistika 0 dan; sayt bo'sh "Reyting hali bo'sh" holatida
+- DEPLOY TAYYOR: DEPLOY.md (Vercel + VPS qo'llanma, Telegram bot setup: setWebhook + /setprivacy Disable + guruhga HumoCardBot+TopBiduzbot, DNS, tekshiruv ro'yxati, oylik xayriya eslatmasi, xavfsizlik); .gitignore (.env, db, uploads); bun run build MUVAFFAQIYATLI (barcha 20+ API route build'da)
+- Yakuniy holat: bo'sh sayt + tema tugmasi + toza statistika; lint toza
+
+Stage Summary:
+- Admin endi pulni O'ZI ko'rib tasdiqlay oladi (bot bo'lmasa ham): "Pul tushdi ✓" → profil darhol reytingda
+- Dark mode to'liq (16 komponent, barcha modal va sahifalar)
+- Sayt deployga tayyor: bo'sh baza, DEPLOY.md qo'llanma, build o'tadi

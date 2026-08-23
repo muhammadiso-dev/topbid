@@ -76,9 +76,9 @@ export function StatsBar() {
       {items.map((item) => (
         <div
           key={item.label}
-          className="bg-white border border-border rounded-xl px-3 py-2.5 md:px-4 md:py-3 flex items-center gap-2.5 md:gap-3"
+          className="bg-white dark:bg-[#201a14] border border-border rounded-xl px-3 py-2.5 md:px-4 md:py-3 flex items-center gap-2.5 md:gap-3"
         >
-          <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#fdeedd] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#fdeedd] dark:bg-[#3a2c1c] flex items-center justify-center shrink-0">
             <item.icon className="w-4 h-4 md:w-[18px] md:h-[18px] text-[#d97b29]" />
           </div>
           <div className="min-w-0">
@@ -89,11 +89,11 @@ export function StatsBar() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                 </span>
               )}
-              <p className="text-sm md:text-[15px] font-extrabold leading-none text-[#241c14] truncate tabular-nums">
+              <p className="text-sm md:text-[15px] font-extrabold leading-none text-[#241c14] dark:text-[#f2ebe2] truncate tabular-nums">
                 {item.value}
               </p>
             </div>
-            <p className="text-[11px] md:text-xs text-[#6b5d4d] font-semibold mt-1 leading-none">
+            <p className="text-[11px] md:text-xs text-[#6b5d4d] dark:text-[#a3937f] font-semibold mt-1 leading-none">
               {item.label}
             </p>
           </div>

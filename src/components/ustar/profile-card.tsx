@@ -83,7 +83,7 @@ export function ProfileCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn(
-        "group relative bg-white rounded-2xl border transition-all cursor-pointer hover:-translate-y-1",
+        "group relative bg-white dark:bg-[#201a14] rounded-2xl border transition-all cursor-pointer hover:-translate-y-1",
         isTop1 &&
           "top-glow border-transparent bg-gradient-to-br from-[#fff8ef] via-white to-[#fffdf8] hover:shadow-[0_16px_40px_-12px_rgba(217,123,41,0.45)]",
         isTop3 &&
@@ -110,7 +110,7 @@ export function ProfileCard({
             "absolute top-3 right-3 md:top-4 md:right-4 z-10 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase shadow-sm",
             isTop1
               ? "bg-gradient-to-r from-[#d97b29] to-[#e8944a] text-white"
-              : "bg-[#fdeedd] text-[#b25e14] border border-[#f0d5b8]"
+              : "bg-[#fdeedd] dark:bg-[#3a2c1c] text-[#b25e14] border border-[#f0d5b8]"
           )}
         >
           {isTop1 && <Flame className="w-3 h-3" />}
@@ -140,7 +140,7 @@ export function ProfileCard({
               {t("card.rank")}
             </span>
             {showGlobalChip && (
-              <span className="mt-2 inline-flex items-center gap-1 text-[9px] font-bold text-[#94836f] bg-[#f6efe6] px-2 py-0.5 rounded-full">
+              <span className="mt-2 inline-flex items-center gap-1 text-[9px] font-bold text-[#94836f] dark:text-[#8a7a68] bg-[#f6efe6] dark:bg-[#2b241b] px-2 py-0.5 rounded-full">
                 <Globe className="w-2.5 h-2.5" />
                 {t("card.global")} {globalPosition}
               </span>
@@ -159,7 +159,7 @@ export function ProfileCard({
             <div className="flex items-center gap-1.5 flex-wrap pr-20">
               <h3
                 className={cn(
-                  "font-extrabold text-[#241c14] leading-tight",
+                  "font-extrabold text-[#241c14] dark:text-[#f2ebe2] leading-tight",
                   isTop3 ? "text-xl" : "text-base"
                 )}
               >
@@ -171,7 +171,7 @@ export function ProfileCard({
 
             <p
               className={cn(
-                "text-[#6b5d4d] mt-1.5 leading-relaxed",
+                "text-[#6b5d4d] dark:text-[#a3937f] mt-1.5 leading-relaxed",
                 isTop3 ? "text-[15px] line-clamp-2" : "text-sm line-clamp-2"
               )}
             >
@@ -180,21 +180,21 @@ export function ProfileCard({
 
             {/* Chips */}
             <div className="flex items-center gap-1.5 flex-wrap mt-2.5">
-              <span className="text-[11px] font-bold text-[#b25e14] bg-[#fdeedd] px-2.5 py-1 rounded-full">
+              <span className="text-[11px] font-bold text-[#b25e14] bg-[#fdeedd] dark:bg-[#3a2c1c] px-2.5 py-1 rounded-full">
                 {profile.categoryGroup ? `${profile.categoryGroup} · ${profile.categoryName}` : profile.categoryName}
               </span>
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#574634] bg-[#f6efe6] px-2.5 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#574634] dark:text-[#c9bba7] bg-[#f6efe6] dark:bg-[#2b241b] px-2.5 py-1 rounded-full">
                 <MapPin className="w-3 h-3" />
                 {profile.city}
               </span>
             </div>
 
             {/* Statistika — ikonkali mini-qator */}
-            <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-3 text-[12px] text-[#94836f] font-semibold">
+            <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-3 text-[12px] text-[#94836f] dark:text-[#8a7a68] font-semibold">
               {profile.reviewsCount > 0 && (
                 <span className="inline-flex items-center gap-1.5">
                   <StarRating value={profile.avgRating} size={12} />
-                  <span className="font-extrabold text-[#574634]">{profile.avgRating}</span>
+                  <span className="font-extrabold text-[#574634] dark:text-[#c9bba7]">{profile.avgRating}</span>
                   <span>({profile.reviewsCount})</span>
                 </span>
               )}
@@ -219,7 +219,7 @@ export function ProfileCard({
               </p>
               <p
                 className={cn(
-                  "font-extrabold tabular-nums text-[#241c14] mt-1.5 leading-tight",
+                  "font-extrabold tabular-nums text-[#241c14] dark:text-[#f2ebe2] mt-1.5 leading-tight",
                   isTop3 ? "text-2xl" : "text-xl"
                 )}
               >
@@ -235,7 +235,7 @@ export function ProfileCard({
                   "h-10 text-xs font-extrabold rounded-xl border-2 transition-all whitespace-nowrap",
                   isTop3
                     ? "border-[#d97b29] bg-[#d97b29] text-white hover:bg-[#c2691f] hover:border-[#c2691f] shadow-md shadow-[#d97b29]/25"
-                    : "border-[#e8ddd0] text-[#574634] bg-white hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8]"
+                    : "border-[#e8ddd0] text-[#574634] dark:text-[#c9bba7] bg-white hover:bg-[#fdeedd] dark:bg-[#3a2c1c] hover:text-[#b25e14] hover:border-[#f0d5b8]"
                 )}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -260,7 +260,7 @@ export function ProfileCard({
               <div className="flex items-start justify-between gap-2">
                 <h3
                   className={cn(
-                    "font-extrabold text-[#241c14] leading-tight min-w-0",
+                    "font-extrabold text-[#241c14] dark:text-[#f2ebe2] leading-tight min-w-0",
                     isTop3 ? "text-base" : "text-[15px]"
                   )}
                 >
@@ -280,7 +280,7 @@ export function ProfileCard({
               </div>
               <div className="flex items-center gap-1 flex-wrap mt-1">
                 {showGlobalChip && (
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#94836f] bg-[#f6efe6] px-1.5 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#94836f] dark:text-[#8a7a68] bg-[#f6efe6] dark:bg-[#2b241b] px-1.5 py-0.5 rounded-full">
                     <Globe className="w-2.5 h-2.5" />
                     {t("card.global")} {globalPosition}
                   </span>
@@ -291,16 +291,16 @@ export function ProfileCard({
           </div>
 
           {/* 2-qator: tavsif */}
-          <p className="text-[13px] text-[#6b5d4d] mt-2.5 leading-relaxed line-clamp-2">
+          <p className="text-[13px] text-[#6b5d4d] dark:text-[#a3937f] mt-2.5 leading-relaxed line-clamp-2">
             {profile.description}
           </p>
 
           {/* 3-qator: chips */}
           <div className="flex items-center gap-1.5 flex-wrap mt-2.5">
-            <span className="text-[10px] font-bold text-[#b25e14] bg-[#fdeedd] px-2 py-0.5 rounded-full max-w-[60%] truncate">
+            <span className="text-[10px] font-bold text-[#b25e14] bg-[#fdeedd] dark:bg-[#3a2c1c] px-2 py-0.5 rounded-full max-w-[60%] truncate">
               {profile.categoryName}
             </span>
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#574634] bg-[#f6efe6] px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#574634] dark:text-[#c9bba7] bg-[#f6efe6] dark:bg-[#2b241b] px-2 py-0.5 rounded-full">
               <MapPin className="w-2.5 h-2.5" />
               {profile.city}
             </span>
@@ -308,11 +308,11 @@ export function ProfileCard({
 
           {/* 4-qator: statistika + narx */}
           <div className="flex items-center justify-between gap-2 mt-3 pb-2.5 border-b border-dashed border-[#f0e6da]">
-            <div className="flex items-center gap-x-2.5 gap-y-1 flex-wrap text-[11px] text-[#94836f] font-semibold">
+            <div className="flex items-center gap-x-2.5 gap-y-1 flex-wrap text-[11px] text-[#94836f] dark:text-[#8a7a68] font-semibold">
               {profile.reviewsCount > 0 && (
                 <span className="inline-flex items-center gap-0.5">
                   <Star className="w-3 h-3 fill-[#d97b29] text-[#d97b29]" />
-                  <span className="font-extrabold text-[#574634]">{profile.avgRating}</span>
+                  <span className="font-extrabold text-[#574634] dark:text-[#c9bba7]">{profile.avgRating}</span>
                   <span>({profile.reviewsCount})</span>
                 </span>
               )}
@@ -325,7 +325,7 @@ export function ProfileCard({
                 {formatCompactNumber(profile.clicks)}
               </span>
             </div>
-            <span className="font-extrabold text-[#241c14] tabular-nums text-[15px] shrink-0">
+            <span className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] tabular-nums text-[15px] shrink-0">
               {formatSom(profile.totalBid, lang)}
             </span>
           </div>
@@ -342,7 +342,7 @@ export function ProfileCard({
                 "flex-1 min-w-0 h-12 rounded-xl font-extrabold px-3 flex flex-col items-center justify-center gap-0.5 cursor-pointer transition-all active:scale-[0.98]",
                 isTop3
                   ? "bg-[#d97b29] hover:bg-[#c2691f] text-white shadow-md shadow-[#d97b29]/25"
-                  : "border-2 border-[#e8ddd0] text-[#574634] bg-white hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8]"
+                  : "border-2 border-[#e8ddd0] text-[#574634] dark:text-[#c9bba7] bg-white hover:bg-[#fdeedd] dark:bg-[#3a2c1c] hover:text-[#b25e14] hover:border-[#f0d5b8]"
               )}
             >
               <span className="flex items-center gap-1.5 text-[12px] leading-none">
@@ -364,7 +364,7 @@ export function ProfileCard({
                 e.stopPropagation();
                 onOpenDetail(profile.id);
               }}
-              className="h-11 px-3 rounded-xl border-2 border-[#e8ddd0] bg-white text-[#d97b29] hover:bg-[#fdeedd] font-extrabold text-xs inline-flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="h-11 px-3 rounded-xl border-2 border-[#e8ddd0] bg-white text-[#d97b29] hover:bg-[#fdeedd] dark:bg-[#3a2c1c] font-extrabold text-xs inline-flex items-center gap-1.5 cursor-pointer shrink-0"
               aria-label={t("reviews.leave")}
               title={t("reviews.leave")}
             >

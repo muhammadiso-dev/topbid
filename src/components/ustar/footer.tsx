@@ -21,7 +21,7 @@ export function Footer() {
             <div className="flex items-center gap-2">
               { }
               <img src="/logo-96.png" alt="TopBid" className="w-8 h-8 object-contain" />
-              <span className="font-extrabold text-lg text-[#241c14]">
+              <span className="font-extrabold text-lg text-[#241c14] dark:text-[#f2ebe2]">
                 TopBid<span className="text-[#d97b29]">.uz</span>
               </span>
             </div>
@@ -33,19 +33,19 @@ export function Footer() {
           {/* Havolalar */}
           <nav className="grid grid-cols-2 gap-x-10 gap-y-2" aria-label="Footer navigatsiya">
             <div className="flex flex-col gap-2">
-              <p className="text-[11px] font-extrabold uppercase tracking-wide text-[#94836f]">
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-[#94836f] dark:text-[#8a7a68]">
                 {t("footer.platform")}
               </p>
               <button
                 onClick={() => setView({ name: "about" })}
-                className="flex items-center gap-1.5 text-[13px] font-semibold text-[#574634] hover:text-[#b25e14] transition-colors cursor-pointer text-left"
+                className="flex items-center gap-1.5 text-[13px] font-semibold text-[#574634] dark:text-[#c9bba7] hover:text-[#b25e14] transition-colors cursor-pointer text-left"
               >
                 <Info className="w-3.5 h-3.5" />
                 {t("nav.about")}
               </button>
               <button
                 onClick={() => setView({ name: "rules" })}
-                className="flex items-center gap-1.5 text-[13px] font-semibold text-[#574634] hover:text-[#b25e14] transition-colors cursor-pointer text-left"
+                className="flex items-center gap-1.5 text-[13px] font-semibold text-[#574634] dark:text-[#c9bba7] hover:text-[#b25e14] transition-colors cursor-pointer text-left"
               >
                 <ScrollText className="w-3.5 h-3.5" />
                 {t("nav.rules")}

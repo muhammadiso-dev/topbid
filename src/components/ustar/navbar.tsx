@@ -5,6 +5,7 @@ import { GraduationCap, Briefcase, Info, ScrollText, Plus, Menu, X, Trophy, Glob
 import { Button } from "@/components/ui/button";
 import { useUstarStore } from "@/lib/ustar/store";
 import { useI18n, LANGS } from "@/lib/ustar/i18n";
+import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
@@ -38,7 +39,7 @@ export function Navbar() {
   const currentLang = LANGS.find((l) => l.code === lang) ?? LANGS[0];
 
   return (
-    <header className="sticky top-0 z-40 bg-[#fffdfa]/90 backdrop-blur-md border-b border-border">
+    <header className="sticky top-0 z-40 bg-[#fffdfa] dark:bg-[#171310]/90 backdrop-blur-md border-b border-border">
       <div className="max-w-5xl mx-auto px-4">
         <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
@@ -53,7 +54,7 @@ export function Navbar() {
               alt="TopBid"
               className="h-9 w-9 md:h-10 md:w-10 object-contain group-hover:scale-105 transition-transform"
             />
-            <span className="font-extrabold text-xl tracking-tight text-[#241c14]">
+            <span className="font-extrabold text-xl tracking-tight text-[#241c14] dark:text-[#f2ebe2]">
               TopBid
               <span className="text-[#d97b29]">.uz</span>
             </span>
@@ -68,8 +69,8 @@ export function Navbar() {
                 className={cn(
                   "px-3 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer",
                   l.active
-                    ? "text-[#b25e14] bg-[#fdeedd]"
-                    : "text-[#6b5d4d] hover:text-[#241c14] hover:bg-[#f6efe6]"
+                    ? "text-[#b25e14] bg-[#fdeedd] dark:bg-[#3a2c1c]"
+                    : "text-[#6b5d4d] dark:text-[#a3937f] hover:text-[#241c14] dark:text-[#f2ebe2] hover:bg-[#f6efe6] dark:bg-[#2b241b]"
                 )}
               >
                 {l.label}
@@ -77,12 +78,15 @@ export function Navbar() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            {/* Dark mode */}
+            <ThemeToggle />
+
             {/* Til almashtirgich */}
             <div className="relative" ref={langRef}>
               <button
                 onClick={() => setLangOpen(!langOpen)}
-                className="flex items-center gap-1 h-11 px-2 rounded-lg text-[#574634] hover:bg-[#f6efe6] font-extrabold text-xs cursor-pointer transition-colors"
+                className="flex items-center gap-1 h-11 px-2 rounded-lg text-[#574634] dark:text-[#c9bba7] hover:bg-[#f6efe6] dark:bg-[#2b241b] font-extrabold text-xs cursor-pointer transition-colors"
                 aria-label={t("nav.language")}
                 aria-expanded={langOpen}
               >
@@ -101,8 +105,8 @@ export function Navbar() {
                       className={cn(
                         "w-full flex items-center justify-between gap-2 px-3.5 py-2.5 text-[13px] font-bold cursor-pointer transition-colors",
                         l.code === lang
-                          ? "text-[#b25e14] bg-[#fdeedd]"
-                          : "text-[#574634] hover:bg-[#f6efe6]"
+                          ? "text-[#b25e14] bg-[#fdeedd] dark:bg-[#3a2c1c]"
+                          : "text-[#574634] dark:text-[#c9bba7] hover:bg-[#f6efe6] dark:bg-[#2b241b]"
                       )}
                     >
                       {l.label}
@@ -124,7 +128,7 @@ export function Navbar() {
 
             {/* Mobil menyu tugmasi */}
             <button
-              className="md:hidden w-11 h-11 flex items-center justify-center rounded-lg text-[#6b5d4d] hover:bg-[#f6efe6] cursor-pointer"
+              className="md:hidden w-11 h-11 flex items-center justify-center rounded-lg text-[#6b5d4d] dark:text-[#a3937f] hover:bg-[#f6efe6] dark:bg-[#2b241b] cursor-pointer"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label={mobileOpen ? t("nav.menuClose") : t("nav.menuOpen")}
               aria-expanded={mobileOpen}
@@ -146,7 +150,7 @@ export function Navbar() {
                 }}
                 className={cn(
                   "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-bold transition-colors cursor-pointer",
-                  l.active ? "text-[#b25e14] bg-[#fdeedd]" : "text-[#6b5d4d] hover:bg-[#f6efe6]"
+                  l.active ? "text-[#b25e14] bg-[#fdeedd] dark:bg-[#3a2c1c]" : "text-[#6b5d4d] dark:text-[#a3937f] hover:bg-[#f6efe6] dark:bg-[#2b241b]"
                 )}
               >
                 <l.icon className="w-4 h-4" />
@@ -159,7 +163,7 @@ export function Navbar() {
                   goHomeTab("education");
                   setMobileOpen(false);
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold bg-[#f6efe6] text-[#574634] cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold bg-[#f6efe6] dark:bg-[#2b241b] text-[#574634] dark:text-[#c9bba7] cursor-pointer"
               >
                 <GraduationCap className="w-4 h-4" /> {t("home.tabEdu")}
               </button>
@@ -168,7 +172,7 @@ export function Navbar() {
                   goHomeTab("it");
                   setMobileOpen(false);
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold bg-[#f6efe6] text-[#574634] cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold bg-[#f6efe6] dark:bg-[#2b241b] text-[#574634] dark:text-[#c9bba7] cursor-pointer"
               >
                 <Briefcase className="w-4 h-4" /> {t("home.tabIt")}
               </button>
@@ -181,7 +185,7 @@ export function Navbar() {
                   onClick={() => setLang(l.code)}
                   className={cn(
                     "flex-1 px-2 py-2 rounded-lg text-[11px] font-extrabold cursor-pointer",
-                    l.code === lang ? "bg-[#d97b29] text-white" : "bg-[#f6efe6] text-[#574634]"
+                    l.code === lang ? "bg-[#d97b29] text-white" : "bg-[#f6efe6] dark:bg-[#2b241b] text-[#574634] dark:text-[#c9bba7]"
                   )}
                 >
                   {l.short}

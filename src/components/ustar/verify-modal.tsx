@@ -61,15 +61,15 @@ export function VerifyModal({ open, onOpenChange, promoActive, promoPercent = 0.
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent className="bg-white border-[#e8ddd0] rounded-2xl max-w-md p-0 overflow-hidden gap-0 block">
+      <DialogContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] rounded-2xl max-w-md p-0 overflow-hidden gap-0 block">
         {step === "benefits" && (
           <div>
             <DialogHeader className="p-5 pb-4 border-b border-[#f0e6da]">
-              <DialogTitle className="text-lg font-extrabold text-[#241c14] flex items-center gap-2">
+              <DialogTitle className="text-lg font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
                 <BadgeCheck className="w-5 h-5 text-[#b45f14]" />
                 {t("verify.title")}
               </DialogTitle>
-              <DialogDescription className="text-[#6b5d4d] text-sm">
+              <DialogDescription className="text-[#6b5d4d] dark:text-[#a3937f] text-sm">
                 {t("verify.subtitle")}
               </DialogDescription>
             </DialogHeader>
@@ -92,14 +92,14 @@ export function VerifyModal({ open, onOpenChange, promoActive, promoPercent = 0.
               </div>
 
               {/* Jarayon */}
-              <div className="bg-[#fffdfa] border border-[#f0e6da] rounded-xl p-3.5 text-[12px] text-[#574634] leading-relaxed">
-                <b className="text-[#241c14]">{t("verify.howTitle")}</b> {t("verify.howDesc")}
+              <div className="bg-[#fffdfa] dark:bg-[#171310] border border-[#f0e6da] rounded-xl p-3.5 text-[12px] text-[#574634] dark:text-[#c9bba7] leading-relaxed">
+                <b className="text-[#241c14] dark:text-[#f2ebe2]">{t("verify.howTitle")}</b> {t("verify.howDesc")}
               </div>
 
               {/* Narx */}
               <div className="bg-[#241c14] rounded-xl p-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-[#94836f] leading-none">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-[#94836f] dark:text-[#8a7a68] leading-none">
                     {t("verify.oneTime")}
                   </p>
                   {promo && (
@@ -110,7 +110,7 @@ export function VerifyModal({ open, onOpenChange, promoActive, promoPercent = 0.
                 </div>
                 <p className="text-right">
                   {promo && (
-                    <span className="block text-xs font-bold text-[#94836f] line-through tabular-nums">
+                    <span className="block text-xs font-bold text-[#94836f] dark:text-[#8a7a68] line-through tabular-nums">
                       {formatSom(VERIFICATION_FEE, lang)}
                     </span>
                   )}
@@ -128,7 +128,7 @@ export function VerifyModal({ open, onOpenChange, promoActive, promoPercent = 0.
                 {t("verify.payViaBot")}
               </Button>
 
-              <div className="flex items-center gap-2 text-[11px] text-[#94836f] font-medium">
+              <div className="flex items-center gap-2 text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-green-600 shrink-0" />
                 {t("verify.refundNote")}
               </div>
@@ -139,15 +139,15 @@ export function VerifyModal({ open, onOpenChange, promoActive, promoPercent = 0.
         {step === "card" && (
           <div>
             <DialogHeader className="p-5 pb-3 border-b border-[#f0e6da]">
-              <DialogTitle className="text-lg font-extrabold text-[#241c14] flex items-center gap-2">
+              <DialogTitle className="text-lg font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-[#b45f14]" />
                 {t("verify.title")}
               </DialogTitle>
-              <DialogDescription className="text-[#6b5d4d] text-sm">{t("pay.cardDesc")}</DialogDescription>
+              <DialogDescription className="text-[#6b5d4d] dark:text-[#a3937f] text-sm">{t("pay.cardDesc")}</DialogDescription>
             </DialogHeader>
 
             <div className="p-5 space-y-4">
-              <p className="text-[12px] text-[#574634] font-semibold leading-relaxed">
+              <p className="text-[12px] text-[#574634] dark:text-[#c9bba7] font-semibold leading-relaxed">
                 1. {t("pay.cardStep1")}
               </p>
 
@@ -174,7 +174,7 @@ export function VerifyModal({ open, onOpenChange, promoActive, promoPercent = 0.
                 </div>
               </div>
 
-              <div className="space-y-1.5 text-[12px] text-[#574634] font-medium">
+              <div className="space-y-1.5 text-[12px] text-[#574634] dark:text-[#c9bba7] font-medium">
                 <p>2. {t("pay.cardStep2")} <b className="tabular-nums text-[#b25e14]">{formatSom(fee, lang)}</b></p>
               </div>
 
@@ -202,8 +202,8 @@ export function VerifyModal({ open, onOpenChange, promoActive, promoPercent = 0.
         {step === "processing" && (
           <div className="p-12 flex flex-col items-center justify-center gap-4">
             <Loader2 className="w-10 h-10 text-[#b45f14] animate-spin" />
-            <p className="font-bold text-[#241c14]">{t("pay.processing")}</p>
-            <p className="text-xs text-[#94836f]">{t("pay.wait")}</p>
+            <p className="font-bold text-[#241c14] dark:text-[#f2ebe2]">{t("pay.processing")}</p>
+            <p className="text-xs text-[#94836f] dark:text-[#8a7a68]">{t("pay.wait")}</p>
           </div>
         )}
 
@@ -212,8 +212,8 @@ export function VerifyModal({ open, onOpenChange, promoActive, promoPercent = 0.
             <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
               <PartyPopper className="w-8 h-8 text-[#b45f14]" />
             </div>
-            <h3 className="text-xl font-extrabold text-[#241c14]">{t("verify.requestSent")}</h3>
-            <p className="text-sm text-[#6b5d4d] max-w-[300px] leading-relaxed">
+            <h3 className="text-xl font-extrabold text-[#241c14] dark:text-[#f2ebe2]">{t("verify.requestSent")}</h3>
+            <p className="text-sm text-[#6b5d4d] dark:text-[#a3937f] max-w-[300px] leading-relaxed">
               {t("verify.requestSentDesc")}
             </p>
             <div className="flex items-center gap-1.5 text-xs font-bold text-[#b45f14] bg-[#fff3df] border border-[#f0d5b8] rounded-full px-3 py-1.5 mt-1">
@@ -239,7 +239,7 @@ function Benefit({ icon, text }: { icon: React.ReactNode; text: string }) {
       <div className="w-8 h-8 rounded-lg bg-[#fff3df] flex items-center justify-center shrink-0">
         {icon}
       </div>
-      <p className="text-[13px] text-[#574634] font-semibold leading-snug pt-1">{text}</p>
+      <p className="text-[13px] text-[#574634] dark:text-[#c9bba7] font-semibold leading-snug pt-1">{text}</p>
     </div>
   );
 }

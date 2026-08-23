@@ -98,13 +98,13 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
         if (!o) setTimeout(() => setPhase("intro"), 200);
       }}
     >
-      <DialogContent className="bg-white border-[#e8ddd0] rounded-2xl max-w-md p-0 overflow-hidden gap-0 block">
+      <DialogContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] rounded-2xl max-w-md p-0 overflow-hidden gap-0 block">
         <DialogHeader className="p-5 pb-4 border-b border-[#f0e6da]">
-          <DialogTitle className="text-lg font-extrabold text-[#241c14] flex items-center gap-2">
+          <DialogTitle className="text-lg font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-[#1d7ed8]" />
             {t("claim.title")}
           </DialogTitle>
-          <DialogDescription className="text-[#6b5d4d] text-sm">{t("claim.desc")}</DialogDescription>
+          <DialogDescription className="text-[#6b5d4d] dark:text-[#a3937f] text-sm">{t("claim.desc")}</DialogDescription>
         </DialogHeader>
 
         {phase === "intro" && (
@@ -126,7 +126,7 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
 
         {phase === "code" && (
           <div className="p-5 space-y-4">
-            <p className="text-[13px] text-[#574634] font-semibold leading-relaxed whitespace-pre-line bg-[#fffdfa] border border-[#f0e6da] rounded-xl p-3.5">
+            <p className="text-[13px] text-[#574634] dark:text-[#c9bba7] font-semibold leading-relaxed whitespace-pre-line bg-[#fffdfa] dark:bg-[#171310] border border-[#f0e6da] rounded-xl p-3.5">
               {instructions}
             </p>
             <div className="bg-[#241c14] rounded-xl p-4 flex items-center justify-between gap-3">
@@ -140,12 +140,12 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
               </button>
             </div>
             {method === "site" && (
-              <p className="text-[11px] text-[#94836f] font-mono bg-[#f6efe6] rounded-lg px-3 py-2 overflow-x-auto">
+              <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-mono bg-[#f6efe6] dark:bg-[#2b241b] rounded-lg px-3 py-2 overflow-x-auto">
                 {`<meta name="topbid" content="${code}">`}
               </p>
             )}
             {method === "instagram" && (
-              <p className="text-[11px] text-[#94836f] font-medium">
+              <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium">
                 Shaxsiy profil bo'lsa: bio'ga kod qo'yib, @TopBidSupport'ga yozing.
               </p>
             )}
@@ -161,7 +161,7 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
         {phase === "checking" && (
           <div className="p-12 flex flex-col items-center gap-3">
             <Loader2 className="w-8 h-8 text-[#1d7ed8] animate-spin" />
-            <p className="font-bold text-[#241c14] text-sm">{t("claim.checking")}</p>
+            <p className="font-bold text-[#241c14] dark:text-[#f2ebe2] text-sm">{t("claim.checking")}</p>
           </div>
         )}
 
@@ -170,8 +170,8 @@ export function ClaimModal({ open, onOpenChange, profile, onClaimed }: ClaimModa
             <div className="w-14 h-14 rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
               <CheckCircle2 className="w-7 h-7 text-green-600" />
             </div>
-            <h3 className="text-lg font-extrabold text-[#241c14]">{t("claim.success")}</h3>
-            <p className="text-sm text-[#6b5d4d]">{t("claim.successDesc")}</p>
+            <h3 className="text-lg font-extrabold text-[#241c14] dark:text-[#f2ebe2]">{t("claim.success")}</h3>
+            <p className="text-sm text-[#6b5d4d] dark:text-[#a3937f]">{t("claim.successDesc")}</p>
           </div>
         )}
       </DialogContent>

@@ -90,18 +90,18 @@ export function EditModal({ open, onOpenChange, profile, editToken, onSaved }: E
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white border-[#e8ddd0] rounded-2xl max-w-md p-0 overflow-hidden max-h-[90vh] overflow-y-auto scrollbar-thin gap-0 block">
+      <DialogContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] rounded-2xl max-w-md p-0 overflow-hidden max-h-[90vh] overflow-y-auto scrollbar-thin gap-0 block">
         <DialogHeader className="p-5 pb-4 border-b border-[#f0e6da] sticky top-0 bg-white z-10">
-          <DialogTitle className="text-lg font-extrabold text-[#241c14] flex items-center gap-2">
+          <DialogTitle className="text-lg font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2">
             <Pencil className="w-5 h-5 text-[#d97b29]" />
             {t("edit.title")}
           </DialogTitle>
-          <DialogDescription className="text-[#6b5d4d] text-sm truncate">{profile.name}</DialogDescription>
+          <DialogDescription className="text-[#6b5d4d] dark:text-[#a3937f] text-sm truncate">{profile.name}</DialogDescription>
         </DialogHeader>
 
         <div className="p-5 space-y-4">
           <div>
-            <Label htmlFor="edit-name" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+            <Label htmlFor="edit-name" className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
               {t("form.name")}
             </Label>
             <Input
@@ -115,10 +115,10 @@ export function EditModal({ open, onOpenChange, profile, editToken, onSaved }: E
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <Label htmlFor="edit-desc" className="text-[13px] font-bold text-[#574634]">
+              <Label htmlFor="edit-desc" className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7]">
                 {t("form.description")}
               </Label>
-              <span className="text-[11px] font-bold text-[#94836f] tabular-nums">{description.length}/300</span>
+              <span className="text-[11px] font-bold text-[#94836f] dark:text-[#8a7a68] tabular-nums">{description.length}/300</span>
             </div>
             <Textarea
               id="edit-desc"
@@ -131,12 +131,12 @@ export function EditModal({ open, onOpenChange, profile, editToken, onSaved }: E
           </div>
 
           <div>
-            <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">{t("form.categoryLabel")}</Label>
+            <Label className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">{t("form.categoryLabel")}</Label>
             <Select value={categoryId} onValueChange={setCategoryId}>
               <SelectTrigger className="h-11 bg-white text-sm font-semibold rounded-lg border-[#e8ddd0]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white border-[#e8ddd0] max-h-72">
+              <SelectContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] max-h-72">
                 {groups.map(([group, items]) => (
                   <SelectGroup key={group}>
                     <SelectLabel className="text-[11px] font-extrabold uppercase tracking-wide text-[#b25e14]">
@@ -154,12 +154,12 @@ export function EditModal({ open, onOpenChange, profile, editToken, onSaved }: E
           </div>
 
           <div>
-            <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">{t("form.city")}</Label>
+            <Label className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">{t("form.city")}</Label>
             <Select value={city} onValueChange={setCity}>
               <SelectTrigger className="h-11 bg-white text-sm font-semibold rounded-lg border-[#e8ddd0]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white border-[#e8ddd0] max-h-72">
+              <SelectContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] max-h-72">
                 {CITIES.map((c) => (
                   <SelectItem key={c} value={c}>
                     {c}
@@ -170,8 +170,8 @@ export function EditModal({ open, onOpenChange, profile, editToken, onSaved }: E
           </div>
 
           <div>
-            <Label htmlFor="edit-logo" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-              {t("form.logo")} <span className="text-[#94836f] font-medium">({t("form.optional")})</span>
+            <Label htmlFor="edit-logo" className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
+              {t("form.logo")} <span className="text-[#94836f] dark:text-[#8a7a68] font-medium">({t("form.optional")})</span>
             </Label>
             <Input
               id="edit-logo"

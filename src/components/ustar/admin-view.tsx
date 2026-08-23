@@ -38,10 +38,33 @@ interface PaymentLogDTO {
   createdAt: string;
 }
 
+interface AwaitingBidDTO {
+  id: string;
+  amount: number;
+  credit: number;
+  createdAt: string;
+  profileId: string;
+  profileName: string;
+  profileContact: string;
+  profileCity: string;
+  profileStatus: string;
+}
+
+interface AwaitingVerifyDTO {
+  id: string;
+  fee: number;
+  createdAt: string;
+  profileId: string;
+  profileName: string;
+  profileContact: string;
+}
+
 interface AdminData {
   logs: AdminLogDTO[];
   profiles: ProfileDTO[];
   pendingProfiles?: ProfileDTO[];
+  awaitingBids?: AwaitingBidDTO[];
+  awaitingVerifications?: AwaitingVerifyDTO[];
   verifications: VerificationRequestDTO[];
   revenue: { bids: number; verification: number; total: number; charity: number };
   paymentLogs?: PaymentLogDTO[];
@@ -60,6 +83,7 @@ export function AdminView() {
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   // Aksiya boshqaruvi
   const [promoSettings, setPromoSettings] = useState({ promoActive: true, promoPercent: 0.5, promoEndsAt: "" });
@@ -138,6 +162,42 @@ export function AdminView() {
     }
   };
 
+  /** Admin qo'lda "pul tushdi" tasdiqlash — profil reytingga chiqadi / o'rin yangilanadi */
+  const confirmPayment = async (type: "bid" | "verification", id: string, name: string) => {
+    if (!confirm(`"${name}" — pul karta hisobiga tushganini tasdiqlaysizmi?\nProfil darhol reytingga chiqadi / o'rin yangilanadi.`)) return;
+    setConfirmingId(id);
+    try {
+      const res = await fetch("/api/admin/confirm-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          adminPassword: sessionStorage.getItem("topbid_admin_pw") || password,
+          type,
+          id,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Xatolik");
+      toast({
+        title: "✅ To'lov tasdiqlandi",
+        description: json.activated
+          ? "Profil reytingga chiqdi!"
+          : json.verification
+            ? "Verifikatsiya to'lovi qabul qilindi — hujjatlar so'raladi"
+            : `O'rin yangilandi: ${json.position}-o'rin`,
+      });
+      load(sessionStorage.getItem("topbid_admin_pw") || password);
+    } catch (e) {
+      toast({
+        title: "Xatolik",
+        description: e instanceof Error ? e.message : "Tasdiqlashda xatolik",
+        variant: "destructive",
+      });
+    } finally {
+      setConfirmingId(null);
+    }
+  };
+
   const handleDelete = async (profile: ProfileDTO) => {
     if (!confirm(`"${profile.name}" ${t("admin.deleteConfirm")}`)) return;
     setDeletingId(profile.id);
@@ -202,12 +262,12 @@ export function AdminView() {
   if (!authed) {
     return (
       <div className="max-w-sm mx-auto px-4 pb-16 pt-16 md:pt-24">
-        <div className="bg-white border border-border rounded-2xl p-6 text-center">
+        <div className="bg-white dark:bg-[#201a14] border border-border rounded-2xl p-6 text-center">
           <div className="w-14 h-14 mx-auto rounded-2xl bg-[#241c14] flex items-center justify-center">
             <Lock className="w-6 h-6 text-[#e9a05c]" />
           </div>
-          <h1 className="mt-4 font-extrabold text-lg text-[#241c14]">{t("admin.title")}</h1>
-          <p className="text-xs text-[#94836f] font-medium mt-1">{t("admin.subtitle")}</p>
+          <h1 className="mt-4 font-extrabold text-lg text-[#241c14] dark:text-[#f2ebe2]">{t("admin.title")}</h1>
+          <p className="text-xs text-[#94836f] dark:text-[#8a7a68] font-medium mt-1">{t("admin.subtitle")}</p>
           <form
             className="mt-5 space-y-3 text-left"
             onSubmit={(e) => {
@@ -218,7 +278,7 @@ export function AdminView() {
             }}
           >
             <div>
-              <Label htmlFor="admin-pw" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+              <Label htmlFor="admin-pw" className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
                 {t("admin.password")}
               </Label>
               <Input
@@ -242,7 +302,7 @@ export function AdminView() {
           <Button
             variant="ghost"
             onClick={() => setView({ name: "home" })}
-            className="mt-3 text-[#94836f] hover:bg-[#f6efe6] font-semibold text-xs"
+            className="mt-3 text-[#94836f] dark:text-[#8a7a68] hover:bg-[#f6efe6] dark:bg-[#2b241b] font-semibold text-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             {t("admin.backHome")}
@@ -263,21 +323,21 @@ export function AdminView() {
             variant="ghost"
             size="icon"
             onClick={() => setView({ name: "home" })}
-            className="rounded-lg hover:bg-[#f6efe6] text-[#574634]"
+            className="rounded-lg hover:bg-[#f6efe6] dark:bg-[#2b241b] text-[#574634] dark:text-[#c9bba7]"
             aria-label="Home"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14]">{t("admin.title")}</h1>
-            <p className="text-xs text-[#94836f] font-medium mt-0.5">{t("admin.panelSubtitle")}</p>
+            <h1 className="text-xl md:text-2xl font-extrabold text-[#241c14] dark:text-[#f2ebe2]">{t("admin.title")}</h1>
+            <p className="text-xs text-[#94836f] dark:text-[#8a7a68] font-medium mt-0.5">{t("admin.panelSubtitle")}</p>
           </div>
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => load(sessionStorage.getItem("topbid_admin_pw") || password)}
-          className="border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] font-bold rounded-lg shrink-0"
+          className="border-[#e8ddd0] text-[#574634] dark:text-[#c9bba7] hover:bg-[#fdeedd] dark:bg-[#3a2c1c] font-bold rounded-lg shrink-0"
         >
           <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
           <span className="hidden sm:inline">{t("admin.refresh")}</span>
@@ -309,15 +369,15 @@ export function AdminView() {
 
       {/* ===== AKSIYA BOSHQARUVI ===== */}
       <section className="mt-6" aria-label="Aksiya boshqaruvi">
-        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2 text-sm">
           <Rocket className="w-4 h-4 text-[#d97b29]" />
           Aksiya boshqaruvi
         </h2>
-        <div className="mt-3 bg-white border border-border rounded-2xl p-4 space-y-4">
+        <div className="mt-3 bg-white dark:bg-[#201a14] border border-border rounded-2xl p-4 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[13px] font-extrabold text-[#241c14]">Aksiya faol</p>
-              <p className="text-[11px] text-[#94836f] font-medium mt-0.5">
+              <p className="text-[13px] font-extrabold text-[#241c14] dark:text-[#f2ebe2]">Aksiya faol</p>
+              <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium mt-0.5">
                 O'chirilsa, narxlar to'liq (chegirmasiz) bo'ladi
               </p>
             </div>
@@ -342,7 +402,7 @@ export function AdminView() {
           </div>
 
           <div>
-            <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+            <Label className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
               Chegirma foizi: <span className="text-[#d97b29]">{Math.round(promoSettings.promoPercent * 100)}%</span>
             </Label>
             <div className="flex items-center gap-2">
@@ -356,14 +416,14 @@ export function AdminView() {
                 className="flex-1 accent-[#d97b29] cursor-pointer"
                 aria-label="Chegirma foizi"
               />
-              <span className="text-[11px] text-[#94836f] font-bold tabular-nums w-8">
+              <span className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-bold tabular-nums w-8">
                 {Math.round(promoSettings.promoPercent * 100)}%
               </span>
             </div>
           </div>
 
           <div>
-            <Label htmlFor="promo-end" className="text-[13px] font-bold text-[#574634] mb-1.5 block">
+            <Label htmlFor="promo-end" className="text-[13px] font-bold text-[#574634] dark:text-[#c9bba7] mb-1.5 block">
               Tugash sanasi
             </Label>
             <div className="flex items-center gap-2">
@@ -384,7 +444,7 @@ export function AdminView() {
               </Button>
             </div>
             {promoSettings.promoEndsAt && (
-              <p className="text-[11px] text-[#94836f] font-medium mt-1.5">
+              <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium mt-1.5">
                 Hozir: {new Date(promoSettings.promoEndsAt).toLocaleDateString("ru-RU")} gacha
               </p>
             )}
@@ -409,7 +469,7 @@ export function AdminView() {
       {/* ===== PENDING PROFILLAR (pul kutilmoqda) ===== */}
       {(data?.pendingProfiles?.length ?? 0) > 0 && (
         <section className="mt-6" aria-label="Pending profillar">
-          <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
+          <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2 text-sm">
             <Clock3 className="w-4 h-4 text-[#a86a00]" />
             Pul kutilmoqda ({data?.pendingProfiles?.length})
           </h2>
@@ -418,8 +478,8 @@ export function AdminView() {
               <div key={p.id} className="flex items-center gap-3 p-3.5">
                 <ProfileAvatar name={p.name} imageUrl={p.imageUrl} size={36} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-[13px] text-[#241c14] truncate">{p.name}</p>
-                  <p className="text-[11px] text-[#94836f] font-medium truncate">
+                  <p className="font-bold text-[13px] text-[#241c14] dark:text-[#f2ebe2] truncate">{p.name}</p>
+                  <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium truncate">
                     {p.city} · {formatSom(p.totalBid, lang)} reytingga
                   </p>
                 </div>
@@ -432,11 +492,84 @@ export function AdminView() {
         </section>
       )}
 
-      {/* ===== TO'LUVLAR (bot avtomatik) ===== */}
-      <section className="mt-6" aria-label="To'lovlar">
-        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
+      {/* ===== KUTILAYOTGAN TO'LUVLAR (pul kutilmoqda) ===== */}
+      <section className="mt-6" aria-label="Kutilayotgan to'lovlar">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2 text-sm">
+          <Clock3 className="w-4 h-4 text-[#a86a00]" />
+          Pul kutilmoqda ({(data?.awaitingBids?.length ?? 0) + (data?.awaitingVerifications?.length ?? 0)})
+        </h2>
+
+        {(data?.awaitingBids?.length ?? 0) === 0 && (data?.awaitingVerifications?.length ?? 0) === 0 ? (
+          <p className="mt-3 text-center text-xs text-[#94836f] dark:text-[#8a7a68] font-medium bg-white dark:bg-[#201a14] border border-border rounded-xl py-4">
+            Kutilayotgan to'lovlar yo'q
+          </p>
+        ) : (
+          <div className="mt-3 bg-white border border-[#f0d5b8] rounded-2xl divide-y divide-[#f5e8d0] overflow-hidden">
+            {/* O'rin to'lovlari */}
+            {data?.awaitingBids?.map((b) => (
+              <div key={b.id} className="flex items-center gap-3 p-3.5 bg-[#fffaf2]">
+                <ProfileAvatar name={b.profileName} size={36} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-[13px] text-[#241c14] dark:text-[#f2ebe2] truncate">
+                    {b.profileName}
+                    {b.profileStatus === "pending" && (
+                      <span className="ml-1.5 text-[9px] font-extrabold uppercase bg-[#fff4d6] text-[#a86a00] px-1.5 py-0.5 rounded-full">
+                        yangi
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium truncate">
+                    {formatSom(b.amount, lang)} · {b.profileCity} · {timeAgo(b.createdAt, lang)}
+                    {b.profileStatus !== "pending" && ` · +${formatSom(b.credit, lang)}`}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => confirmPayment("bid", b.id, b.profileName)}
+                  disabled={confirmingId === b.id}
+                  className="h-9 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold text-xs rounded-lg px-3 shrink-0"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Pul tushdi ✓
+                </Button>
+              </div>
+            ))}
+            {/* Verifikatsiya to'lovlari */}
+            {data?.awaitingVerifications?.map((v) => (
+              <div key={v.id} className="flex items-center gap-3 p-3.5 bg-[#fffaf2]">
+                { }
+                <img src="/verify-badge-48.png" alt="verify" className="w-9 h-9 rounded-lg shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-[13px] text-[#241c14] dark:text-[#f2ebe2] truncate">
+                    {v.profileName}
+                    <span className="ml-1.5 text-[9px] font-extrabold uppercase bg-[#fff3df] text-[#b45f14] px-1.5 py-0.5 rounded-full">
+                      verifikatsiya
+                    </span>
+                  </p>
+                  <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium truncate">
+                    {formatSom(v.fee, lang)} · {v.profileContact} · {timeAgo(v.createdAt, lang)}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => confirmPayment("verification", v.id, v.profileName)}
+                  disabled={confirmingId === v.id}
+                  className="h-9 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold text-xs rounded-lg px-3 shrink-0"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Pul tushdi ✓
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ===== TO'LUVLAR TARIXI (avtomatik) ===== */}
+      <section className="mt-6" aria-label="To'lovlar tarixi">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2 text-sm">
           <CreditCard className="w-4 h-4 text-[#d97b29]" />
-          To'lovlar (avtomatik)
+          To'lovlar tarixi
           {(data?.paymentLogs?.length ?? 0) > 0 && (
             <span className="text-[10px] font-extrabold bg-[#d97b29] text-white px-2 py-0.5 rounded-full">
               {data?.paymentLogs?.length}
@@ -444,21 +577,21 @@ export function AdminView() {
           )}
         </h2>
         {(data?.paymentLogs?.length ?? 0) === 0 ? (
-          <p className="mt-3 text-center text-xs text-[#94836f] font-medium bg-white border border-border rounded-xl py-4">
-            Karta hisobiga tushgan to'lovlar shu yerda ko'rinadi — guruhga HumoCardBot va @TopBiduzbot'ni qo'shing
+          <p className="mt-3 text-center text-xs text-[#94836f] dark:text-[#8a7a68] font-medium bg-white dark:bg-[#201a14] border border-border rounded-xl py-4">
+            Tasdiqlangan to'lovlar shu yerda ko'rinadi
           </p>
         ) : (
-          <div className="mt-3 bg-white border border-border rounded-2xl divide-y divide-[#f0e6da] overflow-hidden">
+          <div className="mt-3 bg-white dark:bg-[#201a14] border border-border rounded-2xl divide-y divide-[#f0e6da] overflow-hidden">
             {data!.paymentLogs!.map((p) => (
               <div key={p.id} className="flex items-center gap-3 p-3.5">
                 <span className={p.matched ? "text-green-600" : "text-[#a86a00]"}>
                   {p.matched ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="font-extrabold text-[13px] text-[#241c14] tabular-nums">
+                  <p className="font-extrabold text-[13px] text-[#241c14] dark:text-[#f2ebe2] tabular-nums">
                     {formatSom(p.amount, lang)}
                   </p>
-                  <p className="text-[11px] text-[#94836f] font-medium">
+                  <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium">
                     {p.cardLast4 ? `****${p.cardLast4} · ` : ""}{timeAgo(p.createdAt, lang)}
                   </p>
                 </div>
@@ -478,7 +611,7 @@ export function AdminView() {
 
       {/* VERIFIKATSIYA */}
       <section className="mt-6" aria-label={t("admin.verifySection")}>
-        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2 text-sm">
           <img src="/verify-badge-48.png" alt="verify" className="w-4 h-4" />
           {t("admin.verifySection")}
           {pendingVerifications.length > 0 && (
@@ -495,7 +628,7 @@ export function AdminView() {
             ))}
           </div>
         ) : (data?.verifications.length ?? 0) === 0 ? (
-          <p className="mt-3 text-center text-xs text-[#94836f] font-medium bg-white border border-border rounded-xl py-5">
+          <p className="mt-3 text-center text-xs text-[#94836f] dark:text-[#8a7a68] font-medium bg-white dark:bg-[#201a14] border border-border rounded-xl py-5">
             {t("admin.verifyEmpty")}
           </p>
         ) : (
@@ -511,7 +644,7 @@ export function AdminView() {
                 <div
                   className={cn(
                     "w-9 h-9 rounded-lg flex items-center justify-center shrink-0",
-                    v.status === "pending" ? "bg-[#fff3df]" : v.status === "approved" ? "bg-green-50" : "bg-[#f6efe6]"
+                    v.status === "pending" ? "bg-[#fff3df]" : v.status === "approved" ? "bg-green-50" : "bg-[#f6efe6] dark:bg-[#2b241b]"
                   )}
                 >
                   {v.status === "approved" ? (
@@ -520,12 +653,12 @@ export function AdminView() {
                      
                     <img src="/verify-badge-48.png" alt="verify" className="w-5 h-5" />
                   ) : (
-                    <XCircle className="w-5 h-5 text-[#94836f]" />
+                    <XCircle className="w-5 h-5 text-[#94836f] dark:text-[#8a7a68]" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-[13px] text-[#241c14] truncate">{v.profileName}</p>
-                  <p className="text-[11px] text-[#94836f] font-medium truncate">
+                  <p className="font-bold text-[13px] text-[#241c14] dark:text-[#f2ebe2] truncate">{v.profileName}</p>
+                  <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium truncate">
                     {v.profileContact} • {formatSom(v.fee, lang)} • {timeAgo(v.createdAt, lang)}
                   </p>
                   {v.status === "pending" && (
@@ -558,7 +691,7 @@ export function AdminView() {
                   <span
                     className={cn(
                       "text-[10px] font-extrabold px-2 py-1 rounded-full shrink-0",
-                      v.status === "approved" ? "bg-green-50 text-green-700" : "bg-[#f6efe6] text-[#94836f]"
+                      v.status === "approved" ? "bg-green-50 text-green-700" : "bg-[#f6efe6] dark:bg-[#2b241b] text-[#94836f] dark:text-[#8a7a68]"
                     )}
                   >
                     {v.status === "approved" ? t("admin.approved") : t("admin.rejected")}
@@ -572,7 +705,7 @@ export function AdminView() {
 
       {/* BILDIRISHNOMALAR */}
       <section className="mt-6" aria-label={t("admin.notifications")}>
-        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2 text-sm">
           <Bell className="w-4 h-4 text-[#d97b29]" />
           {t("admin.notifications")}
           <span className="text-[10px] font-bold text-[#229ed9] bg-[#e8f4fc] px-2 py-0.5 rounded-full uppercase tracking-wide">
@@ -589,18 +722,18 @@ export function AdminView() {
         ) : (
           <div className="mt-3 bg-[#eef4f9] rounded-2xl p-3 space-y-2 max-h-80 overflow-y-auto scrollbar-thin">
             {(data?.logs.length ?? 0) === 0 ? (
-              <p className="text-center text-xs text-[#94836f] font-medium py-6">{t("admin.notifEmpty")}</p>
+              <p className="text-center text-xs text-[#94836f] dark:text-[#8a7a68] font-medium py-6">{t("admin.notifEmpty")}</p>
             ) : (
               data!.logs.map((log) => (
-                <div key={log.id} className="bg-white rounded-xl rounded-tl-sm px-3.5 py-2.5 shadow-sm max-w-[92%]">
+                <div key={log.id} className="bg-white dark:bg-[#201a14] rounded-xl rounded-tl-sm px-3.5 py-2.5 shadow-sm max-w-[92%]">
                   <div className="flex items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-[#229ed9] uppercase tracking-wide">
                       <Send className="w-3 h-3" />
                       TopBid Bot
                     </span>
-                    <span className="text-[10px] text-[#94836f] font-medium">{timeAgo(log.createdAt, lang)}</span>
+                    <span className="text-[10px] text-[#94836f] dark:text-[#8a7a68] font-medium">{timeAgo(log.createdAt, lang)}</span>
                   </div>
-                  <p className="text-[13px] text-[#241c14] font-medium leading-relaxed mt-1 whitespace-pre-line">
+                  <p className="text-[13px] text-[#241c14] dark:text-[#f2ebe2] font-medium leading-relaxed mt-1 whitespace-pre-line">
                     {log.message}
                   </p>
                 </div>
@@ -612,12 +745,12 @@ export function AdminView() {
 
       {/* PROILLAR */}
       <section className="mt-6" aria-label={t("admin.profilesSection")}>
-        <h2 className="font-extrabold text-[#241c14] flex items-center gap-2 text-sm">
+        <h2 className="font-extrabold text-[#241c14] dark:text-[#f2ebe2] flex items-center gap-2 text-sm">
           <ShieldAlert className="w-4 h-4 text-[#d97b29]" />
           {t("admin.profilesSection")} ({data?.profiles.length ?? 0})
         </h2>
 
-        <div className="mt-3 bg-white border border-border rounded-2xl divide-y divide-[#f0e6da] overflow-hidden">
+        <div className="mt-3 bg-white dark:bg-[#201a14] border border-border rounded-2xl divide-y divide-[#f0e6da] overflow-hidden">
           {data?.profiles.map((p) => (
             <div key={p.id} className="flex items-center gap-3 p-3.5">
               <span className="text-xs font-extrabold text-[#c4b5a1] w-6 text-center shrink-0 tabular-nums">
@@ -625,8 +758,8 @@ export function AdminView() {
               </span>
               <ProfileAvatar name={p.name} imageUrl={p.imageUrl} size={36} />
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[13px] text-[#241c14] truncate">{p.name}</p>
-                <p className="text-[11px] text-[#94836f] font-medium truncate">
+                <p className="font-bold text-[13px] text-[#241c14] dark:text-[#f2ebe2] truncate">{p.name}</p>
+                <p className="text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium truncate">
                   {p.pool === "education" ? t("admin.eduPool") : t("admin.itPool")} • {p.categoryName} •{" "}
                   {formatSom(p.totalBid, lang)}
                 </p>
@@ -639,7 +772,7 @@ export function AdminView() {
                       ? "bg-[#fff3df] text-[#b45f14]"
                       : p.verifyStatus === "pending"
                         ? "bg-[#fff4d6] text-[#a86a00]"
-                        : "bg-[#f6efe6] text-[#94836f]"
+                        : "bg-[#f6efe6] dark:bg-[#2b241b] text-[#94836f] dark:text-[#8a7a68]"
                   )}
                 >
                   {p.verifyStatus === "verified"
@@ -662,11 +795,11 @@ export function AdminView() {
             </div>
           ))}
           {data?.profiles.length === 0 && (
-            <p className="text-center text-xs text-[#94836f] font-medium py-8">{t("admin.profilesEmpty")}</p>
+            <p className="text-center text-xs text-[#94836f] dark:text-[#8a7a68] font-medium py-8">{t("admin.profilesEmpty")}</p>
           )}
         </div>
 
-        <div className="mt-3 flex items-start gap-2 text-[11px] text-[#94836f] font-medium bg-[#fff9f2] border border-[#f0d5b8] rounded-xl px-3.5 py-3">
+        <div className="mt-3 flex items-start gap-2 text-[11px] text-[#94836f] dark:text-[#8a7a68] font-medium bg-[#fff9f2] border border-[#f0d5b8] rounded-xl px-3.5 py-3">
           <CheckCircle2 className="w-4 h-4 text-[#d97b29] shrink-0 mt-px" />
           {t("admin.deleteNote")}
         </div>
@@ -677,12 +810,12 @@ export function AdminView() {
 
 function MiniStat({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
-    <div className="bg-white border border-border rounded-xl px-3 py-2.5">
-      <p className="text-[10px] font-bold uppercase tracking-wide text-[#94836f] leading-none flex items-center gap-1">
+    <div className="bg-white dark:bg-[#201a14] border border-border rounded-xl px-3 py-2.5">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-[#94836f] dark:text-[#8a7a68] leading-none flex items-center gap-1">
         {icon}
         {label}
       </p>
-      <p className="text-sm font-extrabold text-[#241c14] mt-1.5 truncate tabular-nums">{value}</p>
+      <p className="text-sm font-extrabold text-[#241c14] dark:text-[#f2ebe2] mt-1.5 truncate tabular-nums">{value}</p>
     </div>
   );
 }

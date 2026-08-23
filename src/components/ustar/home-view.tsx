@@ -104,15 +104,15 @@ export function HomeView() {
     <div className="max-w-5xl mx-auto px-4 pb-16">
       {/* Hero */}
       <section className="pt-6 md:pt-10 pb-6 text-center">
-        <div className="inline-flex items-center gap-1.5 bg-[#fdeedd] text-[#b25e14] text-[11px] md:text-xs font-extrabold px-3 py-1 rounded-full mb-3">
+        <div className="inline-flex items-center gap-1.5 bg-[#fdeedd] dark:bg-[#3a2c1c] text-[#b25e14] text-[11px] md:text-xs font-extrabold px-3 py-1 rounded-full mb-3">
           <Sparkles className="w-3.5 h-3.5" />
           {t("home.heroBadge")}
         </div>
-        <h1 className="text-[26px] leading-[1.15] md:text-[40px] md:leading-[1.1] font-extrabold tracking-tight text-[#241c14]">
+        <h1 className="text-[26px] leading-[1.15] md:text-[40px] md:leading-[1.1] font-extrabold tracking-tight text-[#241c14] dark:text-[#f2ebe2]">
           {t("home.heroTitleA")} <span className="text-[#d97b29]">{t("home.heroTitleB")}</span>{" "}
           {t("home.heroTitleC")}
         </h1>
-        <p className="mt-2.5 text-sm md:text-base text-[#6b5d4d] max-w-xl mx-auto leading-relaxed">
+        <p className="mt-2.5 text-sm md:text-base text-[#6b5d4d] dark:text-[#a3937f] max-w-xl mx-auto leading-relaxed">
           {t("home.heroDesc")}
         </p>
         <Button
@@ -139,10 +139,10 @@ export function HomeView() {
         <div className="flex flex-col gap-2.5">
           <div className="grid grid-cols-2 gap-2">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="h-11 md:h-10 bg-white border-[#e8ddd0] text-[#241c14] text-[13px] font-semibold rounded-lg">
+              <SelectTrigger className="h-11 md:h-10 bg-white dark:bg-[#201a14] border-[#e8ddd0] text-[#241c14] dark:text-[#f2ebe2] text-[13px] font-semibold rounded-lg">
                 <SelectValue placeholder={t("filter.category")} />
               </SelectTrigger>
-              <SelectContent className="bg-white border-[#e8ddd0] max-h-80">
+              <SelectContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] max-h-80">
                 <SelectItem value="all" className="font-semibold">
                   {t("filter.categoryAll")}
                 </SelectItem>
@@ -162,10 +162,10 @@ export function HomeView() {
             </Select>
 
             <Select value={cityFilter} onValueChange={setCityFilter}>
-              <SelectTrigger className="h-11 md:h-10 bg-white border-[#e8ddd0] text-[#241c14] text-[13px] font-semibold rounded-lg">
+              <SelectTrigger className="h-11 md:h-10 bg-white dark:bg-[#201a14] border-[#e8ddd0] text-[#241c14] dark:text-[#f2ebe2] text-[13px] font-semibold rounded-lg">
                 <SelectValue placeholder={t("filter.city")} />
               </SelectTrigger>
-              <SelectContent className="bg-white border-[#e8ddd0] max-h-72">
+              <SelectContent className="bg-white dark:bg-[#201a14] border-[#e8ddd0] max-h-72">
                 <SelectItem value="all" className="font-semibold">
                   {t("filter.cityAll")}
                 </SelectItem>
@@ -180,7 +180,7 @@ export function HomeView() {
 
           {filtersActive && (
             <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
-              <span className="text-[#94836f] font-bold">{t("filter.active")}</span>
+              <span className="text-[#94836f] dark:text-[#8a7a68] font-bold">{t("filter.active")}</span>
               {selectedCategory && (
                 <Chip label={selectedCategory.name} onClear={() => setCategoryFilter("all")} />
               )}
@@ -221,10 +221,10 @@ export function HomeView() {
 
             {/* Pastki CTA */}
             <div className="mt-2 bg-white border border-dashed border-[#e0cdb4] rounded-xl p-5 md:p-6 text-center">
-              <p className="text-sm md:text-[15px] font-extrabold text-[#241c14]">
+              <p className="text-sm md:text-[15px] font-extrabold text-[#241c14] dark:text-[#f2ebe2]">
                 {t("cta.eduTitle")}
               </p>
-              <p className="text-xs md:text-sm text-[#6b5d4d] mt-1 leading-relaxed">
+              <p className="text-xs md:text-sm text-[#6b5d4d] dark:text-[#a3937f] mt-1 leading-relaxed">
                 {t("cta.desc")}
                 {promo.active && <span className="text-[#b25e14] font-bold"> {t("cta.promoNote")}</span>}
               </p>
@@ -244,7 +244,7 @@ export function HomeView() {
 
 function Chip({ label, onClear }: { label: string; onClear: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 bg-[#fdeedd] text-[#b25e14] font-bold px-2 py-0.5 rounded-full">
+    <span className="inline-flex items-center gap-1 bg-[#fdeedd] dark:bg-[#3a2c1c] text-[#b25e14] font-bold px-2 py-0.5 rounded-full">
       {label}
       <button onClick={onClear} className="hover:text-[#d97b29] cursor-pointer" aria-label={label}>
         ✕
@@ -257,7 +257,7 @@ function LoadingSkeleton() {
   return (
     <div className="flex flex-col gap-3 md:gap-4">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="bg-white border border-border rounded-xl p-4 md:p-5 flex flex-col gap-3 md:flex-row md:gap-4">
+        <div key={i} className="bg-white dark:bg-[#201a14] border border-border rounded-xl p-4 md:p-5 flex flex-col gap-3 md:flex-row md:gap-4">
           <div className="hidden md:flex w-14 justify-center">
             <Skeleton className="w-10 h-12 rounded-lg bg-[#f0e6da]" />
           </div>
@@ -297,14 +297,14 @@ function EmptyState({
   const { t } = useI18n();
   const { openAddForm } = useUstarStore();
   return (
-    <div className="bg-white border border-border rounded-xl p-10 text-center">
-      <div className="w-14 h-14 mx-auto rounded-2xl bg-[#fdeedd] flex items-center justify-center">
+    <div className="bg-white dark:bg-[#201a14] border border-border rounded-xl p-10 text-center">
+      <div className="w-14 h-14 mx-auto rounded-2xl bg-[#fdeedd] dark:bg-[#3a2c1c] flex items-center justify-center">
         <SearchX className="w-7 h-7 text-[#d97b29]" />
       </div>
-      <h3 className="mt-4 font-extrabold text-[#241c14] text-lg">
+      <h3 className="mt-4 font-extrabold text-[#241c14] dark:text-[#f2ebe2] text-lg">
         {hasFilters ? t("empty.notFoundTitle") : t("empty.emptyListTitle")}
       </h3>
-      <p className="mt-1.5 text-sm text-[#6b5d4d] max-w-sm mx-auto leading-relaxed">
+      <p className="mt-1.5 text-sm text-[#6b5d4d] dark:text-[#a3937f] max-w-sm mx-auto leading-relaxed">
         {hasFilters ? t("empty.notFoundDesc") : `${t("empty.emptyListDesc")} ${entryLabel}.`}
       </p>
       <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
@@ -312,7 +312,7 @@ function EmptyState({
           <Button
             variant="outline"
             onClick={onClear}
-            className="border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] font-bold rounded-lg"
+            className="border-[#e8ddd0] text-[#574634] dark:text-[#c9bba7] hover:bg-[#fdeedd] dark:bg-[#3a2c1c] hover:text-[#b25e14] font-bold rounded-lg"
           >
             {t("empty.clearFilters")}
           </Button>

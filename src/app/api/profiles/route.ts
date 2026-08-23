@@ -134,22 +134,22 @@ export async function POST(req: NextRequest) {
         } 
       });
 
-      const updated = existing;
+      const updated = ranked.find(p => p.id === existing.id);
 
       await notifyAdmin(
         "topup",
-        `💰 Summa qo'shildi: ${existing.name} — to'langan ${formatSom(paid)}${promo.active ? ` (aksiya -${Math.round(promo.percent*100)}%)` : ""}\nReyting summasi: +${formatSom(credit)} • ${updated ? updated.position : "?"}-o'rin`,
+        `⏳ To'lov kutilmoqda (Top-up): ${existing.name} — ${formatSom(paid)}${promo.active ? ` (aksiya -${Math.round(promo.percent*100)}%)` : ""}\nTasdiqlangach reyting summasi: +${formatSom(credit)}`,
         existing.id
       );
 
       const result: CreateProfileResult = {
         ok: true,
         mode: "topup",
-        profile: updated!,
+        profile: updated || serializeProfileExisting(existing as any),
         position: updated?.position ?? pos,
         amount: paid,
         editToken: existing.editToken ?? undefined,
-        message: `Bu kontakt allaqachon ro'yxatda edi. To'lagan summingiz profilingizga qo'shildi — hozir ${updated?.position ?? pos}-o'rindasiz!`,
+        message: `Bu kontakt allaqachon ro'yxatda edi. Sizning o'rningiz pul tushgach avtomatik yangilanadi! Hozircha ${updated?.position ?? pos}-o'rindasiz.`,
       };
       return NextResponse.json(result);
     }

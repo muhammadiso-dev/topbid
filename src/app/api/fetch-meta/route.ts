@@ -5,7 +5,7 @@ import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
-const UPLOAD_DIR = "/home/z/my-project/uploads";
+const UPLOAD_DIR = path.join(process.cwd(), "uploads");
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
@@ -79,6 +79,12 @@ function extractMeta(html: string): Partial<FetchedMeta> {
 async function saveImage(url: string): Promise<string | null> {
   try {
     if (!/^https?:\/\//i.test(url)) return null;
+    
+    // Vercel serverless muhitida fayl saqlash mumkin emas, shuning uchun aslini qaytaramiz
+    if (process.env.VERCEL) {
+      return url;
+    }
+
     const res = await fetch(url, {
       headers: { "User-Agent": UA, Accept: "image/*" },
       signal: AbortSignal.timeout(8000),
@@ -98,7 +104,8 @@ async function saveImage(url: string): Promise<string | null> {
     await mkdir(UPLOAD_DIR, { recursive: true });
     await writeFile(path.join(UPLOAD_DIR, name), buf);
     return `/api/media/${name}`;
-  } catch {
+  } catch (err) {
+    console.error("saveImage error:", err);
     return null;
   }
 }

@@ -152,3 +152,143 @@
     background: #4a3d2e;
   }
 }
+
+/* ==================== DARK MODE — UNIVERSAL OVERRIDES ==================== */
+/* Hardcoded light ranglar dark'da avtomatik almashtiriladi (har komponentga dark: yozmaslik uchun) */
+
+.dark {
+  /* Fonlar: oq/krem → to'q */
+  --dk-bg-card: #201a14;
+  --dk-bg-elev: #261f17;
+  --dk-bg-muted: #2b241b;
+  --dk-bg-accent: #3a2c1c;
+  --dk-bg-warm: #2e241a;
+  --dk-border: #362c20;
+  --dk-border-soft: #2f2619;
+  --dk-text: #f2ebe2;
+  --dk-text-2: #d4c6b2;
+  --dk-text-3: #a3937f;
+  --dk-text-4: #8a7a68;
+}
+
+.dark .bg-white { background-color: #201a14 !important; }
+.dark .bg-white\/85 { background-color: rgba(32, 26, 20, 0.92) !important; }
+.dark .bg-white\/90 { background-color: rgba(32, 26, 20, 0.92) !important; }
+.dark .bg-white\/95 { background-color: rgba(32, 26, 20, 0.95) !important; }
+
+/* Krem fonlar */
+.dark .bg-\[\#fffdfa\] { background-color: #1b1510 !important; }
+.dark .bg-\[\#fffdfa\]\/90 { background-color: rgba(27, 21, 16, 0.92) !important; }
+.dark .bg-\[\#fffdfa\]\/85 { background-color: rgba(27, 21, 16, 0.9) !important; }
+.dark .bg-\[\#fff9f2\] { background-color: #241d15 !important; }
+.dark .bg-\[\#fffaf2\] { background-color: #241d15 !important; }
+.dark .bg-\[\#fffaf0\] { background-color: #241d15 !important; }
+.dark .bg-\[\#fff8ec\] { background-color: #2b2115 !important; }
+.dark .bg-\[\#fff3df\] { background-color: #382914 !important; }
+.dark .bg-\[\#fff4d6\] { background-color: #38300f !important; }
+.dark .bg-\[\#fff5f0\] { background-color: #2b1c15 !important; }
+
+/* Muted fonlar */
+.dark .bg-\[\#f6efe6\] { background-color: #2b241b !important; }
+.dark .bg-\[\#fdeedd\] { background-color: #3a2c1c !important; }
+
+/* Matnlar */
+.dark .text-\[\#241c14\] { color: #f2ebe2 !important; }
+.dark .text-\[\#574634\] { color: #d4c6b2 !important; }
+.dark .text-\[\#6b5d4d\] { color: #a3937f !important; }
+.dark .text-\[\#94836f\] { color: #8a7a68 !important; }
+.dark .text-\[\#7d6c58\] { color: #8a7a68 !important; }
+.dark .text-\[\#c4b5a1\] { color: #6d6152 !important; }
+.dark .text-\[\#b25e14\] { color: #f0a05c !important; }
+.dark .text-\[\#b45f14\] { color: #f0a05c !important; }
+.dark .text-\[\#b4522d\] { color: #f08b6a !important; }
+.dark .text-\[\#a86a00\] { color: #e0b050 !important; }
+.dark .text-\[\#8a6a3a\] { color: #c9a86a !important; }
+
+/* Borderlar */
+.dark .border-\[\#e8ddd0\] { border-color: #362c20 !important; }
+.dark .border-\[\#f0e6da\] { border-color: #2f2619 !important; }
+.dark .border-\[\#e0d3c2\] { border-color: #4a3d2e !important; }
+.dark .border-\[\#e0cdb4\] { border-color: #4a3d2e !important; }
+.dark .border-\[\#f0d5b8\] { border-color: #5a4630 !important; }
+.dark .border-\[\#f5e8d0\] { border-color: #3a3020 !important; }
+.dark .border-\[\#e9b98a\] { border-color: #8a5c2a !important; }
+
+/* Skeleton */
+.dark .bg-\[\#f0e6da\] { background-color: #2b241b !important; }
+
+/* Gradient kartalar dark */
+.dark .bg-gradient-to-b\.from-\[\#fff9f2\] { background-image: linear-gradient(to bottom, #2a2115, #201a14) !important; }
+.dark .bg-gradient-to-b\.from-\[\#fffcf7\] { background-image: linear-gradient(to bottom, #291f14, #201a14) !important; }
+.dark .bg-gradient-to-br\.from-\[\#fff8ef\] { background-image: linear-gradient(to bottom right, #2a2115, #1b1510) !important; }
+.dark .bg-gradient-to-r\.from-\[\#fdeedd\] { background-image: linear-gradient(to right, #3a2c1c, #241d15) !important; }
+.dark .bg-gradient-to-r\.from-\[\#fff3df\] { background-image: linear-gradient(to right, #382914, #241d15) !important; }
+.dark .bg-gradient-to-r\.from-\[\#fff5f0\] { background-image: linear-gradient(to right, #2b1c15, #241d15) !important; }
+.dark .bg-gradient-to-r\.from-\[\#e8f2fc\] { background-image: linear-gradient(to right, #1e2a38, #1b1510) !important; }
+.dark .bg-gradient-to-br\.from-\[\#f0f9ff\] { background-image: linear-gradient(to bottom right, #1a2530, #1b1510) !important; }
+.dark .bg-gradient-to-r\.from-\[\#f0faf4\] { background-image: linear-gradient(to right, #1a2b20, #1b1510) !important; }
+
+/* Radix Dialog overlay + content */
+.dark [data-radix-dialog-overlay] { background-color: rgba(0, 0, 0, 0.7) !important; }
+.dark [role=dialog] { background-color: #201a14 !important; border-color: #362c20 !important; }
+.dark [role=dialog] .text-\[\#241c14\] { color: #f2ebe2 !important; }
+
+/* Select dropdown */
+.dark [role=listbox] { background-color: #261f17 !important; border-color: #362c20 !important; }
+.dark [role=option] { color: #d4c6b2 !important; }
+.dark [role=option]:hover, .dark [role=option][data-highlighted] { background-color: #3a2c1c !important; }
+.dark [role=option][data-state=checked] { color: #f0a05c !important; background-color: #3a2c1c !important; }
+
+/* Input, Textarea, Select trigger */
+.dark input, .dark textarea {
+  background-color: #1b1510 !important;
+  color: #f2ebe2 !important;
+  border-color: #3a2f22 !important;
+}
+.dark input::placeholder, .dark textarea::placeholder { color: #6d6152 !important; }
+.dark input[type=range] { accent-color: #e8944a; }
+.dark input[type=date] { color-scheme: dark; }
+
+/* Select trigger button */
+.dark button[role=combobox] {
+  background-color: #1b1510 !important;
+  color: #f2ebe2 !important;
+  border-color: #3a2f22 !important;
+}
+
+/* Toast */
+.dark [data-sonner-toast], .dark [role=status] { background-color: #261f17 !important; color: #f2ebe2 !important; }
+
+/* Blue → sariq rang o'zgartirish dark'da ko'rinadi */
+.dark .text-\[\#1d7ed8\] { color: #f0a05c !important; }
+.dark .bg-\[\#e8f2fc\] { background-color: #382914 !important; }
+.dark .bg-\[\#f8fcff\] { background-color: #241d15 !important; }
+.dark .bg-\[\#f0f9ff\] { background-color: #1a2530 !important; }
+.dark .bg-\[\#e8f4fc\] { background-color: #1e2a38 !important; }
+.dark .border-\[\#cbe9f8\] { border-color: #3a4a5c !important; }
+.dark .border-\[\#c8ecd5\] { border-color: #2a3d2a !important; }
+.dark .text-\[\#1a7a3c\] { color: #6abf7a !important; }
+.dark .text-\[\#1a6da8\] { color: #6a9ac9 !important; }
+
+/* To'q karta (summary bloklar) — dark'da biroz yengilroq */
+.dark .bg-\[\#241c14\] { background-color: #12100c !important; border: 1px solid #3a2f22; }
+.dark .bg-\[\#241c14\] .text-white { color: #f2ebe2 !important; }
+
+/* Hover effektlar */
+.dark .hover\:bg-\[\#f6efe6\]:hover { background-color: #2b241b !important; }
+.dark .hover\:bg-\[\#fdeedd\]:hover { background-color: #3a2c1c !important; }
+.dark .hover\:bg-\[\#fff9f2\]:hover { background-color: #2a2115 !important; }
+.dark .hover\:bg-white:hover { background-color: #261f17 !important; }
+
+/* Promotional banner (apelsin gradient) dark'da biroz to'qroq */
+.dark .from-\[\#d97b29\] { --tw-gradient-from: #b5661f !important; }
+.dark .to-\[\#e8944a\] { --tw-gradient-to: #c47a35 !important; }
+
+/* Verified badge fonda */
+.dark .dark\:bg-\[\#3a2c1c\] { background-color: #3a2c1c !important; }
+
+/* Stats kartochka ichki icon fon */
+.dark .bg-\[\#fdeedd\] { background-color: #3a2c1c !important; }
+
+/* Details/descdl summary */
+.dark summary { color: #d4c6b2 !important; }

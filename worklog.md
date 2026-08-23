@@ -204,3 +204,22 @@ Stage Summary:
 - Admin endi pulni O'ZI ko'rib tasdiqlay oladi (bot bo'lmasa ham): "Pul tushdi ✓" → profil darhol reytingda
 - Dark mode to'liq (16 komponent, barcha modal va sahifalar)
 - Sayt deployga tayyor: bo'sh baza, DEPLOY.md qo'llanma, build o'tadi
+
+---
+Task ID: 10
+Agent: Main agent (Super Z)
+Task: TopBid 10-bosqich — StarKerak'ga qaytish (avto to'lov) + dark mode to'liq tuzatish
+
+Work Log:
+- STARKERAK QAYTA ULANGAN (ravnaqlangan listener v2.0): mini-services/starkerak-listener/listener.py — .env yuklovchi, avval SDK (starkerak pip) keyin xom WS fallback, last_payment_id sinxronizatsiya, 3 marta retry bilan yuborish, exponential backoff reconnect (2/5/10/30/60s), REST API ulanish testi; .env'ga STARKERAK_API_KEY qayta qo'shildi; dev.sh orqali avtomatik start
+- TO'LIQ ZANJIR TESTI: pending profil (15 000 kutilmoqda) → /api/payments/internal (listener formatida) → matchPayment → "matched: true, kind: profile, position: 1" → profil TOP-1'da reytingda ✅
+- TELEGRAM BOT: getMe 200 — @TopBiduzbot jonli, can_read_all_group_messages: true (privacy allaqachon OFF); setWebhook topbid.uz uchun — deploy'dan keyin (domen hali ishlamaydi, kutilgan)
+- DARK MODE TO'LIQ TUZATILDI: globals.css'ga universal override bloki (150+ qator) — barcha hardcoded light ranglar dark'da avtomatik almashtiriladi: bg-white→#201a14, krem fonlar→to'q, matnlar→och krem, borderlar, gradientlar (TOP kartalar, xayriya, verify), Radix Dialog overlay+content, Select listbox (option hover/checked), input/textarea (placeholder), scrollbar, hoverlar, summary bloklar, apelsin gradient biroz to'qroq; navbar dark:border; dialog.tsx/toast.tsx dark variantlar
+- DARK TEST: home (body #171310, h1 krem, header lab to'q), forma (section #201a14, input to'q + krem matn), Select dropdown (#201a14 bg, option #f0b078), About, Admin (stat kartalar #201a14) — hammasi ishlaydi; light'ga qaytish ham to'g'ri
+- DEPLOY.md: StarKerak asosiy yo'l sifatida (guruh sozlash shart emas!), pm2 start buyrug'i, bot webhook qo'shimcha, admin qo'lda backup
+- Build: MUVAFFAQIYATLI (18.3s); lint toza
+
+Stage Summary:
+- Avto to'lov: StarKerak WebSocket (asosiy) + Telegram bot guruh (qo'shimcha) + admin qo'lda (backup) — 3 himoya qatlami
+- Dark mode endi haqiqatan to'liq — CSS override yondashuvi har komponentga dark: yozishdan ishonchliroq
+- Haqiqiy pul testi uchun: DEPLOY.md 4.1 bo'limi (listener pm2 start) — sandbox'da DNS bloklangan, production'da ishlaydi

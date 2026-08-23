@@ -81,26 +81,52 @@ apt install nginx certbot python3-certbot-nginx
 certbot --nginx -d topbid.uz -d www.topbid.uz
 ```
 
-## 4. Telegram bot sozlash (bir marta, 5 daqiqa)
+## 4. Avtomatik to'lovlar — StarKerak (asosiy) + Bot (qo'shimcha)
 
-### 4.1. Webhook ulash
-Brauzerda oching (bir marta):
+### 4.1. StarKerak listener (AVTOMATIK TO'LOV — asosiy yo'l) ⭐
+
+StarKerak — HumoCardBot xabarlarini WebSocket orqali tinglaydi. **Hech qanday guruh sozlash shart emas!**
+
+`.env`'da allaqachon bor:
+```
+STARKERAK_API_KEY=aDKz3ouPodFpzz8iCbg8rqJhSg041GEsJC3Y3NA6-T8
+```
+
+**VPS'da ishga tushirish (deploy'dan keyin):**
+```bash
+# Listener'ni alohida fon jarayoni sifatida
+cd /var/www/topbid/mini-services/starkerak-listener
+nohup python3 listener.py > listener.log 2>&1 &
+
+# Yoki pm2 bilan (avtomatik restart bilan)
+pm2 start python3 --name topbid-listener -- listener.py
+pm2 save
+```
+
+**Ishlashi:** Mijiz kartaga pul tushdi → HumoCardBot → StarKerak (wss://check.paystars.uz) → listener → sayt → profil AVTOMATIK reytingga chiqadi ✅
+
+### 4.2. Telegram bot (qo'shimcha himoya + /stat)
+
+Bot @TopBiduzbot allaqachon sozlangan (privacy OFF — guruh xabarlarini o'qiydi).
+
+**Webhook ulash (deploy'dan KEYIN bir marta):**
+Brauzerda oching:
 ```
 https://api.telegram.org/bot8870682444:AAFvw1TlcQwbVhQ5JpUB0oC88kvDVHPkcOQ/setWebhook?url=https://topbid.uz/api/telegram/webhook
 ```
 
-### 4.2. Guruhni privacy'dan chiqarish (to'lov o'qish uchun)
-1. Telegram'da @BotFather oching
-2. `/setprivacy` → `@TopBiduzbot` → **Disable**
-3. Endi bot guruhdagi BARCHA xabarlarni o'qiydi
+**Qo'shimcha guruh yo'li (agar StarKerak ishlamasa):**
+1. Telegram guruh yarating (masalan "TopBid To'lovlar")
+2. Guruhga qo'shing: HumoCardBot + @TopBiduzbot
+3. Karta hisobotlari guruhga tushadi → bot o'qiydi → match bo'ladi
 
-### 4.3. To'lov monitoring guruhini yaratish
-1. Telegram'da yangi guruh yarating (masalan "TopBid To'lovlar")
-2. Guruhga qo'shing:
-   - **HumoCardBot** (sizning karta hisobotingiz uchun)
-   - **@TopBiduzbot** (bizning bot)
-3. HumoCardBot sozlamasida karta hisobotlari guruhga tushishini yoqing
-4. Endi: karta pul tushdi → HumoCardBot guruhga yozadi → @TopBiduzbot o'qiydi → profil avtomatik reytingga chiqadi! ✅
+**Bot buyruvlari (shaxsiy chatda):** /start, /stat (jonli statistika), /help
+
+### 4.3. Admin qo'lda tasdiqlash (backup yo'l)
+
+Bot va listener ishlamasa: `topbid.uz/#bids` → "Pul kutilmoqda" → **"Pul tushdi ✓"** tugmasi
+
+---
 
 ## 5. DNS sozlash (topbid.uz)
 

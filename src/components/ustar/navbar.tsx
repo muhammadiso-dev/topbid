@@ -54,7 +54,7 @@ export function Navbar() {
               alt="TopBid"
               className="h-9 w-9 md:h-10 md:w-10 object-contain group-hover:scale-105 transition-transform"
             />
-            <span className="font-extrabold text-xl tracking-tight text-[#241c14] dark:text-[#f2ebe2]">
+            <span className="font-extrabold text-xl tracking-tight text-[#241c14] dark:text-[#f2ebe2] dark:text-[#f2ebe2]">
               TopBid
               <span className="text-[#d97b29]">.uz</span>
             </span>
@@ -70,7 +70,7 @@ export function Navbar() {
                   "px-3 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer",
                   l.active
                     ? "text-[#b25e14] bg-[#fdeedd] dark:bg-[#3a2c1c]"
-                    : "text-[#6b5d4d] dark:text-[#a3937f] hover:text-[#241c14] dark:text-[#f2ebe2] hover:bg-[#f6efe6] dark:bg-[#2b241b]"
+                    : "text-[#6b5d4d] dark:text-[#a3937f] hover:text-[#241c14] dark:text-[#f2ebe2] dark:text-[#f2ebe2] hover:bg-[#f6efe6] dark:bg-[#2b241b]"
                 )}
               >
                 {l.label}

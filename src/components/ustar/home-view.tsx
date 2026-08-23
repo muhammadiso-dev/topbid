@@ -13,8 +13,6 @@ import { useI18n } from "@/lib/ustar/i18n";
 import {
   CITIES,
   formatCompactSom,
-  PRICE_TIERS,
-  type PriceTier,
 } from "@/lib/ustar/constants";
 import { entryPrice, fullPriceForPosition, payableAmount } from "@/lib/ustar/pricing";
 import type { CategoryDTO, ProfileDTO } from "@/lib/ustar/types";
@@ -65,17 +63,16 @@ export function HomeView() {
     });
   }, [profiles, categoryFilter, cityFilter]);
 
-  /** Karta CTA narxi — claimer tier'i noma'lum, shuning uchun eng arzon variant "dan X" */
+  /** Karta CTA narxi — yagona narx (TOP-1: +50k, boshqalar: +10k) */
   const ctaPriceLabel = useCallback(
     (globalPosition: number): string => {
       if (!profiles) return "";
-      const tiers: PriceTier[] = ["edu_center", "edu_individual", "it"];
-      const pays = tiers.map((tr) =>
-        payableAmount(fullPriceForPosition(profiles, globalPosition, tr), promoActive)
+      return formatCompactSom(
+        payableAmount(fullPriceForPosition(profiles, globalPosition), promoActive),
+        lang
       );
-      return `${t("home.from")} ${formatCompactSom(Math.min(...pays), lang)}`;
     },
-    [profiles, promoActive, lang, t]
+    [profiles, promoActive, lang]
   );
 
   const categoryGroups = useMemo(() => {
@@ -89,13 +86,7 @@ export function HomeView() {
   }, [categories]);
 
   const selectedCategory = categories.find((c) => c.id === categoryFilter);
-  const entryLabel = formatCompactSom(
-    Math.min(
-      payableAmount(PRICE_TIERS.edu_individual.min, promoActive),
-      payableAmount(PRICE_TIERS.it.min, promoActive)
-    ),
-    lang
-  );
+  const entryLabel = formatCompactSom(entryPrice(promoActive), lang);
 
   const openProfile = (id: string) => setView({ name: "profile-detail", profileId: id });
   const clearAllFilters = () => {

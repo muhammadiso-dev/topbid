@@ -31,13 +31,11 @@ import { useUstarStore, getSessionId, saveEditToken } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
 import {
   CITIES,
-  PRICE_TIERS,
   formatSom,
   isValidContactUrl,
   promoInfo,
-  type PriceTier,
 } from "@/lib/ustar/constants";
-import { fullPriceForPosition, payableAmount, tierFor } from "@/lib/ustar/pricing";
+import { fullPriceForPosition, payableAmount, PRICE } from "@/lib/ustar/pricing";
 import type { CategoryDTO, CreateProfileResult, ProfileDTO } from "@/lib/ustar/types";
 import { cn } from "@/lib/utils";
 
@@ -58,7 +56,6 @@ export function AddProfileView() {
   // Forma holati — FAQAT KERAKLILARI
   const [contactUrl, setContactUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [subType, setSubType] = useState("center"); // faqat ta'lim: center/individual
   const [city, setCity] = useState("");
   const [targetPosition, setTargetPosition] = useState<number | null>(null);
 
@@ -151,39 +148,32 @@ export function AddProfileView() {
 
   // Tanlangan kategoriya
   const selectedCategory = categories.find((c) => c.id === categoryId);
-  const isEdu = selectedCategory?.pool === "education";
 
-  // Tier: kategoriya pool'i + subType dan
-  const tier: PriceTier = useMemo(() => {
-    if (!selectedCategory) return "edu_individual";
-    return tierFor(selectedCategory.pool, isEdu ? subType : "it");
-  }, [selectedCategory, isEdu, subType]);
-  const tierInfo = PRICE_TIERS[tier];
   const topupMode = existingProfile !== null;
 
   const amountFor = useCallback(
     (position: number) => {
       if (!ranked) return 0;
-      const full = fullPriceForPosition(ranked, position, tier);
+      const full = fullPriceForPosition(ranked, position);
       if (topupMode && existingProfile) {
-        const credit = Math.max(full - existingProfile.totalBid, tierInfo.step);
+        const credit = Math.max(full - existingProfile.totalBid, PRICE.step);
         return payableAmount(credit, promo.active);
       }
       return payableAmount(full, promo.active);
     },
-    [ranked, tier, topupMode, existingProfile, tierInfo.step, promo.active]
+    [ranked, topupMode, existingProfile, promo.active]
   );
 
   const fullFor = useCallback(
     (position: number) => {
       if (!ranked) return 0;
-      const full = fullPriceForPosition(ranked, position, tier);
+      const full = fullPriceForPosition(ranked, position);
       if (topupMode && existingProfile) {
-        return Math.max(full - existingProfile.totalBid, tierInfo.step);
+        return Math.max(full - existingProfile.totalBid, PRICE.step);
       }
       return full;
     },
-    [ranked, tier, topupMode, existingProfile, tierInfo.step]
+    [ranked, topupMode, existingProfile]
   );
 
   const selectedPosition = targetPosition;
@@ -260,7 +250,7 @@ export function AddProfileView() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          subType: isEdu ? subType : "it",
+          subType: selectedCategory?.pool === "it" ? "it" : "individual",
           categoryId,
           name,
           city,
@@ -568,52 +558,6 @@ export function AddProfileView() {
               </Select>
               {errors.categoryId && <p className="text-xs font-semibold text-red-600 mt-1.5">{errors.categoryId}</p>}
             </div>
-
-            {/* Markaz/Repetitor — faqat ta'lim kategoriyasida */}
-            {isEdu && (
-              <div>
-                <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">
-                  {t("form.whoAreYou")}
-                </Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(["center", "individual"] as const).map((st) => {
-                    const info = PRICE_TIERS[st === "center" ? "edu_center" : "edu_individual"];
-                    const active = subType === st;
-                    const entry = payableAmount(info.min, promo.active);
-                    return (
-                      <button
-                        key={st}
-                        type="button"
-                        onClick={() => setSubType(st)}
-                        className={cn(
-                          "flex items-center gap-2 p-2.5 rounded-xl border-2 transition-all cursor-pointer text-left",
-                          active ? "border-[#d97b29] bg-[#fff9f2]" : "border-[#f0e6da] bg-white hover:border-[#e0cdb4]"
-                        )}
-                        aria-pressed={active}
-                      >
-                        <div
-                          className={cn(
-                            "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
-                            active ? "bg-[#d97b29] text-white" : "bg-[#f6efe6] text-[#574634]"
-                          )}
-                        >
-                          {st === "center" ? <Users className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
-                        </div>
-                        <div className="min-w-0">
-                          <p className={cn("text-[12px] font-extrabold", active ? "text-[#b25e14]" : "text-[#241c14]")}>
-                            {st === "center" ? t("filter.center") : t("filter.individual")}
-                          </p>
-                          <p className="text-[10px] text-[#94836f] font-bold tabular-nums">
-                            {formatSom(entry, lang)}
-                            {t("home.from")}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
             <div>
               <Label className="text-[13px] font-bold text-[#574634] mb-1.5 block">

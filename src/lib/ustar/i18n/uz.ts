@@ -311,7 +311,7 @@ export const uz: Record<string, string> = {
   // Rules
   "rules.title": "Reyting qoidalari",
   "rules.updated": "Oxirgi yangilanish: 2026-yil",
-  "rules.s1": "Auksion va narx darajalari",
+  "rules.s1": "Auksion va yagona narx",
   "rules.s1li1":
     "Reytingdagi o'rin jami reyting summasi bo'yicha shakllanadi — har bir daraja o'z narxida raqobat qiladi, narxlar aralashmaydi.",
   "rules.s1li2":
@@ -481,4 +481,15 @@ export const uz: Record<string, string> = {
   "form.step1New": "Havolangiz",
   "form.step1HintNew": "Telegram, Instagram, TikTok yoki sayt — qo'shing, qolganini o'zimiz to'ldiramiz",
   "form.step2New": "Kategoriya va shahar",
+  "price.minBid": "Yangi profil uchun eng kam taklif",
+  "price.top1Take": "TOP-1 o'rinni egallash",
+  "price.takeover": "Boshqa o'rinlarni egallash",
+  "price.step": "Minimal o'sish qadami",
+  "price.note": "Hammasiga bitta narx — ustoz, markaz yoki IT mutaxassisligidan qat'i nazar. «O'rinni egallash» tugmasi kerakli summani avtomatik tanlaydi. Bir xil kanonik havola qayta kiritilsa, yangi profil ochilmaydi — summa mavjud profilga qo'shiladi. Ochilish aksiyasi davrida barcha narxlar 50% arzon.",
+  "rules.s1li1": "Reytingdagi o'rin jami taklif summasi bo'yicha shakllanadi — hammasiga bitta narx: ustoz, markaz va IT mutaxassislar teng sharoitda raqobat qiladi.",
+  "rules.s1li2": "«O'rinni egallash» tugmasi aynan shu pog'onani egallash uchun kerakli summani avtomatik tanlaydi: TOP-1 uchun hozirgi egasidan kamida 50 000, boshqa o'rinlar uchun 10 000 so'm ko'p.",
+  "rules.s1li3": "Bir xil kanonik URL qayta kiritilsa, yangi profil yaratilmaydi: kiritilgan summa to'liq mavjud profilning joriy taklifi ustiga qo'shiladi. Tracking parametrlari hisobga olinmaydi; saytlar asosiy domen, ijtimoiy tarmoqlar profil identifikatori bo'yicha birlashtiriladi.",
+  "rules.s5li1": "Verifikatsiya pullik xizmat: bir martalik 50 000 so'm to'lov (aksiya davrida 25 000). Faqat profil egaligi tasdiqlangan foydalanuvchi murojaat qilishi mumkin.",
+  "verify.needClaim": "Verifikatsiyadan o'tish uchun avval profilingiz egaligini tasdiqlang",
+  "verify.needClaimBtn": "Egalikni tasdiqlash",
 };

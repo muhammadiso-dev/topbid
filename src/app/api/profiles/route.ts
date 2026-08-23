@@ -3,9 +3,8 @@ import { db } from "@/lib/db";
 import crypto from "crypto";
 import { notifyAdmin } from "@/lib/ustar/telegram";
 import { getRankedProfiles } from "@/lib/ustar/server";
-import { fullPriceForPosition, payableAmount, tierFor, promoInfo } from "@/lib/ustar/pricing";
+import { fullPriceForPosition, payableAmount, PRICE, promoInfo } from "@/lib/ustar/pricing";
 import {
-  PRICE_TIERS,
   isValidContactUrl,
   normalizeContactUrl,
   formatSom,
@@ -70,11 +69,8 @@ export async function POST(req: NextRequest) {
       category = { id: cat.id, pool: cat.pool, groupName: cat.groupName, name: cat.name };
     }
 
-    // Tier: kategoriya pool'i + subType dan
     const pool = existing ? existing.pool : category!.pool;
-    const st = existing ? existing.subType : pool === "it" ? "it" : subType || "individual";
-    const tier = tierFor(pool, st);
-    const t = PRICE_TIERS[tier];
+    const st = existing ? existing.subType : subType || (pool === "it" ? "it" : "individual");
 
     const ranked = await getRankedProfiles();
     const pos = Math.max(1, Math.floor(Number(targetPosition) || ranked.length + 1));
@@ -116,7 +112,7 @@ export async function POST(req: NextRequest) {
     }
 
     // --- Yangi profil ---
-    const full = fullPriceForPosition(ranked, pos, tier);
+    const full = fullPriceForPosition(ranked, pos);
     const paid = payableAmount(full, promo.active);
     const editToken = crypto.randomUUID();
 

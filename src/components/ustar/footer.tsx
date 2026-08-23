@@ -59,7 +59,7 @@ export function Footer() {
             {t("footer.copyright")}
           </p>
           <p className="text-[11px] text-[#7d6c58] font-medium tabular-nums">
-            {t("footer.payments")} • {formatCompactSom(entryPrice("education", false), lang)}{t("home.from")}
+            {t("footer.payments")} • {formatCompactSom(entryPrice(false), lang)}{t("home.from")}
           </p>
         </div>
       </div>

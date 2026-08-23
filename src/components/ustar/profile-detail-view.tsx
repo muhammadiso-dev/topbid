@@ -58,7 +58,8 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [claimOpen, setClaimOpen] = useState(false);
-  const [editToken, setEditToken] = useState<string | null>(null);
+  const savedToken = getEditTokens()[profileId] || null;
+  const [editToken, setEditToken] = useState<string | null>(savedToken);
 
   const promo = promoInfo();
 
@@ -86,9 +87,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
 
   useEffect(() => {
     load(true);
-    const tokens = getEditTokens();
-    setEditToken(tokens[profileId] || null);
-  }, [load, profileId]);
+  }, [load]);
 
   const handleContactClick = () => {
     if (!profile) return;
@@ -105,7 +104,11 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
 
   // Verifikatsiya to'lovidan so'ng — so'rov yaratish
   const handleVerifyPaid = async () => {
-    const res = await fetch(`/api/profiles/${profileId}/verify`, { method: "POST" });
+    const res = await fetch(`/api/profiles/${profileId}/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ editToken }),
+    });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Xatolik");
     toast({
@@ -267,8 +270,8 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
         </div>
       </article>
 
-      {/* Verifikatsiya bloki (tekshirilmagan profillar uchun) */}
-      {profile.verifyStatus !== "verified" && (
+      {/* Verifikatsiya bloki (faqat profil egasi ko'radi) */}
+      {editToken && profile.verifyStatus !== "verified" && (
         <section className="mt-4" aria-label="Verifikatsiya">
           {profile.verifyStatus === "pending" ? (
             <div className="bg-[#fffaf0] border border-[#f0d5b8] rounded-2xl p-4 md:p-5 flex items-start gap-3">
@@ -353,6 +356,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
         open={verifyOpen}
         onOpenChange={setVerifyOpen}
         promoActive={promo.active}
+        editToken={editToken || undefined}
         onPaid={handleVerifyPaid}
       />
     </div>

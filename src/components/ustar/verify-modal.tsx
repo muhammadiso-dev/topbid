@@ -12,13 +12,14 @@ interface VerifyModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   promoActive: boolean;
+  editToken?: string;
   onPaid: () => Promise<void> | void;
 }
 
 type Step = "benefits" | "bot" | "processing" | "done";
 
 /** Verifikatsiya to'lov oqimi — "Tekshirilgan" belgisi uchun */
-export function VerifyModal({ open, onOpenChange, promoActive, onPaid }: VerifyModalProps) {
+export function VerifyModal({ open, onOpenChange, promoActive, editToken, onPaid }: VerifyModalProps) {
   const { t, lang } = useI18n();
   const [step, setStep] = useState<Step>("benefits");
   const [error, setError] = useState<string | null>(null);

@@ -61,7 +61,7 @@ export function ProfileCard({
     <VerifyBadge status={profile.verifyStatus} size={14} withLabel={false} className="!p-0 !bg-transparent" />
   );
 
-  const reviewsBtn = profile.reviewsCount > 0 && (
+  const reviewsBtn = (
     <button
       onClick={(e) => {
         e.stopPropagation();
@@ -69,9 +69,10 @@ export function ProfileCard({
       }}
       className="inline-flex items-center gap-1 text-[11px] md:text-xs font-bold text-[#d97b29] hover:underline cursor-pointer"
       aria-label={`${profile.name} — ${t("reviews.title")} (${profile.reviewsCount})`}
+      title={t("reviews.leave")}
     >
       <MessageCircle className="w-3.5 h-3.5" />
-      {profile.reviewsCount} {t("card.reviews")}
+      {profile.reviewsCount > 0 ? `${profile.reviewsCount} ${t("card.reviews")}` : t("reviews.leave")}
     </button>
   );
 
@@ -184,11 +185,6 @@ export function ProfileCard({
                 <MapPin className="w-3 h-3" />
                 {profile.city}
               </span>
-              {profile.pool === "education" && (
-                <span className="text-[11px] font-semibold text-[#574634] bg-[#f6efe6] px-2 py-0.5 rounded-full">
-                  {profile.subType === "center" ? t("filter.center") : t("filter.individual")}
-                </span>
-              )}
             </div>
 
             {/* Statistika */}
@@ -227,7 +223,7 @@ export function ProfileCard({
                 {formatSom(profile.totalBid, lang)}
               </p>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-col items-end gap-1.5">
               {reviewsBtn}
               <Button
                 variant="outline"
@@ -308,11 +304,6 @@ export function ProfileCard({
               <MapPin className="w-2.5 h-2.5" />
               {profile.city}
             </span>
-            {profile.pool === "education" && (
-              <span className="text-[10px] font-semibold text-[#574634] bg-[#f6efe6] px-2 py-0.5 rounded-full">
-                {profile.subType === "center" ? t("filter.center") : t("filter.individual")}
-              </span>
-            )}
           </div>
 
           {/* 4-qator: statistika */}
@@ -361,19 +352,18 @@ export function ProfileCard({
                 </span>
               )}
             </Button>
-            {profile.reviewsCount > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenDetail(profile.id);
-                }}
-                className="h-11 px-3 rounded-lg border border-[#e8ddd0] bg-white text-[#d97b29] hover:bg-[#fdeedd] font-extrabold text-xs inline-flex items-center gap-1.5 cursor-pointer shrink-0"
-                aria-label={t("reviews.title")}
-              >
-                <MessageCircle className="w-4 h-4" />
-                {profile.reviewsCount}
-              </button>
-            )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenDetail(profile.id);
+              }}
+              className="h-11 px-3 rounded-lg border border-[#e8ddd0] bg-white text-[#d97b29] hover:bg-[#fdeedd] font-extrabold text-xs inline-flex items-center gap-1.5 cursor-pointer shrink-0"
+              aria-label={t("reviews.leave")}
+              title={t("reviews.leave")}
+            >
+              <MessageCircle className="w-4 h-4" />
+              {profile.reviewsCount > 0 ? profile.reviewsCount : "+"}
+            </button>
           </div>
         </div>
       </div>

@@ -72,3 +72,22 @@ Work Log:
 Stage Summary:
 - TopBid.uz: brend logotipi (oltin tanga + navy), verify badge rasmi, 4 til (uz/ru/en/kk — ~380 tarjima), URL avtomatik metadata olish (Telegram/saytlar/TikTok/Instagram), kartochka → to'g'ridan-to'g'ri tashqi havola, yashirin admin (#admin), responsiv tuzatilgan
 - Raqobatchi (sindr.uz) tahlili asosida: URL-first forma + tahrirlanadigan preview (raqobatchida yo'q — bizning ustunligimiz)
+
+---
+Task ID: 4
+Agent: Main agent (Super Z)
+Task: TopBid 4-bosqich — yagona narx, kanonik URL, har kartada sharh, verifikatsiya egalik talabi, chuqur tahlil
+
+Work Log:
+- YAGONA NARX (raqobatchi modeli): min 30 000, qadam 5 000, TOP-1 egallash +50 000, boshqa o'rinlar +10 000 — pricing.ts butunlay qayta yozildi, PRICE_TIERS/tierFor olib tashlandi; forma "Siz kimsiz?" (Markaz/Repetitor) blokisiz — yana 1 input kamaydi; About/Rules jadvallari 4 qatorli yagona narx formatiga o'tdi (4 til)
+- Kanonik URL (sindr.uz kabi): tracking paramlar (?utm...) olib tashlanadi, saytlar ASOSIY DOMEN bo'yicha birlashtiriladi (site.uz/price → site.uz), ijtimoiy tarmoqlar profil ID bo'yicha (instagram.com/user), Telegram post havolalari kanalga; migrate-urls.ts bilan eski profillar migratsiya qilindi; /api/profiles/check testlarida westminster-edu.uz?utm_source=instagram → mavjud profil topildi
+- HAR KARTADA SHARH TUGMASI: 0 sharhli kartalarda ham "Fikringizni qoldiring" tugmasi ko'rinadi (mobil: "+" ikonka) — detail sahifani ochadi; sharhli kartalarda "N sharh"; ta'lim Markaz/Repetitor chiplari olib tashlandi
+- Verifikatsiya faqat EGASI uchun: /api/profiles/[id]/verify endi editToken talab qiladi (claim'dan keyin); profil detail'da verifikatsiya bo'limi faqat editToken mavjud bo'lsa ko'rinadi
+- Prisma client eskirganligi tufayli analytics API ishlamagan (db.profileView undefined) — db:generate + server restart bilan tuzatildi
+- E2E: yagona narxlar (TOP-1 265k→132.5k, 2-o'rin 180k→90k, bo'sh 30k→15k), avto-fetch @testblog_uz, to'lov oqimi (15 000), 13-o'rin, profil qo'shilishi, o'chirish, verify editToken 403, 3 ta recharts grafigi (kunlik/shaharlar/qurilmalar), 0 console error, lint toza, 375px 0 overflow
+
+Stage Summary:
+- Narx endi hammaga bitta: 30 000 dan, TOP-1 +50 000, boshqa +10 000, qadam 5 000 — ustoz/markaz/IT teng
+- Kanonik URL dedup kuchaytirildi (tracking param, asosiy domen, post havolalar)
+- Sharhlar har kartadan available, verifikatsiya faqat egalik tasdiqlagan egaga
+- Analytics (14 kun: dinamika, shaharlar, qurilmalar, referrerlar, CTR) to'liq ishlaydi

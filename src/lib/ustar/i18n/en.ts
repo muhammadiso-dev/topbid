@@ -310,7 +310,7 @@ export const en: Record<string, string> = {
   // Rules
   "rules.title": "Rating rules",
   "rules.updated": "Last updated: 2026",
-  "rules.s1": "Auction and price tiers",
+  "rules.s1": "Auction and single price",
   "rules.s1li1":
     "The rating spot is determined by the total rating amount — each tier competes within its own prices, prices don't mix.",
   "rules.s1li2":
@@ -338,7 +338,7 @@ export const en: Record<string, string> = {
   "rules.s4li3":
     "Reviews don't affect the rating spot — they are just additional information for other users.",
   "rules.s5": "\"Verified\" badge (verification)",
-  "rules.s5li1": "Verification is a paid service: one-time 50,000 UZS payment (50% cheaper during promo).",
+  "rules.s5li1": "Verification is a paid service: one-time 50,000 UZS payment (25,000 during promo). Only a user with confirmed profile ownership can apply.",
   "rules.s5li2":
     "After payment, the admin will contact you via Telegram and request a copy of your diploma/license.",
   "rules.s5li3":
@@ -479,4 +479,14 @@ export const en: Record<string, string> = {
   "form.step1New": "Your link",
   "form.step1HintNew": "Telegram, Instagram, TikTok or website — add it, we'll fill the rest",
   "form.step2New": "Category and city",
+  "price.minBid": "Minimum bid for a new profile",
+  "price.top1Take": "Take the TOP-1 spot",
+  "price.takeover": "Take other spots",
+  "price.step": "Minimum increase step",
+  "price.note": "One price for everyone — tutor, center or IT specialist. The «Take this spot» button automatically calculates the required amount. If the same canonical URL is entered again, no new profile is created — the amount is added to the existing one. All prices are 50% cheaper during the launch promo.",
+  "rules.s1li1": "The rating spot is determined by the total bid amount — one price for everyone: tutors, centers and IT specialists compete equally.",
+  "rules.s1li2": "The «Take this spot» button automatically calculates the amount for the specific position: for TOP-1 — at least 50,000 more than the current holder, for other spots — 10,000 UZS.",
+  "rules.s1li3": "If the same canonical URL is entered again, no new profile is created: the amount is fully added to the existing profile's current bid. Tracking parameters are ignored; websites are unified by main domain, social networks by profile identifier.",
+  "verify.needClaim": "To get verified, first confirm your ownership of the profile",
+  "verify.needClaimBtn": "Confirm ownership",
 };

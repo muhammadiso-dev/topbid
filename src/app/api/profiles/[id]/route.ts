@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getRankedProfiles, serializeProfile } from "@/lib/ustar/server";
 import { formatSom } from "@/lib/ustar/constants";
-import { fullPriceForPosition, payableAmount, tierFor, promoInfo } from "@/lib/ustar/pricing";
-import { PRICE_TIERS } from "@/lib/ustar/constants";
+import { fullPriceForPosition, payableAmount, PRICE, promoInfo } from "@/lib/ustar/pricing";
 import { notifyAdmin } from "@/lib/ustar/telegram";
 import type { CreateProfileResult } from "@/lib/ustar/types";
 
@@ -21,7 +20,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
   if (!profile) {
     return NextResponse.json({ error: "Profil topilmadi" }, { status: 404 });
   }
-  const ranked = await getRankedProfiles(profile.pool);
+  const ranked = await getRankedProfiles();
   const dto = ranked.find((p) => p.id === id);
   const reviews = await db.review.findMany({
     where: { profileId: id },
@@ -50,13 +49,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     }
 
     const promo = promoInfo();
-    const tier = tierFor(profile.pool, profile.subType);
-    const t = PRICE_TIERS[tier];
 
-    const ranked = await getRankedProfiles(profile.pool);
-    const requiredFull = fullPriceForPosition(ranked, targetPosition, tier);
+    const ranked = await getRankedProfiles();
+    const requiredFull = fullPriceForPosition(ranked, targetPosition);
     let credit = requiredFull - profile.totalBid;
-    if (credit <= 0) credit = t.step; // minimal top-up
+    if (credit <= 0) credit = PRICE.step; // minimal top-up
     const paid = payableAmount(credit, promo.active);
 
     await db.$transaction([
@@ -67,7 +64,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       }),
     ]);
 
-    const newRanked = await getRankedProfiles(profile.pool);
+    const newRanked = await getRankedProfiles();
     const updated = newRanked.find((p) => p.id === id);
 
     await notifyAdmin(

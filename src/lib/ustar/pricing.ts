@@ -1,39 +1,35 @@
-// Narx mantiqining yadrosi — client va server tomonida bir xil ishlaydi.
-// Auksion qoidasi: N-o'rinni olish uchun shu o'rin egasidan qadam (+ TOP-1 uchun premium) ko'p to'lash kerak.
-// Aksiya davrida HAQIQIY to'lov 50% kam, lekin reytingga TO'LIQ summa yoziladi
-// (erta qo'shilganlar to'liq qiymatni yarim narxga oladi).
+// YAGONA NARX tizimi — hammasiga bitta narx (raqobatchi sindr.uz modeli):
+//   Min. taklif: 30 000 · Qadam: 5 000 · TOP-1 egallash: +50 000 · Boshqa o'rinlar: +10 000
+// Aksiya davrida HAQIQIY to'lov 50% kam, reytingga TO'LIQ summa yoziladi.
 
-import {
-  PRICE_TIERS,
-  PROMO_MULTIPLIER,
-  promoInfo,
-  type PriceTier,
-  type Pool,
-} from "./constants";
+import { PROMO_MULTIPLIER, promoInfo } from "./constants";
 
-/** Pool + toifadan narx darajasini aniqlash */
-export function tierFor(pool: string, subType: string): PriceTier {
-  if (pool === "it") return "it";
-  return subType === "center" ? "edu_center" : "edu_individual";
-}
+export const PRICE = {
+  /** Yangi profil uchun eng kam taklif */
+  min: 30_000,
+  /** Miqdorni o'zgartirish qadami (minimal top-up) */
+  step: 5_000,
+  /** TOP-1 o'rinni egallash uchun qo'shimcha taklif */
+  top1Premium: 50_000,
+  /** Boshqa o'rinlarni egallash uchun qo'shimcha taklif */
+  takeoverStep: 10_000,
+};
 
 /**
  * Maqsadli o'rin uchun TO'LIQ narx (reytingga yoziladigan summa).
- * - O'rin bo'sh bo'lsa: minimal taklif
- * - TOP-1: hozirgi egasi + qadam + TOP-1 premium
- * - Boshqa o'rinlar: hozirgi egasi + qadam
+ * - O'rin bo'sh: min (30 000)
+ * - TOP-1: hozirgi egasi + 50 000
+ * - Boshqa o'rinlar: hozirgi egasi + 10 000
  */
 export function fullPriceForPosition(
   ranked: { totalBid: number }[],
-  position: number,
-  tier: PriceTier
+  position: number
 ): number {
-  const t = PRICE_TIERS[tier];
   const pos = Math.max(1, Math.floor(position));
   const holder = ranked[pos - 1];
-  if (!holder) return t.min;
-  if (pos === 1) return holder.totalBid + t.step + t.top1Extra;
-  return holder.totalBid + t.step;
+  if (!holder) return PRICE.min;
+  if (pos === 1) return holder.totalBid + PRICE.top1Premium;
+  return holder.totalBid + PRICE.takeoverStep;
 }
 
 /** Aksiya davrida haqiqiy to'lanadigan summa (500 so'mga yaxlitlash) */
@@ -42,22 +38,19 @@ export function payableAmount(full: number, promoActive: boolean): number {
   return Math.max(500, Math.round((full * PROMO_MULTIPLIER) / 500) * 500);
 }
 
-/** Qulay kombain: o'rin uchun to'lanadigan summa */
+/** Qulay kombain */
 export function priceForPosition(
   ranked: { totalBid: number }[],
   position: number,
-  tier: PriceTier,
   promoActive: boolean
 ): number {
-  return payableAmount(fullPriceForPosition(ranked, position, tier), promoActive);
+  return payableAmount(fullPriceForPosition(ranked, position), promoActive);
 }
 
-/** Kirish narxi (eng arzon yo'l) — CTA matnlari uchun */
-export function entryPrice(pool: Pool, promoActive: boolean): number {
-  if (pool === "it") return payableAmount(PRICE_TIERS.it.min, promoActive);
-  // Ta'limda eng arzon yo'l — individual repetitor darajasi
-  return payableAmount(PRICE_TIERS.edu_individual.min, promoActive);
+/** Kirish narxi — CTA matnlari uchun */
+export function entryPrice(promoActive: boolean): number {
+  return payableAmount(PRICE.min, promoActive);
 }
 
-/** Aksiya holati (clientda ham ishlaydi) */
+/** Aksiya holati */
 export { promoInfo };

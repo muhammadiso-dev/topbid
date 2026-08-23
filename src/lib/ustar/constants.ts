@@ -12,35 +12,7 @@ export const BRAND = {
 
 export type Pool = "education" | "it";
 export type EducationSubType = "center" | "individual";
-export type PriceTier = "edu_center" | "edu_individual" | "it";
 
-/** Uchta mustaqil narx darajasi — narxlar aralashmaydi */
-export const PRICE_TIERS: Record<
-  PriceTier,
-  { min: number; step: number; top1Extra: number; label: string; short: string }
-> = {
-  edu_center: {
-    min: 50_000,
-    step: 15_000,
-    top1Extra: 80_000,
-    label: "Ta'lim markazlari",
-    short: "Markazlar",
-  },
-  edu_individual: {
-    min: 15_000,
-    step: 5_000,
-    top1Extra: 25_000,
-    label: "Individual repetitorlar",
-    short: "Repetitorlar",
-  },
-  it: {
-    min: 20_000,
-    step: 5_000,
-    top1Extra: 30_000,
-    label: "IT mutaxassislar",
-    short: "IT",
-  },
-};
 
 /** Verifikatsiya ("Tekshirilgan" belgisi) to'lovi — bir martalik */
 export const VERIFICATION_FEE = 50_000;
@@ -83,9 +55,9 @@ export const POOL_SUBTITLES: Record<Pool, string> = {
   it: "Tayyor mutaxassis va frilanser qidirayotganlar uchun",
 };
 
-export const EDUCATION_SUBTYPES: { value: EducationSubType; label: string; short: string; tier: PriceTier }[] = [
-  { value: "center", label: "Ta'lim markazlari", short: "Markaz", tier: "edu_center" },
-  { value: "individual", label: "Individual repetitorlar", short: "Repetitor", tier: "edu_individual" },
+export const EDUCATION_SUBTYPES: { value: EducationSubType; label: string; short: string }[] = [
+  { value: "center", label: "Ta'lim markazlari", short: "Markaz" },
+  { value: "individual", label: "Individual repetitorlar", short: "Repetitor" },
 ];
 
 /* ==================== KATEGORIYALAR ==================== */
@@ -283,10 +255,37 @@ export function timeAgo(date: string | Date, lang: Lang = "uz"): string {
 
 /** Kontakt havolasini normalizatsiya qilish (dubl aniqlash uchun) */
 export function normalizeContactUrl(url: string): string {
-  let u = url.trim().toLowerCase();
-  u = u.replace(/\/+$/, "");
-  u = u.replace(/^https?:\/\/(t\.me|telegram\.me)\//, "@");
-  return u;
+  const u = url.trim().toLowerCase();
+  if (!u) return "";
+
+  // 1) @handle
+  if (u.startsWith("@")) {
+    const h = u.split(/[/?#]/)[0].replace(/^@+/, "");
+    return "@" + h;
+  }
+
+  try {
+    const withProto = /^https?:\/\//.test(u) ? u : `https://${u}`;
+    const parsed = new URL(withProto);
+    const host = parsed.hostname.replace(/^www\./, "");
+    const seg = parsed.pathname.split("/").filter(Boolean)[0] || "";
+
+    // 2) Telegram: t.me/channel (post havolalari ham kanalga)
+    if (host === "t.me" || host === "telegram.me") {
+      return seg ? "@" + seg.replace("@", "") : host;
+    }
+
+    // 3) Ijtimoiy tarmoqlar: profil identifikatori bo'yicha
+    const SOCIAL = ["instagram.com", "tiktok.com", "facebook.com", "youtube.com", "vk.com", "twitter.com", "x.com", "linkedin.com"];
+    if (SOCIAL.some((s) => host === s || host.endsWith("." + s))) {
+      return seg ? `${host}/${seg.replace("@", "")}` : host;
+    }
+
+    // 4) Veb-saytlar: asosiy domen bo'yicha (path va tracking paramlar tashlanadi)
+    return host;
+  } catch {
+    return u.split(/[/?#]/)[0].replace(/\/+$/, "");
+  }
 }
 
 /** Kontakt havolasi to'g'ri formatda ekanini tekshirish */

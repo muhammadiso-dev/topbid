@@ -11,15 +11,24 @@ export const dynamic = "force-dynamic";
  * To'lov Telegram botda amalga oshirilgan deb hisoblanadi (demo),
  * real integratsiyada webhook tasdiqlaydi.
  */
-export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await ctx.params;
+    const body = await req.json().catch(() => ({}));
+    const editToken = String(body?.editToken || "");
     const profile = await db.profile.findUnique({ where: { id } });
     if (!profile) {
       return NextResponse.json({ error: "Profil topilmadi" }, { status: 404 });
     }
     if (profile.verifyStatus === "verified") {
       return NextResponse.json({ error: "Profil allaqachon tekshirilgan" }, { status: 409 });
+    }
+    // Verifikatsiya faqat profil egasi uchun — editToken majburiy
+    if (!profile.editToken || profile.editToken !== editToken) {
+      return NextResponse.json(
+        { error: "Avval profil egaligini tasdiqlang (claim)" },
+        { status: 403 }
+      );
     }
 
     const pending = await db.verificationRequest.findFirst({

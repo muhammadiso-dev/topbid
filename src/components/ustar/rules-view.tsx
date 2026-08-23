@@ -4,7 +4,8 @@ import { ArrowLeft, Check, X, ScrollText, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUstarStore } from "@/lib/ustar/store";
 import { useI18n } from "@/lib/ustar/i18n";
-import { PRICE_TIERS, formatCompactSom } from "@/lib/ustar/constants";
+import { formatSom } from "@/lib/ustar/constants";
+import { PRICE } from "@/lib/ustar/pricing";
 
 /** "Qoidalar" sahifasi */
 export function RulesView() {
@@ -45,29 +46,28 @@ export function RulesView() {
         </h2>
 
         <div className="mt-4 overflow-hidden rounded-xl border border-[#f0e6da]">
-          <div className="grid grid-cols-4 gap-1 px-3 py-2.5 bg-[#f6efe6] text-[10px] font-extrabold uppercase tracking-wide text-[#574634]">
-            <span className="col-span-2">{t("about.tableTier")}</span>
+          <div className="grid grid-cols-2 px-3 py-2.5 bg-[#f6efe6] text-[10px] font-extrabold uppercase tracking-wide text-[#574634]">
+            <span>{t("about.tableTier")}</span>
             <span className="text-right">{t("about.tableMin")}</span>
-            <span className="text-right">{t("about.tableStep")}</span>
           </div>
-          {Object.values(PRICE_TIERS).map((tier) => (
+          {[
+            { label: t("price.minBid"), value: formatSom(PRICE.min, lang) },
+            { label: t("price.top1Take"), value: "+" + formatSom(PRICE.top1Premium, lang) },
+            { label: t("price.takeover"), value: "+" + formatSom(PRICE.takeoverStep, lang) },
+            { label: t("price.step"), value: formatSom(PRICE.step, lang) },
+          ].map((row) => (
             <div
-              key={tier.label}
-              className="grid grid-cols-4 gap-1 px-3 py-2.5 border-t border-[#f0e6da] text-[12px] md:text-[13px]"
+              key={row.label}
+              className="grid grid-cols-2 px-3 py-2.5 border-t border-[#f0e6da] text-[12px] md:text-[13px]"
             >
-              <span className="col-span-2 font-extrabold text-[#241c14]">{tier.label}</span>
-              <span className="text-right font-bold text-[#574634] tabular-nums">
-                {formatCompactSom(tier.min, lang)}
-              </span>
-              <span className="text-right font-bold text-[#574634] tabular-nums">
-                {formatCompactSom(tier.step, lang)}
-              </span>
+              <span className="font-extrabold text-[#241c14]">{row.label}</span>
+              <span className="text-right font-bold text-[#574634] tabular-nums">{row.value}</span>
             </div>
           ))}
         </div>
 
         <ul className="mt-4 space-y-2.5 text-[13px] md:text-sm text-[#574634] leading-relaxed">
-          {[t("rules.s1li1"), t("rules.s1li2"), t("rules.s1li3"), t("rules.s1li4"), t("rules.s1li5")].map((li) => (
+          {[t("rules.s1li1"), t("rules.s1li2"), t("rules.s1li3"), t("rules.s1li4")].map((li) => (
             <li key={li} className="flex gap-2.5">
               <span className="text-[#d97b29] font-extrabold">•</span>
               {li}

@@ -120,21 +120,21 @@ export async function POST(req: NextRequest) {
 
     // --- Top-up (mavjud kontakt) ---
     if (existing) {
-      const requiredFull = fullPriceForPosition(ranked, pos, tier);
+      const requiredFull = fullPriceForPosition(ranked, pos);
       let credit = requiredFull - existing.totalBid;
-      if (credit <= 0) credit = t.step;
+      if (credit <= 0) credit = PRICE.step;
       const paid = payableAmount(credit, promo.active, promo.percent);
 
-      await db.$transaction([
-        db.bid.create({ data: { profileId: existing.id, amount: paid, status: "paid" } }),
-        db.profile.update({
-          where: { id: existing.id },
-          data: { totalBid: { increment: credit }, lastBidAt: new Date() },
-        }),
-      ]);
+      await db.bid.create({ 
+        data: { 
+          profileId: existing.id, 
+          amount: paid, 
+          credit, 
+          status: "awaiting" 
+        } 
+      });
 
-      const newRanked = await getRankedProfiles();
-      const updated = newRanked.find((p) => p.id === existing.id);
+      const updated = existing;
 
       await notifyAdmin(
         "topup",

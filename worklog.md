@@ -137,3 +137,23 @@ Stage Summary:
 - Real ma'lumotlar .env'da (karta, bot @TopBiduzbot, admin ID, StarKerak kalit)
 - Deploy qilingandan keyin: setWebhook URL bir marta ochish (kod ichida ko'rsatma bor)
 - Favicon mukammal markazda, kategoriyalar: til/sertifikat yuqorida, bolalar pastda, fond — Ezgu Amal
+
+---
+Task ID: 7
+Agent: Main agent (Super Z)
+Task: TopBid 7-bosqich — HAQIQIY PUL kutilishi (pending flow), faqat karta, sariq belgi, #bids, alohida topup
+
+Work Log:
+- PENDING TO'LOV OQIMI (eng muhim): Profile.status (pending|active), Bid.status (awaiting|paid|refunded) + Bid.credit (reyting summasi). "O'tkazdim" endi HECH NARSANI tasdiqlamaydi — profil PENDING yaratiladi, reytingda ko'rinmaydi. StarKerak/HumoCardBot pul tushishini xabar qilganda: bid→paid, profil→ACTIVE (reytingga chiqadi) yoki topup→totalBid increment. TEST: profil yaraldi→reytingda YO'Q→pul simulyatsiya→AVTOMATIK 15-o'ringa chiqdi; topup 75k→pul tushdi→4-o'ringa ko'tarildi
+- BOT TO'LOV OLIB TASHLANDI: PaymentModal va VerifyModal endi FAQAT karta (Humo 9860...3608) — real karta vizuali, nusxalash, "pul kutilmoqda" ogohlantirishi bilan; "O'tkazdim" → "To'lov kutilmoqda" ekrani (pul tushmaguncha)
+- TOPUP ALOHIDA: TopupModal — "O'rinni yaxshilash" endi formaga emas, alohida modalga boradi (hozirgi o'rin + profil nomi + pozitsiyalar + summa); profil ma'lumotlari yozilmaydi
+- ANALYTICS FAQAT EGASIGA: AnalyticsPanel endi editToken bilan ko'rinadi; oddiy foydalanuvchiga faqat karta statistikasi (views/clicks)
+- SARIQ BELGI (oltin): VerifyBadge — brend sariq muhr rasmi + #b45f14/#fff3df ranglar; "ko'k belgi" matnlari "oltin" ga o'zgartirildi (4 til); verify section oltin gradient; awaiting ("To'lov kutilmoqda") va pending ("Hujjat kutilmoqda") holatlari
+- ADMIN: parol TOPBID!2026 (.env + default), kirish #bids hash, "Demo parol" yozuvi OLIB TASHLANDI; yangi "Pul kutilmoqda" bo'limi (pending profillar); To'lovlar bo'limi; admin API endi barcha profillar (pending ham) qaytaradi
+- Verifikatsiya: pul tushmaguncha "awaiting" (To'lov kutilmoqda) → pul tushdi → "pending" (hujjat kutilmoqda) → admin approve → verified
+- Match logikasi: avval awaiting bid (±500), keyin awaiting verification; dubl himoya; activated flag
+
+Stage Summary:
+- To'lov endi 100% haqiqiy: "O'tkazdim" faqat e'lon, PUL TUSHISHI (StarKerak) tasdiqlaydi — reyting, topup, verifikatsiya hammasi
+- Test: profil pending→pul→15-o'rin; topup→pul→4-o'rin; admin #bids/TOPBID!2026 ishlaydi; demo yozuv yo'q
+- Sariq oltin belgi izchil (badge, section, matnlar); analytics faqat egasiga

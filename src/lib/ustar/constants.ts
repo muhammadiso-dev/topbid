@@ -360,4 +360,4 @@ export function initials(name: string): string {
 }
 
 /** Admin demo paroli (.env ADMIN_PASSWORD bilan almashtiriladi) */
-export const ADMIN_PASSWORD_DEFAULT = "ustar2024";
+export const ADMIN_PASSWORD_DEFAULT = "TOPBID!2026";

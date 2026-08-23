@@ -17,7 +17,7 @@ import type { Lang } from "@/lib/ustar/i18n/constants-lang";
 /**
  * TopBid — ta'lim va IT mutaxassislar reyting platformasi.
  * Barcha "sahifalar" client-side view-lar sifatida bitta routeda ishlaydi.
- * Admin panel: ochiq havolada ko'rinmaydi — faqat #admin hash orqali.
+ * Admin panel: ochiq havolada ko'rinmaydi — faqat #bids hash orqali.
  */
 export default function TopBidApp() {
   const view = useUstarStore((s) => s.view);
@@ -32,10 +32,10 @@ export default function TopBidApp() {
     }
   }, [setLang]);
 
-  // #admin hash — maxfiy admin kirish
+  // #bids hash — maxfiy admin kirish
   useEffect(() => {
     const checkHash = () => {
-      if (window.location.hash === "#admin") {
+      if (window.location.hash === "#bids") {
         setView({ name: "admin" });
       }
     };
@@ -46,7 +46,7 @@ export default function TopBidApp() {
 
   // Admin'dan chiqsa — hashni tozalash
   useEffect(() => {
-    if (view.name !== "admin" && window.location.hash === "#admin") {
+    if (view.name !== "admin" && window.location.hash === "#bids") {
       history.replaceState(null, "", window.location.pathname);
     }
   }, [view]);

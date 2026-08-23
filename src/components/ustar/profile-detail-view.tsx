@@ -33,6 +33,7 @@ import { VerifyModal } from "./verify-modal";
 import { AnalyticsPanel } from "./analytics-panel";
 import { EditModal } from "./edit-modal";
 import { ClaimModal } from "./claim-modal";
+import { TopupModal } from "./topup-modal";
 import { getEditTokens, saveEditToken } from "@/lib/ustar/store";
 import { useUstarStore, getSessionId } from "@/lib/ustar/store";
 import {
@@ -58,6 +59,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [claimOpen, setClaimOpen] = useState(false);
+  const [topupOpen, setTopupOpen] = useState(false);
   const savedToken = getEditTokens()[profileId] || null;
   const [editToken, setEditToken] = useState<string | null>(savedToken);
 
@@ -241,7 +243,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
           <div className="flex items-center gap-1.5 flex-wrap">
             <Button
               variant="outline"
-              onClick={() => openAddForm(profile.position)}
+              onClick={() => setTopupOpen(true)}
               className="h-11 border-[#e8ddd0] text-[#574634] hover:bg-[#fdeedd] hover:text-[#b25e14] hover:border-[#f0d5b8] font-extrabold rounded-lg text-sm"
             >
               <TrendingUp className="w-4 h-4" />
@@ -273,7 +275,17 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
       {/* Verifikatsiya bloki (faqat profil egasi ko'radi) */}
       {editToken && profile.verifyStatus !== "verified" && (
         <section className="mt-4" aria-label="Verifikatsiya">
-          {profile.verifyStatus === "pending" ? (
+          {profile.verifyStatus === "awaiting" ? (
+            <div className="bg-[#fff8ec] border border-[#f0d5b8] rounded-2xl p-4 md:p-5 flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#fff3df] flex items-center justify-center shrink-0">
+                <Clock3 className="w-5 h-5 text-[#b25e14]" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-extrabold text-sm text-[#241c14]">{t("verify.awaitingTitle")}</h3>
+                <p className="text-[13px] text-[#6b5d4d] leading-relaxed mt-1">{t("verify.awaitingDesc")}</p>
+              </div>
+            </div>
+          ) : profile.verifyStatus === "pending" ? (
             <div className="bg-[#fffaf0] border border-[#f0d5b8] rounded-2xl p-4 md:p-5 flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#fff4d6] flex items-center justify-center shrink-0">
                 <Clock3 className="w-5 h-5 text-[#a86a00]" />
@@ -288,10 +300,11 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
               </div>
             </div>
           ) : (
-            <div className="bg-gradient-to-r from-[#e8f2fc] to-[#f0f7ff] border border-[#cbe9f8] rounded-2xl p-4 md:p-5">
+            <div className="bg-gradient-to-r from-[#fff3df] to-[#fffaf0] border border-[#f0d5b8] rounded-2xl p-4 md:p-5">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
-                  <ShieldCheck className="w-5 h-5 text-[#1d7ed8]" />
+                  { }
+                  <img src="/verify-badge-48.png" alt="verify" className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-extrabold text-sm text-[#241c14]">
@@ -302,7 +315,7 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
                   </p>
                   <Button
                     onClick={() => setVerifyOpen(true)}
-                    className="mt-3 bg-[#1d7ed8] hover:bg-[#1769b8] text-white font-extrabold rounded-lg h-10 text-sm active:scale-[0.98] transition-transform"
+                    className="mt-3 bg-[#d97b29] hover:bg-[#c2691f] text-white font-extrabold rounded-lg h-10 text-sm active:scale-[0.98] transition-transform"
                   >
                     <BadgeCheck className="w-4 h-4" />
                     {t("detail.verifyCta")}
@@ -314,10 +327,12 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
         </section>
       )}
 
-      {/* Chuqur analitika */}
-      <section className="mt-6" aria-label={t("analytics.title")}>
-        <AnalyticsPanel profileId={profileId} />
-      </section>
+      {/* Chuqur analitika — FAQAT profil egasiga (editToken bilan) */}
+      {editToken && (
+        <section className="mt-6" aria-label={t("analytics.title")}>
+          <AnalyticsPanel profileId={profileId} />
+        </section>
+      )}
 
       {/* Sharhlar */}
       <section className="mt-6" aria-label="Sharhlar">
@@ -328,6 +343,14 @@ export function ProfileDetailView({ profileId }: { profileId: string }) {
           toast={toast}
         />
       </section>
+
+      {/* O'rinni yaxshilash modali */}
+      <TopupModal
+        open={topupOpen}
+        onOpenChange={setTopupOpen}
+        profile={profile}
+        onDone={() => load(false)}
+      />
 
       {/* Tahrirlash modali */}
       {editToken && (

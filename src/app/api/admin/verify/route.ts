@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     const requestId = String(body?.requestId || "");
     const decision = body?.decision === "approve" ? "approve" : "reject";
     const adminPassword = String(body?.adminPassword || "");
-    const expected = process.env.ADMIN_PASSWORD || "ustar2024";
+    const expected = process.env.ADMIN_PASSWORD || "TOPBID!2026";
     if (adminPassword !== expected) {
       return NextResponse.json({ error: "Admin paroli noto'g'ri" }, { status: 401 });
     }

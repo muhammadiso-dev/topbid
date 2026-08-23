@@ -14,6 +14,7 @@ import {
   Wallet,
   Heart,
   CreditCard,
+  Clock3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,7 @@ interface PaymentLogDTO {
 interface AdminData {
   logs: AdminLogDTO[];
   profiles: ProfileDTO[];
+  pendingProfiles?: ProfileDTO[];
   verifications: VerificationRequestDTO[];
   revenue: { bids: number; verification: number; total: number; charity: number };
   paymentLogs?: PaymentLogDTO[];
@@ -193,7 +195,7 @@ export function AdminView() {
             <ArrowLeft className="w-3.5 h-3.5" />
             {t("admin.backHome")}
           </Button>
-          <p className="text-[10px] text-[#c4b5a1] font-medium mt-4">{t("admin.demoHint")}</p>
+
         </div>
       </div>
     );

@@ -8,6 +8,13 @@ import type { CreateProfileResult } from "@/lib/ustar/types";
 
 export const dynamic = "force-dynamic";
 
+function updatedDTO(p: NonNullable<Awaited<ReturnType<typeof db.profile.findUnique>>>): import("@/lib/ustar/types").ProfileDTO {
+  return serializeProfile(
+    { ...p, category: { name: "", groupName: "", pool: p.pool, id: p.categoryId }, reviews: [] },
+    0
+  );
+}
+
 /**
  * GET /api/profiles/[id] — profil batafsil + sharhlar.
  */
@@ -56,30 +63,24 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     if (credit <= 0) credit = PRICE.step; // minimal top-up
     const paid = payableAmount(credit, promo.active);
 
-    await db.$transaction([
-      db.bid.create({ data: { profileId: id, amount: paid, status: "paid" } }),
-      db.profile.update({
-        where: { id },
-        data: { totalBid: { increment: credit }, lastBidAt: new Date() },
-      }),
-    ]);
-
-    const newRanked = await getRankedProfiles();
-    const updated = newRanked.find((p) => p.id === id);
+    // AWAITING: pul tushishi bilan totalBid increment qilinadi (StarKerak)
+    await db.bid.create({
+      data: { profileId: id, amount: paid, credit, status: "awaiting" },
+    });
 
     await notifyAdmin(
-      "topup",
-      `💰 Summa qo'shildi: ${profile.name} — to'langan ${formatSom(paid)}${promo.active ? " (aksiya -50%)" : ""}\nReyting summasi: +${formatSom(credit)} • Yangi o'rin: ${updated?.position}`,
+      "topup_awaiting",
+      `⏳ Kutilmoqda: ${profile.name} — ${formatSom(paid)} pul kutilmoqda (top-up ${formatSom(credit)}).\nPul tushishi bilan avtomatik qo'shiladi.`,
       id
     );
 
     const result: CreateProfileResult = {
       ok: true,
       mode: "topup",
-      profile: updated!,
-      position: updated?.position ?? targetPosition,
+      profile: updatedDTO(profile),
+      position: targetPosition,
       amount: paid,
-      message: `To'lovingiz qabul qilindi — hozir ${updated?.position ?? targetPosition}-o'rindasiz!`,
+      message: `To'lov qabul qilindi! Kartaga o'tkazing: pul tushishi bilan o'rningiz avtomatik yangilanadi.`,
     };
     return NextResponse.json(result);
   } catch (e) {
@@ -97,7 +98,7 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
     const { id } = await ctx.params;
     const body = await req.json().catch(() => ({}));
     const adminPassword = String(body?.adminPassword || "");
-    const expected = process.env.ADMIN_PASSWORD || "ustar2024";
+    const expected = process.env.ADMIN_PASSWORD || "TOPBID!2026";
     if (adminPassword !== expected) {
       return NextResponse.json({ error: "Admin paroli noto'g'ri" }, { status: 401 });
     }

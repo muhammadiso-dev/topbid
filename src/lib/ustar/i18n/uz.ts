@@ -192,9 +192,8 @@ export const uz: Record<string, string> = {
   "pay.back": "Orqaga",
 
   // Verify modal
-  "verify.title": "\"Tekshirilgan\" profil belgisi",
-  "verify.subtitle": "Profilingizga ko'k belgi oling va ishonchni oshiring",
-  "verify.benefit1": "Profilingizda ko'k «Tekshirilgan» belgisi doimiy ko'rinadi",
+  "verify.subtitle": "Profilingizga oltin belgi oling va ishonchni oshiring",
+  "verify.benefit1": "Profilingizda oltin «Tekshirilgan» belgisi doimiy ko'rinadi",
   "verify.benefit2": "Tekshirilgan proflarga mijozlar 2-3 barobar ko'proq ishonch qiladi",
   "verify.benefit3": "Sharhlaringiz yonida ham tasdiq belgisi paydo bo'ladi",
   "verify.howTitle": "Qanday ishlaydi?",
@@ -221,7 +220,7 @@ export const uz: Record<string, string> = {
   "detail.individual": "Individual repetitor",
   "detail.pendingTitle": "Verifikatsiya ko'rib chiqilmoqda",
   "detail.pendingDesc":
-    "So'rovingiz admin da. Hujjatlaringiz tekshirilgach, profilingizda ko'k «Tekshirilgan» belgisi paydo bo'ladi (odatda 24 soat ichida).",
+    "So'rovingiz admin da. Hujjatlaringiz tekshirilgach, profilingizda oltin «Tekshirilgan» belgisi paydo bo'ladi (odatda 24 soat ichida).",
   "detail.getCta": "\"Tekshirilgan\" profil bo'ling",
   "detail.getDesc":
     "Ko'k belgi mijozlar ishonchini 2-3 barobar oshiradi. Diplom yoki litsenziyani tasdiqlang — bir martalik to'lov.",
@@ -287,7 +286,7 @@ export const uz: Record<string, string> = {
     "To'lovlar bot orqali, yangi profil va verifikatsiya haqida admin guruhga avtomatik xabar boradi.",
   "about.f3": "Tekshirilgan profil",
   "about.f3Desc":
-    "Diplom yoki litsenziyani tasdiqlagan profillar ko'k «Tekshirilgan» belgisini oladi — mijozlar ishonchi 2-3 barobar oshadi.",
+    "Diplom yoki litsenziyani tasdiqlagan profillar oltin «Tekshirilgan» belgisini oladi — mijozlar ishonchi 2-3 barobar oshadi.",
   "about.faqTitle": "Ko'p so'raladigan savollar",
   "about.faq1q": "Reytingda qanday yuqoriga chiqaman?",
   "about.faq1a":
@@ -371,7 +370,6 @@ export const uz: Record<string, string> = {
   "admin.denied": "Kirish rad etildi",
   "admin.deniedDesc": "Admin paroli noto'g'ri",
   "admin.backHome": "Bosh sahifaga qaytish",
-  "admin.demoHint": "Demo parol: ustar2024 (.env orqali o'zgartiriladi)",
   "admin.panelSubtitle": "Profillar, verifikatsiya va bildirishnomalar",
   "admin.refresh": "Yangilash",
   "admin.statProfiles": "Profillar",
@@ -507,4 +505,16 @@ export const uz: Record<string, string> = {
   "charity.verify50": "Verifikatsiya to'lovlarining 50% xayriyaga ketadi",
   "charity.rates": "O'rin to'lovlaridan 10% · Verifikatsiyadan 50%",
   "charity.donate": "Fondga bepul xayriya qilish",
+  "pay.awaitingTitle": "To'lov kutilmoqda",
+  "pay.awaitingDesc": "Profilingiz yaratildi! Kartaga o'tkazing — pul tushishi bilan avtomatik reytingga chiqadi (odatda 1-2 daqiqa). Hech narsa bosishingiz shart emas.",
+  "pay.awaitingBadge": "pul kutilmoqda",
+  "pay.awaitingNote": "Diqqat: «O'tkazdim» bosilgach ham profil darhol chiqmaydi — pul karta hisobingizga tushishi bilan avtomatik reytingga chiqadi.",
+  "verify.awaitingTitle": "To'lov kutilmoqda",
+  "verify.awaitingDesc": "Kartaga o'tkazing — pul tushishi bilan verifikatsiya jarayoni avtomatik boshlanadi va admin hujjatlarni so'raydi.",
+  "card.awaiting": "To'lov kutilmoqda",
+  "card.pending": "Hujjat kutilmoqda",
+  "topup.title": "O'rinni yaxshilash",
+  "topup.desc": "Yangi o'rin tanlang — pul tushishi bilan o'rningiz avtomatik yangilanadi",
+  "topup.currentRank": "Hozirgi o'rin",
+  "verify.title": "«Tekshirilgan» oltin belgi",
 };

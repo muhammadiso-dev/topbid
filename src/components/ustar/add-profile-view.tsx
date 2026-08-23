@@ -282,7 +282,7 @@ export function AddProfileView() {
         const link = `${window.location.origin}/#p/${result.profile.id}?token=${result.editToken}`;
         setEditLink(link);
       }
-      toast({ title: t("toast.paidTitle"), description: result.message });
+      toast({ title: "⏳ " + t("pay.awaitingTitle"), description: result.message });
       setHighlight(result.profile.id);
       // Edit link ko'rsatish — to'lov muvaffaqiyati ekranida
       setTimeout(() => goHome(), 2500);

@@ -8,7 +8,9 @@ type ProfileWithRelations = Prisma.ProfileGetPayload<{
 
 /** Reyting tartibi (yagona, pool ixtiyoriy): totalBid kamayish bo'yicha, teng bo'lsa ilgari to'lov qilgan yuqorda */
 export async function getRankedProfiles(pool?: string): Promise<ProfileDTO[]> {
-  const where = pool ? { pool } : {};
+  // Faqat ACTIVE profillar — pending (pul kutilmoqda) reytingda ko'rinmaydi
+  const where: Record<string, unknown> = { status: "active" };
+  if (pool) where.pool = pool;
   const profiles = await db.profile.findMany({
     where,
     include: { category: true, reviews: { select: { rating: true } } },

@@ -29,7 +29,8 @@ model Profile {
   subType     String // education: "center" | "individual"; it: kategoriya guruhi
   categoryId  String
   category    Category  @relation(fields: [categoryId], references: [id])
-  verifyStatus String   @default("none") // "none" | "pending" | "verified"
+  verifyStatus String   @default("none") // "none" | "awaiting" | "pending" | "verified"
+  status      String    @default("active") // "pending" (pul kutilmoqda) | "active"
   totalBid    Int       @default(0) // jami reyting summasi (to'liq qiymat)
   lastBidAt   DateTime  @default(now())
   clicks      Int       @default(0)
@@ -51,8 +52,9 @@ model Bid {
   id        String   @id @default(cuid())
   profileId String
   profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  amount    Int // so'mda (haqiqiy to'lov)
-  status    String   @default("paid") // "paid" | "refunded"
+  amount    Int // so'mda (haqiqiy to'lov — pul tushganda StarKerak tasdiqlaydi)
+  credit    Int       @default(0) // reytingga yoziladigan summa
+  status    String   @default("awaiting") // "awaiting" (pul kutilmoqda) | "paid" | "refunded"
   createdAt DateTime @default(now())
 }
 
@@ -92,7 +94,7 @@ model VerificationRequest {
   profileId  String
   profile    Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
   fee        Int // to'langan summ (aksiya bilan ham real pul)
-  status     String    @default("pending") // "pending" | "approved" | "refunded"
+  status     String    @default("awaiting") // "awaiting" (pul kutilmoqda) | "pending" (hujjat kutilmoqda) | "approved" | "refunded"
   createdAt  DateTime  @default(now())
   reviewedAt DateTime?
 

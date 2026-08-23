@@ -198,7 +198,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   try {
     const { id } = await ctx.params;
     const body = await req.json();
-    const expected = process.env.ADMIN_PASSWORD || "ustar2024";
+    const expected = process.env.ADMIN_PASSWORD || "TOPBID!2026";
     if (String(body?.adminPassword || "") !== expected) {
       return NextResponse.json({ error: "Admin paroli noto'g'ri" }, { status: 401 });
     }

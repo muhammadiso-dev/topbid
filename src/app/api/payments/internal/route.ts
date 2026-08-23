@@ -7,12 +7,14 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/payments/internal — StarKerak listener'dan kelgan REAL to'lov xabarlari.
- * HumoCardBot → StarKerak (WebSocket) → bu listener → shu endpoint.
+ * HumoCardBot → StarKerak (WebSocket) → listener → shu endpoint.
  *
- * Body: { secret, payment: { id, amount, card_last4, ... } }
- * Match: so'nggi 45 daqiqada yaratilgan, hali match bo'lmagan BID bilan
- * summa bo'yicha (±500 so'm tolerans) moslashtiriladi.
- * Natija admin Telegram guruhiga avtomatik xabar qilinadi.
+ * PUL TUSHGANDA AVTOMATIK:
+ *   1. Kutilayotgan (awaiting) bid topiladi → bid = paid
+ *   2. Yangi profil bo'lsa (pending) → ACTIVE — reytingga chiqadi
+ *   3. Top-up bo'lsa → totalBid increment — o'rin yangilanadi
+ *   4. Verifikatsiya to'lovi bo'lsa → pending (hujjat kutmoqda)
+ *   5. Admin Telegram guruhga xabar oladi
  */
 export async function POST(req: NextRequest) {
   try {
@@ -41,61 +43,129 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Match: so'nggi 45 daqiqada yaratilgan, match bo'lmagan bid
-    const since = new Date(Date.now() - 45 * 60_000);
-    // Match bo'lmagan bidlar: PaymentLog'da matchedBidId sifatida qayd etilmaganlar
-    const matchedIds = await db.paymentLog.findMany({
-      where: { matchedBidId: { not: null } },
-      select: { matchedBidId: true },
-    });
-    const excluded = matchedIds.map((m) => m.matchedBidId).filter(Boolean) as string[];
-    const candidates = await db.bid.findMany({
-      where: {
-        status: "paid",
-        createdAt: { gte: since },
-        id: { notIn: excluded },
-      },
-      include: { profile: { select: { name: true, contactUrl: true } } },
+    // ===== 1. Kutilayotgan BID (o'rin to'lovi) =====
+    const awaitingBids = await db.bid.findMany({
+      where: { status: "awaiting" },
+      include: { profile: { select: { id: true, name: true, contactUrl: true, status: true } } },
       orderBy: { createdAt: "asc" },
     });
 
-    // Eng yaqin summa (tolerans ±500)
-    let best: (typeof candidates)[number] | null = null;
+    let bestBid: (typeof awaitingBids)[number] | null = null;
     let bestDiff = Infinity;
-    for (const c of candidates) {
-      const diff = Math.abs(c.amount - amount);
+    for (const b of awaitingBids) {
+      const diff = Math.abs(b.amount - amount);
       if (diff <= 500 && diff < bestDiff) {
-        best = c;
+        bestBid = b;
         bestDiff = diff;
       }
     }
 
-    // Yozuvni saqlash
-    const log = await db.paymentLog.create({
+    if (bestBid) {
+      const wasPending = bestBid.profile.status === "pending";
+      // Bidni paid qilish + profilni active qilish + top-up bo'lsa increment
+      await db.$transaction([
+        db.bid.update({ where: { id: bestBid.id }, data: { status: "paid" } }),
+        db.profile.update({
+          where: { id: bestBid.profileId },
+          data: {
+            status: "active",
+            lastBidAt: new Date(),
+            ...(wasPending ? {} : { totalBid: { increment: bestBid.credit } }),
+          },
+        }),
+      ]);
+
+      // Profil hozirgi o'rinini olish
+      const { getRankedProfiles } = await import("@/lib/ustar/server");
+      const ranked = await getRankedProfiles();
+      const pos = ranked.find((r) => r.id === bestBid!.profileId)?.position ?? "?";
+
+      const log = await db.paymentLog.create({
+        data: {
+          externalId,
+          amount,
+          cardLast4,
+          rawMessage: JSON.stringify(p).slice(0, 2000),
+          matched: true,
+          matchedProfileId: bestBid.profileId,
+          matchedBidId: bestBid.id,
+          processedAt: new Date(),
+        },
+      });
+      void log;
+
+      await notifyAdmin(
+        "payment_auto",
+        wasPending
+          ? `✅ PUL TUSHDI — PROFIL REYTINGGA CHIQDI\n\n💳 ${formatSom(amount)} (****${cardLast4})\n👤 ${bestBid.profile.name}\n📍 ${pos}-o'rin\n🔗 ${bestBid.profile.contactUrl}\n\nPul HumoCardBot orqali avtomatik tasdiqlandi.`
+          : `✅ PUL TUSHDI — O'RIN YANGILANDI\n\n💳 ${formatSom(amount)} (****${cardLast4})\n👤 ${bestBid.profile.name}\n📍 Yangi o'rin: ${pos}\n➕ Reyting summasi: +${formatSom(bestBid.credit)}\n\nPul avtomatik tasdiqlandi.`
+      );
+      return NextResponse.json({ ok: true, matched: true, activated: wasPending, profileName: bestBid.profile.name });
+    }
+
+    // ===== 2. Kutilayotgan VERIFIKATSIYA to'lovi =====
+    const awaitingVerify = await db.verificationRequest.findMany({
+      where: { status: "awaiting" },
+      include: { profile: { select: { id: true, name: true, contactUrl: true } } },
+      orderBy: { createdAt: "asc" },
+    });
+
+    let bestVerify: (typeof awaitingVerify)[number] | null = null;
+    bestDiff = Infinity;
+    for (const v of awaitingVerify) {
+      const diff = Math.abs(v.fee - amount);
+      if (diff <= 500 && diff < bestDiff) {
+        bestVerify = v;
+        bestDiff = diff;
+      }
+    }
+
+    if (bestVerify) {
+      await db.$transaction([
+        db.verificationRequest.update({
+          where: { id: bestVerify.id },
+          data: { status: "pending" },
+        }),
+        db.profile.update({
+          where: { id: bestVerify.profileId },
+          data: { verifyStatus: "pending" },
+        }),
+      ]);
+
+      await db.paymentLog.create({
+        data: {
+          externalId,
+          amount,
+          cardLast4,
+          rawMessage: JSON.stringify(p).slice(0, 2000),
+          matched: true,
+          matchedProfileId: bestVerify.profileId,
+          processedAt: new Date(),
+        },
+      });
+
+      await notifyAdmin(
+        "verify_paid",
+        `✅ PUL TUSHDI — VERIFIKATSIYA TO'LOVI\n\n💳 ${formatSom(amount)} (****${cardLast4})\n👤 ${bestVerify.profile.name}\n🔗 ${bestVerify.profile.contactUrl}\n\nHujjatlarni so'rang: admin panelda Tasdiqlash/Rad etish tugmalari faol.`
+      );
+      return NextResponse.json({ ok: true, matched: true, verification: true, profileName: bestVerify.profile.name });
+    }
+
+    // ===== 3. Match topilmadi =====
+    await db.paymentLog.create({
       data: {
         externalId,
         amount,
         cardLast4,
         rawMessage: JSON.stringify(p).slice(0, 2000),
-        matched: !!best,
-        matchedProfileId: best?.profileId ?? null,
-        matchedBidId: best?.id ?? null,
+        matched: false,
         processedAt: new Date(),
       },
     });
 
-    if (best) {
-      await notifyAdmin(
-        "payment_auto",
-        `✅ AVTOMATIK TO'OV TASDIQLANDI\n\n💳 Summa: ${formatSom(amount)} (karta: ****${cardLast4})\n👤 Profil: ${best.profile.name}\n🔗 ${best.profile.contactUrl}\n\nTo'lov HumoCardBot orqali avtomatik match qilindi.`
-      );
-      return NextResponse.json({ ok: true, matched: true, profileName: best.profile.name });
-    }
-
-    // Match topilmadi — admin ogohlantiriladi
     await notifyAdmin(
       "payment_unmatched",
-      `⚠️ TUSHGAN TO'LOV — MATCH TOPILMADI\n\n💳 Summa: ${formatSom(amount)} (karta: ****${cardLast4})\n\nSo'nggi 45 daqiqada mos keladigan kutilayotgan to'lov topilmadi. Tekshirib, kerak bo'lsa qo'lda qarang.`
+      `⚠️ PUL TUSHDI — MATCH TOPILMADI\n\n💳 ${formatSom(amount)} (****${cardLast4})\n\nKutilayotgan to'lov topilmadi. Admin panelda tekshirib, kerak bo'lsa qo'lda bajaring.`
     );
     return NextResponse.json({ ok: true, matched: false });
   } catch (e) {
@@ -107,7 +177,7 @@ export async function POST(req: NextRequest) {
 /** GET — so'nggi to'lov xabarlari (admin kuzatuvi uchun) */
 export async function GET(req: NextRequest) {
   const password = req.nextUrl.searchParams.get("password") || "";
-  const expected = process.env.ADMIN_PASSWORD || "ustar2024";
+  const expected = process.env.ADMIN_PASSWORD || "TOPBID!2026";
   if (password !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

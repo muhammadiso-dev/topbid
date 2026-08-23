@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getRankedProfiles, computeRevenue } from "@/lib/ustar/server";
+import { computeRevenue, serializeProfile } from "@/lib/ustar/server";
 import type { AdminLogDTO, VerificationRequestDTO } from "@/lib/ustar/types";
 
 export const dynamic = "force-dynamic";
@@ -11,13 +11,26 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: NextRequest) {
   const password = req.nextUrl.searchParams.get("password") || "";
-  const expected = process.env.ADMIN_PASSWORD || "ustar2024";
+  const expected = process.env.ADMIN_PASSWORD || "TOPBID!2026";
   if (password !== expected) {
     return NextResponse.json({ error: "Admin paroli noto'g'ri" }, { status: 401 });
   }
-  const [logs, profiles, verifications, revenue, paymentLogs] = await Promise.all([
+  // Admin BARCHA profillarni ko'radi (pending — pul kutilmoqda ham)
+  const allProfiles = await db.profile.findMany({
+    include: { category: true, reviews: { select: { rating: true } } },
+    orderBy: [{ totalBid: "desc" }, { lastBidAt: "asc" }],
+  });
+  const rankedActive = allProfiles.filter((p) => p.status === "active");
+  const profiles = rankedActive.map((p, i) =>
+    serializeProfile(p, i + 1)
+  );
+  // Pending profillar alohida
+  const pendingProfiles = allProfiles
+    .filter((p) => p.status === "pending")
+    .map((p) => serializeProfile(p, 0));
+
+  const [logs, verifications, revenue, paymentLogs] = await Promise.all([
     db.adminLog.findMany({ orderBy: { createdAt: "desc" }, take: 100 }),
-    getRankedProfiles(),
     db.verificationRequest.findMany({
       orderBy: { createdAt: "desc" },
       take: 100,
@@ -51,5 +64,5 @@ export async function GET(req: NextRequest) {
     matched: p.matched,
     createdAt: p.createdAt.toISOString(),
   }));
-  return NextResponse.json({ logs: logsDto, profiles, verifications: verDto, revenue, paymentLogs: payDto });
+  return NextResponse.json({ logs: logsDto, profiles, pendingProfiles, verifications: verDto, revenue, paymentLogs: payDto });
 }

@@ -13,6 +13,48 @@ import type { CreateProfilePayload, CreateProfileResult } from "@/lib/ustar/type
 
 export const dynamic = "force-dynamic";
 
+/** Yangi yaratilgan profil uchun vaqtinchalik DTO (reytingda hali yo'q) */
+function serializeProfileExisting(p: {
+  id: string;
+  name: string;
+  description: string;
+  city: string;
+  contactUrl: string;
+  imageUrl: string | null;
+  pool: string;
+  subType: string;
+  categoryId: string;
+  verifyStatus: string;
+  totalBid: number;
+  clicks: number;
+  views: number;
+  createdAt: Date;
+  lastBidAt: Date;
+}): import("@/lib/ustar/types").ProfileDTO {
+  return {
+    id: p.id,
+    name: p.name,
+    description: p.description,
+    city: p.city,
+    contactUrl: p.contactUrl,
+    imageUrl: p.imageUrl,
+    pool: p.pool as "education" | "it",
+    subType: p.subType,
+    categoryId: p.categoryId,
+    categoryName: "",
+    categoryGroup: "",
+    verifyStatus: (p.verifyStatus as "none" | "pending" | "verified") ?? "none",
+    totalBid: p.totalBid,
+    clicks: p.clicks,
+    views: p.views,
+    createdAt: p.createdAt.toISOString(),
+    lastBidAt: p.lastBidAt.toISOString(),
+    reviewsCount: 0,
+    avgRating: 0,
+    position: 0,
+  };
+}
+
 /**
  * GET /api/profiles — YAGONA reyting (ta'lim + IT birga) + aksiya holati.
  */
@@ -111,7 +153,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(result);
     }
 
-    // --- Yangi profil ---
+    // --- Yangi profil — PENDING (pul tushmaguncha reytingda ko'rinmaydi) ---
     const full = fullPriceForPosition(ranked, pos);
     const paid = payableAmount(full, promo.active);
     const editToken = crypto.randomUUID();
@@ -126,32 +168,30 @@ export async function POST(req: NextRequest) {
         pool,
         subType: st,
         categoryId: category!.id,
-        totalBid: full,
+        totalBid: full, // o'rinni band qiladi; status pending bo'lgani uchun reytingda ko'rinmaydi
         lastBidAt: new Date(),
         editToken,
+        status: "pending",
       },
     });
     await db.bid.create({
-      data: { profileId: profile.id, amount: paid, status: "paid" },
+      data: { profileId: profile.id, amount: paid, credit: full, status: "awaiting" },
     });
 
-    const newRanked = await getRankedProfiles();
-    const created = newRanked.find((p) => p.id === profile.id);
-
     await notifyAdmin(
-      "new_profile",
-      `🆕 Yangi profil: ${name.trim()}\n${category!.groupName ? category!.groupName + " • " : ""}${category!.name} • ${city}\nTo'langan: ${formatSom(paid)}${promo.active ? ` (aksiya -50%, reytingga ${formatSom(full)})` : ""} • ${created?.position ?? "?"}-o'rin\nKontakt: ${normalized}`,
+      "new_profile_awaiting",
+      `⏳ YANGI PROFIL (pul kutilmoqda): ${name.trim()}\n${category!.groupName ? category!.groupName + " • " : ""}${category!.name} • ${city}\nKutilmoqda: ${formatSom(paid)}${promo.active ? ` (aksiya -50%, reytingga ${formatSom(full)})` : ""}\nKontakt: ${normalized}\nPul tushishi bilan avtomatik reytingga chiqadi.`,
       profile.id
     );
 
     const result: CreateProfileResult = {
       ok: true,
       mode: "created",
-      profile: created!,
-      position: created?.position ?? pos,
+      profile: serializeProfileExisting(profile),
+      position: pos,
       amount: paid,
       editToken,
-      message: `Profilingiz reytingga qo'shildi — ${created?.position ?? pos}-o'rindasiz!`,
+      message: `To'lov qabul qilindi! Kartaga ${formatSom(paid)} o'tkazing — pul tushishi bilan profilingiz ${pos}-o'rinda reytingda ko'rinadi.`,
     };
     return NextResponse.json(result);
   } catch (e) {

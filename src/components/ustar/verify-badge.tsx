@@ -2,23 +2,25 @@
 
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/ustar/i18n";
+import { Clock3 } from "lucide-react";
 
 interface VerifyBadgeProps {
-  status: "none" | "pending" | "verified";
+  status: "none" | "awaiting" | "pending" | "verified";
   size?: number;
   withLabel?: boolean;
   className?: string;
 }
 
-/** "Tekshirilgan" belgisi — brend rasmi bilan */
+/** OLTIN "Tekshirilgan" belgisi — brend rasmi (sariq muhr) bilan */
 export function VerifyBadge({ status, size = 16, withLabel = true, className }: VerifyBadgeProps) {
   const { t } = useI18n();
 
+  // ✅ Tekshirilgan — OLTIN muhr (brend rasmi)
   if (status === "verified") {
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1 font-bold text-[#1d7ed8] bg-[#e8f2fc] rounded-full",
+          "inline-flex items-center gap-1 font-bold text-[#b45f14] bg-[#fff3df] rounded-full",
           withLabel ? "px-1.5 py-0.5" : "p-0.5",
           className
         )}
@@ -38,6 +40,25 @@ export function VerifyBadge({ status, size = 16, withLabel = true, className }: 
     );
   }
 
+  // ⏳ To'lov kutilmoqda (verifikatsiya uchun)
+  if (status === "awaiting") {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 text-[#8a6a3a] bg-[#fff8ec] rounded-full",
+          withLabel ? "px-1.5 py-0.5" : "p-0.5",
+          className
+        )}
+        style={withLabel ? { fontSize: Math.max(10, size * 0.65) } : undefined}
+        title={t("card.awaiting")}
+      >
+        <Clock3 className="w-3 h-3 shrink-0" style={{ width: size, height: size }} />
+        {withLabel && t("card.awaiting")}
+      </span>
+    );
+  }
+
+  // 📄 Hujjat kutilmoqda
   if (status === "pending") {
     return (
       <span
@@ -47,13 +68,10 @@ export function VerifyBadge({ status, size = 16, withLabel = true, className }: 
           className
         )}
         style={withLabel ? { fontSize: Math.max(10, size * 0.65) } : undefined}
-        title={t("card.verifiedPending")}
+        title={t("card.pending")}
       >
-        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-        {withLabel && t("card.verifiedPending")}
+        <Clock3 className="shrink-0" style={{ width: size, height: size }} />
+        {withLabel && t("card.pending")}
       </span>
     );
   }

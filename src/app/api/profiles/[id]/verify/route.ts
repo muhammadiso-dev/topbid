@@ -44,14 +44,15 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     const promo = promoInfo();
     const fee = payableAmount(VERIFICATION_FEE, promo.active);
 
+    // AWAITING: pul tushishi bilan (StarKerak) "pending" (hujjat kutilmoqda) ga o'tadi
     const request = await db.verificationRequest.create({
-      data: { profileId: id, fee, status: "pending" },
+      data: { profileId: id, fee, status: "awaiting" },
     });
-    await db.profile.update({ where: { id }, data: { verifyStatus: "pending" } });
+    await db.profile.update({ where: { id }, data: { verifyStatus: "awaiting" } });
 
     await notifyAdmin(
       "verification",
-      `🛡️ Verifikatsiya so'rovi: ${profile.name}\nTo'lov: ${formatSom(fee)}${promo.active ? " (aksiya -50%)" : ""}\nKontakt: ${profile.contactUrl}\nHujjatlarni tekshirib, panelda tasdiqlang yoki rad eting.`,
+      `⏳ Verifikatsiya to'lovi KUTILMOQDA: ${profile.name}\nSumma: ${formatSom(fee)}${promo.active ? " (aksiya -50%)" : ""}\nKontakt: ${profile.contactUrl}\nPul tushishi bilan hujjatlar so'raladi.`,
       id
     );
 
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       ok: true,
       requestId: request.id,
       fee,
-      message: "So'rovingiz yuborildi! Admin 24 soat ichida ko'rib chiqadi.",
+      message: "To'lov kutilmoqda! Kartaga o'tkazing — pul tushishi bilan verifikatsiya jarayoni boshlanadi.",
     });
   } catch (e) {
     console.error("Verifikatsiya so'rovida xato:", e);

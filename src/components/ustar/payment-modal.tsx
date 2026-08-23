@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { formatSom } from "@/lib/ustar/constants";
@@ -47,7 +47,7 @@ export function PaymentModal({
   const [copied, setCopied] = useState(false);
   
   // To'lovlarni unikal qilish uchun summadan -1 dan -99 gacha tasodifiy ayiramiz (agar summa 500 dan katta bo'lsa)
-  const uniqueAmount = React.useMemo(() => {
+  const uniqueAmount = useMemo(() => {
     if (amount <= 500) return amount;
     return amount - (Math.floor(Math.random() * 99) + 1);
   }, [amount]);
